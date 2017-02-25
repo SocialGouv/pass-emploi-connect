@@ -1,0 +1,21 @@
+# Dockerfile for development of yarn-based application
+
+# Use the official image as a parent image
+FROM docker.io/library/node:20
+
+# Set the working directory
+WORKDIR /usr/src/app
+ENV YARN_CACHE_FOLDER=/cache/yarn
+
+# Copy yarn.lock and package.json to the working directory, with cache
+COPY yarn.lock package.json ./
+RUN --mount=type=cache,target=/cache/yarn \
+    yarn install
+
+RUN npm i -g pino-pretty
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY . .
+
+# Run the command inside your image filesystem
+CMD ["yarn", "start:debug"]

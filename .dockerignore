@@ -1,0 +1,7 @@
+node_modules
+dist
+LICENSE.md
+README.md
+
+.idea
+.vscode
