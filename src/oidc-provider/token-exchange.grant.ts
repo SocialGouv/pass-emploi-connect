@@ -58,7 +58,7 @@ export const handler: TokenExchangeHandler =
 
     ctx.body = {
       issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-      access_token: 'accessToken',
+      access_token: 'un-access-token',
       token_type: 'bearer',
       expires_in: 3600,
 

@@ -7,7 +7,10 @@ export const configurationSchema = Joi.object({
     url: Joi.string().required()
   }).required(),
   clients: Joi.object({
-    web: Joi.object({ secret: Joi.string().required() }).required()
+    web: Joi.object({
+      secret: Joi.string().required(),
+      callback: Joi.string().required()
+    }).required()
   }).required(),
   ressourceServer: Joi.object({
     url: Joi.string().required(),

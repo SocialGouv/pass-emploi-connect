@@ -13,7 +13,8 @@ export default () => {
     },
     clients: {
       web: {
-        secret: process.env.CLIENT_WEB_SECRET
+        secret: process.env.CLIENT_WEB_SECRET,
+        callback: process.env.CLIENT_WEB_CALLBACK
       }
     },
     ressourceServer: {

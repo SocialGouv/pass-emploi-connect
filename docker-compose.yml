@@ -16,9 +16,7 @@ services:
       - '9229:9229' # NodeJS debugger
     environment:
       PORT: 5000
-      PUBLIC_ADDRESS: https://id.pass-emploi.incubateur.net
       DATABASE_URL: postgresql://passemploi:passemploi@db/passemploidb
-      REDIS_URL: redis://:myredispassword@redis:6379/0
       LOG_LEVEL: trace
       VIRTUAL_HOST: id.pass-emploi.incubateur.net
       VIRTUAL_PORT: 5000

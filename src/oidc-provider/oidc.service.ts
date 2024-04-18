@@ -25,6 +25,7 @@ export class OidcService {
     @Inject(RedisInjectionToken) private readonly redisClient: Redis
   ) {
     const oidcPort = this.configService.get<string>('publicAddress')!
+    const clients = this.configService.get('clients')
 
     this.logger = new Logger('OIDC Service')
     this.logger.log('OIDC Service loading')
@@ -37,16 +38,13 @@ export class OidcService {
           client_id: 'foo',
           client_secret: 'bar',
           redirect_uris: [`${oidcPort}/cb`],
-          grant_types: [
-            'authorization_code',
-            'urn:ietf:params:oauth:grant-type:token-exchange'
-          ], //  'implicit'
+          grant_types: ['authorization_code', tokenExchangeGrant], //  'implicit'
           response_types: ['code'] // 'code id_token'
         },
         {
           client_id: 'pass-emploi-web',
-          client_secret: this.configService.get('clients.web.secret'),
-          redirect_uris: [`http://localhost:3000/api/auth/callback/keycloak`],
+          client_secret: clients.web.secret,
+          redirect_uris: [clients.web.callback],
           grant_types: ['authorization_code'],
           response_types: ['code']
         }
@@ -134,10 +132,10 @@ export class OidcService {
         userinfo: { enabled: true },
         resourceIndicators: {
           enabled: true,
-          defaultResource: () => 'https://api.pass-emploi.incubateur.net',
+          defaultResource: () => this.configService.get('ressourceServer.url')!,
           useGrantedResource: () => true,
           getResourceServerInfo: () => ({
-            scope: 'openid email profile',
+            scope: this.configService.get('ressourceServer.scopes')!,
             accessTokenFormat: 'jwt'
           })
         }
@@ -151,15 +149,17 @@ export class OidcService {
           const connector = `${ctx.request.query.kc_idp_hint}`
 
           switch (connector) {
-            case 'milo-jeune':
+            case 'similo-jeune':
               return `/milo-jeune/connect/${interaction.uid}`
             case 'similo-conseiller':
               return `/milo-conseiller/connect/${interaction.uid}`
-            case 'francetravail-jeune':
+            case 'pe-jeune':
               return `/francetravail-jeune/connect/${interaction.uid}`
-            case 'francetravail-brsa':
+            case 'pe-brsa-jeune':
               return `/francetravail-brsa/connect/${interaction.uid}`
             case 'pe-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}`
+            case 'pe-brsa-conseiller':
               return `/francetravail-conseiller/connect/${interaction.uid}`
             default:
               return `/choice/${interaction.uid}`
