@@ -84,6 +84,7 @@ export class FrancetravailConseillerService {
     const { grantId } = interactionDetails
     const newGrantId = await generateNewGrantId(
       this.configService,
+      this.oidcService,
       accountId,
       grantId
     )
