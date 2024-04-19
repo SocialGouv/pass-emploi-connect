@@ -9,9 +9,9 @@ import Redis from 'ioredis'
 import { User } from '../domain/user'
 import { Account } from '../domain/account'
 import {
-  grantType as tokenExchangeGrant,
+  grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters,
-  handler as tokenExchangeHandler
+  TokenExchangeGrant
 } from './token-exchange.grant'
 
 @Injectable()
@@ -22,7 +22,8 @@ export class OidcService {
   constructor(
     private configService: ConfigService,
     @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
-    @Inject(RedisInjectionToken) private readonly redisClient: Redis
+    @Inject(RedisInjectionToken) private readonly redisClient: Redis,
+    private readonly tokenExchangeGrant: TokenExchangeGrant
   ) {
     const oidcPort = this.configService.get<string>('publicAddress')!
     const clients = this.configService.get('clients')
@@ -38,7 +39,7 @@ export class OidcService {
           client_id: 'foo',
           client_secret: 'bar',
           redirect_uris: [`${oidcPort}/cb`],
-          grant_types: ['authorization_code', tokenExchangeGrant], //  'implicit'
+          grant_types: ['authorization_code', tokenExchangeGrantType], //  'implicit'
           response_types: ['code'] // 'code id_token'
         },
         {
@@ -174,8 +175,8 @@ export class OidcService {
     // })
 
     this.oidc.registerGrantType(
-      tokenExchangeGrant,
-      tokenExchangeHandler,
+      tokenExchangeGrantType,
+      this.tokenExchangeGrant.handler,
       tokenExchangeParameters
     )
     this.oidc.proxy = true

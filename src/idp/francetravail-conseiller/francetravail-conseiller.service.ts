@@ -7,6 +7,7 @@ import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { InteractionResults } from 'oidc-provider'
 import { generateNewGrantId } from '../utils'
+import { TokenService } from '../../infrastructure/services/token.service'
 
 @Injectable()
 export class FrancetravailConseillerService {
@@ -28,7 +29,8 @@ export class FrancetravailConseillerService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly oidcService: OidcService
+    private readonly oidcService: OidcService,
+    private readonly tokenRepository: TokenService
   ) {
     this.logger = new Logger('FrancetravailConseillerService')
 
@@ -71,14 +73,33 @@ export class FrancetravailConseillerService {
     const tokenSet = await this.client.callback(this.idp.redirectUri, params, {
       nonce: interactionDetails.uid
     })
+
     const userInfo = await this.client.userinfo(tokenSet, {
       params: { realm: this.idp.realm }
     })
 
-    const accountId = Account.generateAccountId(
-      userInfo.sub,
-      User.Type.CONSEILLER,
-      User.Structure.POLE_EMPLOI
+    const userAccount = {
+      sub: userInfo.sub,
+      type: User.Type.CONSEILLER,
+      structure: User.Structure.POLE_EMPLOI
+    }
+    const accountId = Account.generateAccountId(userAccount)
+
+    this.tokenRepository.setToken(
+      userAccount,
+      'access_token',
+      tokenSet.access_token!,
+      tokenSet.expires_in!
+    )
+    const SIX_MONTHS_IN_SECONDS = 3600 * 24 * 30 * 6
+
+    this.tokenRepository.setToken(
+      userAccount,
+      'refresh_token',
+      tokenSet.refresh_token!,
+      tokenSet.refresh_expires_in
+        ? (tokenSet.refresh_expires_in as number)
+        : SIX_MONTHS_IN_SECONDS
     )
 
     const { grantId } = interactionDetails

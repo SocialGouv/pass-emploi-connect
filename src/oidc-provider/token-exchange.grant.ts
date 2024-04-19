@@ -3,6 +3,8 @@ import {
   KoaContextWithOIDC,
   errors as oidcErrors
 } from 'oidc-provider'
+import { TokenService } from '../infrastructure/services/token.service'
+import { Injectable } from '@nestjs/common'
 
 export const gty = 'token_exchange'
 export const grantType = 'urn:ietf:params:oauth:grant-type:token-exchange'
@@ -26,8 +28,15 @@ export type TokenExchangeHandler = (
   next: () => Promise<void>
 ) => CanBePromise<void>
 
-export const handler: TokenExchangeHandler =
-  async function tokenExchangeHandler(ctx, next) {
+@Injectable()
+export class TokenExchangeGrant {
+  // en factory pour qu'on puisse lui donner notre token service
+  constructor(private readonly tokenService: TokenService) {}
+
+  handler: TokenExchangeHandler = async function tokenExchangeHandler(
+    ctx,
+    next
+  ) {
     // Vérifier les paramètres d'input
     // Vérifier la validité de l'accessToken
 
@@ -67,3 +76,4 @@ export const handler: TokenExchangeHandler =
 
     await next()
   }
+}

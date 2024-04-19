@@ -10,6 +10,12 @@ export interface User {
   email: string
 }
 
+export interface UserAccount {
+  sub: string
+  type: User.Type
+  structure: User.Structure
+}
+
 export namespace User {
   export enum Type {
     JEUNE = 'JEUNE',

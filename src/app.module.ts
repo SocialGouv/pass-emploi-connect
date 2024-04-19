@@ -12,6 +12,8 @@ import { OidcProviderModuleProvider } from './oidc-provider/provider'
 import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravail-jeune.module'
 import { FrancetravailConseillerModule } from './idp/francetravail-conseiller/francetravail-conseiller.module'
 import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.module'
+import { TokenService } from './infrastructure/services/token.service'
+import { TokenExchangeGrant } from './oidc-provider/token-exchange.grant'
 
 @Module({
   imports: [
@@ -33,7 +35,9 @@ import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.modu
     RedisProvider,
     RedisClient,
     OidcProviderModuleProvider,
-    OidcService
+    OidcService,
+    TokenService,
+    TokenExchangeGrant
   ],
   exports: [RedisProvider, OidcProviderModuleProvider]
 })

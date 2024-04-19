@@ -1,4 +1,4 @@
-import { User } from './user'
+import { User, UserAccount } from './user'
 
 const separator = '|'
 const typeIndex = 0
@@ -6,15 +6,11 @@ const structureIndex = 1
 const subIndex = 2
 
 export namespace Account {
-  export function generateAccountId(
-    sub: string,
-    type: User.Type,
-    structure: User.Structure
-  ): string {
+  export function generateAccountId(userAccount: UserAccount): string {
     const accountIdArray = []
-    accountIdArray[typeIndex] = type
-    accountIdArray[structureIndex] = structure
-    accountIdArray[subIndex] = sub
+    accountIdArray[typeIndex] = userAccount.type
+    accountIdArray[structureIndex] = userAccount.structure
+    accountIdArray[subIndex] = userAccount.sub
     return accountIdArray.join(separator)
   }
 

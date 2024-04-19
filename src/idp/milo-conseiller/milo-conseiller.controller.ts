@@ -60,11 +60,11 @@ export class MiloConseillerController {
       interactionDetails.uid
     )
 
-    const accountId = Account.generateAccountId(
-      userInfo.sub,
-      User.Type.CONSEILLER,
-      User.Structure.MILO
-    )
+    const accountId = Account.generateAccountId({
+      sub: userInfo.sub,
+      type: User.Type.CONSEILLER,
+      structure: User.Structure.POLE_EMPLOI
+    })
 
     // if (details.missingOIDCScope) {
     //   grant.addOIDCScope(details.missingOIDCScope.join(' '))

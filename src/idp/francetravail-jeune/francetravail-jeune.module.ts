@@ -7,6 +7,9 @@ import { Context } from '../../context'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { OidcProviderModuleProvider } from '../../oidc-provider/provider'
 import { RedisProvider } from '../../infrastructure/redis/redis.provider'
+import { TokenExchangeGrant } from '../../oidc-provider/token-exchange.grant'
+import { TokenService } from '../../infrastructure/services/token.service'
+import { RedisClient } from '../../infrastructure/redis/redis.client'
 
 @Module({
   imports: [ConfigModule],
@@ -15,7 +18,10 @@ import { RedisProvider } from '../../infrastructure/redis/redis.provider'
     Context,
     OidcService,
     OidcProviderModuleProvider,
-    RedisProvider
+    RedisProvider,
+    RedisClient,
+    TokenService,
+    TokenExchangeGrant
   ],
   controllers: [FrancetravailJeuneController]
 })
