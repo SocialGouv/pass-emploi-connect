@@ -7,7 +7,7 @@ import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { InteractionResults } from 'oidc-provider'
 import { generateNewGrantId } from '../utils'
-import { TokenService } from '../../infrastructure/services/token.service'
+import { TokenService } from '../../token/token.service'
 
 @Injectable()
 export class FrancetravailConseillerService {
@@ -30,7 +30,7 @@ export class FrancetravailConseillerService {
   constructor(
     private readonly configService: ConfigService,
     private readonly oidcService: OidcService,
-    private readonly tokenRepository: TokenService
+    private readonly tokenService: TokenService
   ) {
     this.logger = new Logger('FrancetravailConseillerService')
 
@@ -55,7 +55,7 @@ export class FrancetravailConseillerService {
     })
   }
 
-  async getAuthorizationUrl(interactionId: string) {
+  async getAuthorizationUrl(interactionId: string): Promise<string> {
     const authorizationUrl = this.client.authorizationUrl({
       nonce: interactionId,
       realm: this.idp.realm,
@@ -64,7 +64,7 @@ export class FrancetravailConseillerService {
     return authorizationUrl
   }
 
-  async callback(request: Request, response: Response) {
+  async callback(request: Request, response: Response): Promise<void> {
     const interactionDetails = await this.oidcService.interactionDetails(
       request,
       response
@@ -85,7 +85,10 @@ export class FrancetravailConseillerService {
     }
     const accountId = Account.generateAccountId(userAccount)
 
-    this.tokenRepository.setToken(
+    console.debug('THIS FT')
+    console.debug(this)
+
+    this.tokenService.setToken(
       userAccount,
       'access_token',
       tokenSet.access_token!,
@@ -93,7 +96,7 @@ export class FrancetravailConseillerService {
     )
     const SIX_MONTHS_IN_SECONDS = 3600 * 24 * 30 * 6
 
-    this.tokenRepository.setToken(
+    this.tokenService.setToken(
       userAccount,
       'refresh_token',
       tokenSet.refresh_token!,

@@ -44,7 +44,6 @@ export class RedisAdapter implements Adapter {
 
   async upsert(id: string, payload: AdapterPayload, expiresIn: number) {
     try {
-      this.logger.debug('REDIS UPSERT BEGIN')
       const key = this.key(id)
 
       // initialize a new Redis transaction, all commands will be queued for atomic execution
@@ -84,7 +83,6 @@ export class RedisAdapter implements Adapter {
       }
 
       await multi.exec() // execute the transaction, committing the changes
-      this.logger.debug('REDIS UPSERT OK')
     } catch (e) {
       this.logger.debug('REDIS UPSERT ERROR')
       this.logger.debug(e)
@@ -93,7 +91,6 @@ export class RedisAdapter implements Adapter {
 
   async find(id: string): Promise<AdapterPayload | undefined | void> {
     try {
-      this.logger.debug('REDIS FIND BEGIN')
       const data = consumable.has(this.name)
         ? await this.redisClient.hgetall(this.key(id))
         : await this.redisClient.get(this.key(id))
@@ -107,7 +104,6 @@ export class RedisAdapter implements Adapter {
       }
 
       const { payload, ...rest } = data!
-      this.logger.debug('REDIS FIND OK')
       return {
         ...rest,
         ...JSON.parse(payload)

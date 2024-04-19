@@ -1,10 +1,7 @@
-import {
-  CanBePromise,
-  KoaContextWithOIDC,
-  errors as oidcErrors
-} from 'oidc-provider'
-import { TokenService } from '../infrastructure/services/token.service'
-import { Injectable } from '@nestjs/common'
+import { KoaContextWithOIDC, errors as oidcErrors } from 'oidc-provider'
+import { TokenService } from './token.service'
+import { Injectable, Logger } from '@nestjs/common'
+import { User, UserAccount } from '../domain/user'
 
 export const gty = 'token_exchange'
 export const grantType = 'urn:ietf:params:oauth:grant-type:token-exchange'
@@ -23,22 +20,34 @@ export const parameters = new Set([
   'actor_token_type' // optional : probablement inutile
 ])
 
-export type TokenExchangeHandler = (
-  ctx: KoaContextWithOIDC,
-  next: () => Promise<void>
-) => CanBePromise<void>
-
 @Injectable()
 export class TokenExchangeGrant {
-  // en factory pour qu'on puisse lui donner notre token service
-  constructor(private readonly tokenService: TokenService) {}
+  private logger: Logger
 
-  handler: TokenExchangeHandler = async function tokenExchangeHandler(
-    ctx,
-    next
-  ) {
+  constructor(private readonly tokenService: TokenService) {
+    this.logger = new Logger('TokenExchangeGrant')
+  }
+
+  // This approach has the advantage of not creating a new function instance on each call to TokenExchangeGrant.handler, since this will be called a lot, you might want to go with this version to minimize memory allocations.
+  handler = async (
+    ctx: KoaContextWithOIDC,
+    next: () => Promise<void>
+  ): Promise<void> => {
     // Vérifier les paramètres d'input
     // Vérifier la validité de l'accessToken
+
+    //this.logger.debug('Begin token exchange Grant')
+
+    const userAccount: UserAccount = {
+      sub: 'TNAN0480',
+      type: User.Type.CONSEILLER,
+      structure: User.Structure.POLE_EMPLOI
+    }
+
+    const { token } = await this.tokenService.getToken(
+      userAccount,
+      'access_token'
+    )
 
     // const conf = ctx.oidc.provider
 
@@ -67,12 +76,14 @@ export class TokenExchangeGrant {
 
     ctx.body = {
       issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-      access_token: 'un-access-token',
+      access_token: token,
       token_type: 'bearer',
       expires_in: 3600,
 
       scope: 'api:milo'
     }
+
+    this.logger.debug('End token exchange Grant')
 
     await next()
   }

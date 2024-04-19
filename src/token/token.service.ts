@@ -1,17 +1,21 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { RedisClient } from '../redis/redis.client'
-import { UserAccount } from '../../domain/user'
-import { Account } from '../../domain/account'
+import { UserAccount } from '../domain/user'
+import { Account } from '../domain/account'
 
 @Injectable()
 export class TokenService {
-  constructor(private readonly redisClient: RedisClient) {}
+  private readonly logger: Logger
+  constructor(private readonly redisClient: RedisClient) {
+    this.logger = new Logger('TokenService')
+  }
 
   async getToken(
     user: UserAccount,
     tokenType: 'access_token' | 'refresh_token'
   ): Promise<{ token: string }> {
-    this.redisClient.get(tokenType, Account.generateAccountId(user))
+    this.logger.debug('GET TOKEN %j', user)
+    await this.redisClient.get(tokenType, Account.generateAccountId(user))
     return { token: 'test' }
   }
 
@@ -21,7 +25,8 @@ export class TokenService {
     token: string,
     expiresIn: number
   ): Promise<void> {
-    this.redisClient.setWithExpiry(
+    this.logger.debug('SET TOKEN %j', user)
+    await this.redisClient.setWithExpiry(
       tokenType,
       Account.generateAccountId(user),
       token,

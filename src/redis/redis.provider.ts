@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { buildError } from '../../logger.module'
+import { buildError } from '../logger.module'
 
 export const RedisInjectionToken = 'RedisClient'
 

@@ -1,10 +1,10 @@
 import { Logger } from '@nestjs/common'
 import { Inject, Injectable } from '@nestjs/common'
 
-import { RedisAdapter } from '../infrastructure/redis/redis.adapter'
+import { RedisAdapter } from '../redis/redis.adapter'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
 import { ConfigService } from '@nestjs/config'
-import { RedisInjectionToken } from '../infrastructure/redis/redis.provider'
+import { RedisInjectionToken } from '../redis/redis.provider'
 import Redis from 'ioredis'
 import { User } from '../domain/user'
 import { Account } from '../domain/account'
@@ -12,7 +12,7 @@ import {
   grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters,
   TokenExchangeGrant
-} from './token-exchange.grant'
+} from '../token/token-exchange.grant'
 
 @Injectable()
 export class OidcService {

@@ -3,17 +3,11 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { AppController } from './app.controller'
 import configuration from './config/configuration'
-import { RedisProvider } from './infrastructure/redis/redis.provider'
-import { RedisClient } from './infrastructure/redis/redis.client'
-import { configureLoggerModule } from './logger.module'
-import { OidcController } from './oidc-provider/oidc.controller'
-import { OidcService } from './oidc-provider/oidc.service'
-import { OidcProviderModuleProvider } from './oidc-provider/provider'
-import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravail-jeune.module'
 import { FrancetravailConseillerModule } from './idp/francetravail-conseiller/francetravail-conseiller.module'
+import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravail-jeune.module'
 import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.module'
-import { TokenService } from './infrastructure/services/token.service'
-import { TokenExchangeGrant } from './oidc-provider/token-exchange.grant'
+import { configureLoggerModule } from './logger.module'
+import { OidcModule } from './oidc-provider/oidc.module'
 
 @Module({
   imports: [
@@ -30,15 +24,6 @@ import { TokenExchangeGrant } from './oidc-provider/token-exchange.grant'
     FrancetravailConseillerModule,
     MiloConseillerModule
   ],
-  controllers: [AppController, OidcController],
-  providers: [
-    RedisProvider,
-    RedisClient,
-    OidcProviderModuleProvider,
-    OidcService,
-    TokenService,
-    TokenExchangeGrant
-  ],
-  exports: [RedisProvider, OidcProviderModuleProvider]
+  controllers: [AppController]
 })
 export class AppModule {}
