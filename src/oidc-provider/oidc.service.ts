@@ -1,20 +1,18 @@
-import { Logger } from '@nestjs/common'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 
-import { RedisAdapter } from '../redis/redis.adapter'
-import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
 import { ConfigService } from '@nestjs/config'
-import { RedisInjectionToken } from '../redis/redis.provider'
 import Redis from 'ioredis'
-import { User } from '../domain/user'
-import { Account } from '../domain/account'
-import {
-  grantType as tokenExchangeGrantType,
-  parameters as tokenExchangeParameters,
-  TokenExchangeGrant
-} from './token-exchange.grant'
-import { JWK, importPKCS8 } from 'jose'
 import { JWKS } from 'oidc-provider'
+import { Account } from '../domain/account'
+import { User } from '../domain/user'
+import { RedisAdapter } from '../redis/redis.adapter'
+import { RedisInjectionToken } from '../redis/redis.provider'
+import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
+import {
+  TokenExchangeGrant,
+  grantType as tokenExchangeGrantType,
+  parameters as tokenExchangeParameters
+} from './token-exchange.grant'
 
 @Injectable()
 export class OidcService {
@@ -54,9 +52,16 @@ export class OidcService {
           response_types: ['code']
         }
       ],
+      enabledJWA: {
+        idTokenSigningAlgValues: ['ES384']
+      },
       clientDefaults: {
         grant_types: ['authorization_code'],
-        id_token_signed_response_alg: 'RS256',
+        id_token_signed_response_alg: 'ES384',
+        // authorization_signed_response_alg: 'ES384',
+        // token_endpoint_auth_signing_alg: 'ES384',
+        // userinfo_signed_response_alg: 'ES384',
+        // request_object_signing_alg: 'ES384',
         response_types: ['code'],
         token_endpoint_auth_method: 'client_secret_basic'
       },

@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
-import { BaseClient, Issuer } from 'openid-client'
+import { BaseClient, Issuer, TokenSet } from 'openid-client'
 import { Account } from '../../domain/account'
-import { User } from '../../domain/user'
+import { User, UserAccount } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { InteractionResults } from 'oidc-provider'
 import { generateNewGrantId } from '../utils'
@@ -119,5 +119,23 @@ export class FrancetravailConseillerService {
     // TODO PUT Utilisateur
 
     await this.oidcService.interactionFinished(request, response, result)
+  }
+
+  async refresh(userAccount: UserAccount): Promise<TokenSet> {
+    const refreshToken = await this.tokenService.getToken(
+      userAccount,
+      'refresh_token'
+    )
+
+    // pas de refresh => throw error mais on delog pas
+    const tokenSet = await this.client.refresh(refreshToken!.token)
+
+    this.tokenService.setToken(userAccount, 'access_token', {
+      token: tokenSet.access_token!,
+      expiresIn: tokenSet.expires_in,
+      scope: tokenSet.scope
+    })
+
+    return tokenSet
   }
 }

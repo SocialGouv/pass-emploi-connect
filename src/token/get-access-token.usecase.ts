@@ -18,7 +18,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { UserAccount } from '../domain/user'
 import { TokenData, TokenService } from './token.service'
 
-interface Query {
+interface Inputs {
   userAccount: UserAccount
 }
 
@@ -30,12 +30,15 @@ export class GetAccessTokenUsecase {
     this.logger = new Logger('GetAccessTokenUsecase')
   }
 
-  async execute(query: Query): Promise<TokenData | undefined> {
+  async execute(query: Inputs): Promise<TokenData | undefined> {
     try {
       const tokenData = await this.tokenService.getToken(
         query.userAccount,
         'access_token'
       )
+
+      
+
       return tokenData
     } catch (error) {
       return undefined

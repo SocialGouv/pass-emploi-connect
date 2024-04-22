@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config'
 import { RedisClient } from '../redis/redis.client'
 import { RedisProvider } from '../redis/redis.provider'
 import { TokenService } from './token.service'
-import { JWTService } from './jwt.service'
+import { ValidateJWTUsecase } from './verify-jwt.usecase'
 import { GetAccessTokenUsecase } from './get-access-token.usecase'
 
 @Module({
@@ -13,9 +13,14 @@ import { GetAccessTokenUsecase } from './get-access-token.usecase'
     RedisProvider,
     RedisClient,
     TokenService,
-    JWTService,
+    ValidateJWTUsecase,
     GetAccessTokenUsecase
   ],
-  exports: [RedisProvider, TokenService, JWTService, GetAccessTokenUsecase]
+  exports: [
+    RedisProvider,
+    TokenService,
+    ValidateJWTUsecase,
+    GetAccessTokenUsecase
+  ]
 })
 export class TokenModule {}
