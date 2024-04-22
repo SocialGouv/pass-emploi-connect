@@ -3,7 +3,7 @@ import { RedisClient } from '../redis/redis.client'
 import { UserAccount } from '../domain/user'
 import { Account } from '../domain/account'
 
-type TokenData = { token: string; expiresIn?: number; scope?: string }
+export type TokenData = { token: string; expiresIn?: number; scope?: string }
 const ONE_DAY_IN_SECONDS = 3600 * 24
 const SIX_MONTHS_IN_SECONDS = 3600 * 24 * 30 * 6
 

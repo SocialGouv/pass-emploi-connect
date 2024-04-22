@@ -5,7 +5,8 @@ import {
   errors,
   JWTPayload,
   jwtVerify,
-  JWTVerifyGetKey
+  JWTVerifyGetKey,
+  generateKeyPair
 } from 'jose'
 import { Issuer } from 'openid-client'
 
@@ -21,6 +22,8 @@ export class JWTService {
 
   async verifyTokenAndGetJwt(token: string): Promise<JWTPayload> {
     try {
+      const keyPair = await generateKeyPair('ES384')
+      this.logger.debug('######## %j', keyPair)
       return await this.verifyTokenAndGetJwtWithoutRetry(token)
     } catch (error) {
       if (error instanceof errors.JWKSNoMatchingKey) {

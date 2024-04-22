@@ -15,55 +15,30 @@
 // retourne access token, expires in et scope
 
 import { Injectable, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import {
-  createRemoteJWKSet,
-  errors,
-  JWTPayload,
-  jwtVerify,
-  JWTVerifyGetKey
-} from 'jose'
-import { Issuer } from 'openid-client'
+import { UserAccount } from '../domain/user'
+import { TokenData, TokenService } from './token.service'
+
+interface Query {
+  userAccount: UserAccount
+}
 
 @Injectable()
 export class GetAccessTokenUsecase {
   private readonly logger: Logger
 
-  constructor(private readonly configService: ConfigService) {
-    this.logger = new Logger('JWTService')
+  constructor(private readonly tokenService: TokenService) {
+    this.logger = new Logger('GetAccessTokenUsecase')
   }
 
-  private cacheJWKS: JWTVerifyGetKey | undefined
-
-  async verifyTokenAndGetJwt(token: string): Promise<JWTPayload> {
+  async execute(query: Query): Promise<TokenData | undefined> {
     try {
-      return await this.verifyTokenAndGetJwtWithoutRetry(token)
-    } catch (error) {
-      if (error instanceof errors.JWKSNoMatchingKey) {
-        this.cacheJWKS = undefined
-        return this.verifyTokenAndGetJwtWithoutRetry(token)
-      }
-      throw error
-    }
-  }
-
-  private async verifyTokenAndGetJwtWithoutRetry(
-    token: string
-  ): Promise<JWTPayload> {
-    const JWKS = await this.getJWKS()
-    const { payload } = await jwtVerify(token, JWKS)
-    return payload
-  }
-
-  private async getJWKS(): Promise<JWTVerifyGetKey> {
-    if (!this.cacheJWKS) {
-      const issuerUrl = `${this.configService.get('publicAddress')}/oidc/jwks`
-      this.logger.debug(issuerUrl)
-      const issuer = await Issuer.discover(issuerUrl)
-      this.cacheJWKS = createRemoteJWKSet(
-        new URL(new URL(issuer.metadata.jwks_uri!))
+      const tokenData = await this.tokenService.getToken(
+        query.userAccount,
+        'access_token'
       )
+      return tokenData
+    } catch (error) {
+      return undefined
     }
-    return this.cacheJWKS
   }
 }

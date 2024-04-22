@@ -13,11 +13,14 @@ import {
   parameters as tokenExchangeParameters,
   TokenExchangeGrant
 } from './token-exchange.grant'
+import { JWK, importPKCS8 } from 'jose'
+import { JWKS } from 'oidc-provider'
 
 @Injectable()
 export class OidcService {
+  private readonly logger: Logger
   private readonly oidc: Provider
-  private logger
+  private readonly jwks: JWKS
 
   constructor(
     private configService: ConfigService,
@@ -27,6 +30,7 @@ export class OidcService {
   ) {
     const oidcPort = this.configService.get<string>('publicAddress')!
     const clients = this.configService.get('clients')
+    this.jwks = this.configService.get<JWKS>('jwks')!
 
     this.logger = new Logger('OIDC Service')
     this.logger.log('OIDC Service loading')
@@ -56,6 +60,7 @@ export class OidcService {
         response_types: ['code'],
         token_endpoint_auth_method: 'client_secret_basic'
       },
+      jwks: this.jwks,
       pkce: {
         required: () => false
       },

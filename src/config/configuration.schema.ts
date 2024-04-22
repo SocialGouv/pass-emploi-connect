@@ -12,6 +12,9 @@ export const configurationSchema = Joi.object({
       callback: Joi.string().required()
     }).required()
   }).required(),
+  jwks: Joi.object({
+    keys: Joi.array().items(Joi.object().required()).min(2).required()
+  }),
   ressourceServer: Joi.object({
     url: Joi.string().required(),
     scopes: Joi.string().required()

@@ -21,6 +21,7 @@ export default () => {
       url: process.env.RESSOURCE_SERVER,
       scopes: process.env.RESSOURCE_SCOPES
     },
+    jwks: JSON.parse(process.env.JWKS!),
     francetravailJeune: {
       issuer: process.env.IDP_FT_JEUNE_ISSUER,
       realm: process.env.IDP_FT_JEUNE_REALM,

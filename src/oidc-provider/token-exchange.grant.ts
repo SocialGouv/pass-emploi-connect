@@ -1,10 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { KoaContextWithOIDC } from 'oidc-provider'
 import { User, UserAccount } from '../domain/user'
-import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
-import { TokenService } from '../token/token.service'
-import { EmbeddedJWK, importJWK, jwtVerify, JWTVerifyGetKey } from 'jose'
+import { GetAccessTokenUsecase } from '../token/get-access-token.usecase'
 import { JWTService } from '../token/jwt.service'
+import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
 
 export const gty = 'token_exchange'
 export const grantType = 'urn:ietf:params:oauth:grant-type:token-exchange'
@@ -30,7 +29,7 @@ export class TokenExchangeGrant {
   constructor(
     @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
     private readonly jwtService: JWTService,
-    private readonly tokenService: TokenService
+    private readonly getAccessTokenUsecase: GetAccessTokenUsecase
   ) {
     this.logger = new Logger('TokenExchangeGrant')
   }
@@ -77,10 +76,7 @@ export class TokenExchangeGrant {
     }
 
     // token usecase getAccessToken
-    const tokenData = await this.tokenService.getToken(
-      userAccount,
-      'access_token'
-    )
+    const tokenData = await this.getAccessTokenUsecase.execute({ userAccount })
 
     if (!tokenData) {
       const message = 'unable to find an access_token'
