@@ -1,7 +1,10 @@
-import { KoaContextWithOIDC, errors as oidcErrors } from 'oidc-provider'
-import { TokenService } from './token.service'
-import { Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
+import { KoaContextWithOIDC } from 'oidc-provider'
 import { User, UserAccount } from '../domain/user'
+import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
+import { TokenService } from '../token/token.service'
+import { EmbeddedJWK, importJWK, jwtVerify, JWTVerifyGetKey } from 'jose'
+import { JWTService } from '../token/jwt.service'
 
 export const gty = 'token_exchange'
 export const grantType = 'urn:ietf:params:oauth:grant-type:token-exchange'
@@ -24,19 +27,48 @@ export const parameters = new Set([
 export class TokenExchangeGrant {
   private logger: Logger
 
-  constructor(private readonly tokenService: TokenService) {
+  constructor(
+    @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
+    private readonly jwtService: JWTService,
+    private readonly tokenService: TokenService
+  ) {
     this.logger = new Logger('TokenExchangeGrant')
   }
 
   // This approach has the advantage of not creating a new function instance on each call to TokenExchangeGrant.handler, since this will be called a lot, you might want to go with this version to minimize memory allocations.
   handler = async (
-    ctx: KoaContextWithOIDC,
+    context: KoaContextWithOIDC,
     next: () => Promise<void>
   ): Promise<void> => {
     // Vérifier les paramètres d'input
+    // Vérifie que les paramètre d'input correspondent bien au cas qu'on a implemnté
+    // Vérifie que subject_token_type est access_token
+
+    // Vérifie que l'acces token en entrée est valide + permissions à faire le token exchange
+
     // Vérifier la validité de l'accessToken
 
-    //this.logger.debug('Begin token exchange Grant')
+    // Verif JWT : tester d'utiliser this.oidc.
+
+    //const publicKey = await importJWK(context.oidc.client?.jwks?.keys[0]!, alg)
+    try {
+      const subjectToken = context.oidc.params?.subject_token as string
+      const result = await this.jwtService.verifyTokenAndGetJwt(subjectToken)
+      this.logger.debug('jwt verify %j', result)
+    } catch (e) {
+      this.logger.debug(e)
+    }
+
+    // if (!subjectToken) {
+    //   const message = 'subject token not found'
+    //   this.logger.warn(message)
+    //   throw new this.opm.errors.InvalidGrant(message)
+    // }
+    // if (subjectToken.isExpired) {
+    //   const message = 'subject token is expired'
+    //   this.logger.warn(message)
+    //   throw new this.opm.errors.InvalidGrant(message)
+    // }
 
     const userAccount: UserAccount = {
       sub: 'TNAN0480',
@@ -44,10 +76,17 @@ export class TokenExchangeGrant {
       structure: User.Structure.POLE_EMPLOI
     }
 
-    const { token } = await this.tokenService.getToken(
+    // token usecase getAccessToken
+    const tokenData = await this.tokenService.getToken(
       userAccount,
       'access_token'
     )
+
+    if (!tokenData) {
+      const message = 'unable to find an access_token'
+      this.logger.warn(message)
+      throw new this.opm.errors.InvalidTarget(message)
+    }
 
     // const conf = ctx.oidc.provider
 
@@ -74,13 +113,12 @@ export class TokenExchangeGrant {
     //   throw new oidcErrors.InvalidGrant('refresh token is expired')
     // }
 
-    ctx.body = {
+    context.body = {
       issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-      access_token: token,
+      access_token: tokenData.token,
       token_type: 'bearer',
-      expires_in: 3600,
-
-      scope: 'api:milo'
+      expires_in: tokenData.expiresIn,
+      scope: tokenData.scope
     }
 
     this.logger.debug('End token exchange Grant')

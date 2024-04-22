@@ -85,25 +85,18 @@ export class FrancetravailConseillerService {
     }
     const accountId = Account.generateAccountId(userAccount)
 
-    console.debug('THIS FT')
-    console.debug(this)
-
-    this.tokenService.setToken(
-      userAccount,
-      'access_token',
-      tokenSet.access_token!,
-      tokenSet.expires_in!
-    )
-    const SIX_MONTHS_IN_SECONDS = 3600 * 24 * 30 * 6
-
-    this.tokenService.setToken(
-      userAccount,
-      'refresh_token',
-      tokenSet.refresh_token!,
-      tokenSet.refresh_expires_in
-        ? (tokenSet.refresh_expires_in as number)
-        : SIX_MONTHS_IN_SECONDS
-    )
+    this.tokenService.setToken(userAccount, 'access_token', {
+      token: tokenSet.access_token!,
+      expiresIn: tokenSet.expires_in,
+      scope: tokenSet.scope
+    })
+    if (tokenSet.refresh_token) {
+      this.tokenService.setToken(userAccount, 'refresh_token', {
+        token: tokenSet.refresh_token,
+        expiresIn: tokenSet.refresh_expires_in as number,
+        scope: tokenSet.scope
+      })
+    }
 
     const { grantId } = interactionDetails
     const newGrantId = await generateNewGrantId(

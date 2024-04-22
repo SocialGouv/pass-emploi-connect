@@ -12,7 +12,7 @@ import {
   grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters,
   TokenExchangeGrant
-} from '../token/token-exchange.grant'
+} from './token-exchange.grant'
 
 @Injectable()
 export class OidcService {
