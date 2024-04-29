@@ -1,17 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import {
-  JSONWebKeySet,
-  JWK,
-  JWTPayload,
-  JWTVerifyGetKey,
-  createLocalJWKSet,
-  errors,
-  importJWK,
-  jwtVerify
-} from 'jose'
-import { JWKS } from 'oidc-provider'
+import { JWK, JWTPayload, errors, importJWK, jwtVerify } from 'jose'
 import { DateTime } from 'luxon'
+import { JWKS } from 'oidc-provider'
 
 interface Inputs {
   token: string

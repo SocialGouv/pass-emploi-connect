@@ -37,8 +37,6 @@ export class GetAccessTokenUsecase {
         'access_token'
       )
 
-      
-
       return tokenData
     } catch (error) {
       return undefined

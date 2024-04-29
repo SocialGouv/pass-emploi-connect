@@ -9,6 +9,9 @@ import { InteractionResults } from 'oidc-provider'
 import { generateNewGrantId } from '../utils'
 import { TokenService } from '../../token/token.service'
 
+const ACCESS_TOKEN_DEFAULT_EXPIRES_IN = 3600
+const REFRESH_TOKEN_DEFAULT_EXPIRES_IN = 3600 * 24 * 42
+
 @Injectable()
 export class FrancetravailConseillerService {
   private readonly logger: Logger
@@ -87,13 +90,17 @@ export class FrancetravailConseillerService {
 
     this.tokenService.setToken(userAccount, 'access_token', {
       token: tokenSet.access_token!,
-      expiresIn: tokenSet.expires_in,
+      expiresIn: tokenSet.expires_in ?? ACCESS_TOKEN_DEFAULT_EXPIRES_IN,
       scope: tokenSet.scope
     })
     if (tokenSet.refresh_token) {
+      let refreshExpiresIn
+      try {
+        refreshExpiresIn = tokenSet.refresh_expires_in as number
+      } catch (e) {}
       this.tokenService.setToken(userAccount, 'refresh_token', {
         token: tokenSet.refresh_token,
-        expiresIn: tokenSet.refresh_expires_in as number,
+        expiresIn: refreshExpiresIn ?? REFRESH_TOKEN_DEFAULT_EXPIRES_IN,
         scope: tokenSet.scope
       })
     }
@@ -127,12 +134,15 @@ export class FrancetravailConseillerService {
       'refresh_token'
     )
 
-    // pas de refresh => throw error mais on delog pas
-    const tokenSet = await this.client.refresh(refreshToken!.token)
+    if (!refreshToken) {
+      throw Error("l'utilisateur n'est pas authentifié")
+    }
+
+    const tokenSet = await this.client.refresh(refreshToken.token)
 
     this.tokenService.setToken(userAccount, 'access_token', {
       token: tokenSet.access_token!,
-      expiresIn: tokenSet.expires_in,
+      expiresIn: tokenSet.expires_in ?? REFRESH_TOKEN_DEFAULT_EXPIRES_IN,
       scope: tokenSet.scope
     })
 
