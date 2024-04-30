@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { BaseClient, Issuer } from 'openid-client'
 import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
-import { Context } from '../../context'
+import { Context } from '../../context/context.provider'
 
 @Injectable()
 export class MiloConseillerService {

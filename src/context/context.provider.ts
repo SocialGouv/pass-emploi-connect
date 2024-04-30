@@ -4,7 +4,8 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 export type ContextData = Map<ContextKey, unknown>
 
 export enum ContextKey {
-  MILO_CLIENT = 'MILO_CLIENT'
+  FT_CONSEILLER_ISSUER = 'FT_CONSEILLER_ISSUER',
+  FT_CONSEILLER_CLIENT = 'FT_CONSEILLER_CLIENT'
 }
 
 @Injectable()

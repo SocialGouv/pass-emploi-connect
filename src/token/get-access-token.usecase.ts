@@ -17,6 +17,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { UserAccount } from '../domain/user'
 import { TokenData, TokenService } from './token.service'
+import { Issuer, TokenSet } from 'openid-client'
+import { Context, ContextKey } from '../context/context.provider'
 
 interface Inputs {
   userAccount: UserAccount
@@ -26,7 +28,10 @@ interface Inputs {
 export class GetAccessTokenUsecase {
   private readonly logger: Logger
 
-  constructor(private readonly tokenService: TokenService) {
+  constructor(
+    private readonly tokenService: TokenService,
+    private readonly context: Context
+  ) {
     this.logger = new Logger('GetAccessTokenUsecase')
   }
 
@@ -37,9 +42,50 @@ export class GetAccessTokenUsecase {
         'access_token'
       )
 
+      try {
+        const refreshToken = await this.refresh(query.userAccount)
+        this.logger.debug(refreshToken)
+      } catch (e) {
+        this.logger.debug('ERR refresh')
+        this.logger.error(e)
+      }
+
       return tokenData
     } catch (error) {
       return undefined
     }
+  }
+
+  private async refresh(userAccount: UserAccount): Promise<TokenSet> {
+    const refreshToken = await this.tokenService.getToken(
+      userAccount,
+      'refresh_token'
+    )
+
+    if (!refreshToken) {
+      throw Error("l'utilisateur n'est pas authentifié")
+    }
+
+    const issuerConfig = JSON.parse(
+      this.context.get(ContextKey.FT_CONSEILLER_ISSUER)
+    )
+    // TODO traiter l'erreur undefined is not a valid json
+    this.logger.debug('HERE')
+    this.logger.debug('%j', issuerConfig)
+    const clientConfig = JSON.parse(
+      this.context.get(ContextKey.FT_CONSEILLER_CLIENT)
+    )
+    const issuer = new Issuer(issuerConfig)
+    const client = new issuer.Client(clientConfig)
+
+    const tokenSet = await client.refresh(refreshToken.token)
+
+    this.tokenService.setToken(userAccount, 'access_token', {
+      token: tokenSet.access_token!,
+      expiresIn: tokenSet.expires_in ?? 60,
+      scope: tokenSet.scope
+    })
+
+    return tokenSet
   }
 }

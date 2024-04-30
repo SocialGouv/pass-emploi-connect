@@ -5,9 +5,10 @@ import { BaseClient, Issuer, TokenSet } from 'openid-client'
 import { Account } from '../../domain/account'
 import { User, UserAccount } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
-import { InteractionResults } from 'oidc-provider'
+import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
 import { generateNewGrantId } from '../utils'
 import { TokenService } from '../../token/token.service'
+import { Context, ContextKey } from '../../context/context.provider'
 
 const ACCESS_TOKEN_DEFAULT_EXPIRES_IN = 3600
 const REFRESH_TOKEN_DEFAULT_EXPIRES_IN = 3600 * 24 * 42
@@ -33,7 +34,8 @@ export class FrancetravailConseillerService {
   constructor(
     private readonly configService: ConfigService,
     private readonly oidcService: OidcService,
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService,
+    private readonly context: Context
   ) {
     this.logger = new Logger('FrancetravailConseillerService')
 
@@ -41,21 +43,31 @@ export class FrancetravailConseillerService {
 
     // discover possible sur cette URL en intra
     // /connexion/oauth2/.well-known/openid-configuration?realm=/agent
-    this.issuer = new Issuer({
+    const issuerConfig = {
       issuer: this.idp.issuer,
       authorization_endpoint: this.idp.authorizationUrl,
       token_endpoint: this.idp.tokenUrl,
       jwks_uri: this.idp.jwks,
       userinfo_endpoint: this.idp.userinfo
-    })
-    this.client = new this.issuer.Client({
+    }
+    const clientConfig = {
       client_id: this.idp.clientId,
       client_secret: this.idp.clientSecret,
       redirect_uris: [this.idp.redirectUri],
       response_types: ['code'],
       scope: this.idp.scopes,
-      token_endpoint_auth_method: 'client_secret_post'
-    })
+      token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
+    }
+    this.context.set(
+      ContextKey.FT_CONSEILLER_ISSUER,
+      JSON.stringify(issuerConfig)
+    )
+    this.context.set(
+      ContextKey.FT_CONSEILLER_CLIENT,
+      JSON.stringify(clientConfig)
+    )
+    this.issuer = new Issuer(issuerConfig)
+    this.client = new this.issuer.Client(clientConfig)
   }
 
   async getAuthorizationUrl(interactionId: string): Promise<string> {
