@@ -38,6 +38,10 @@ export class OidcService {
     this.oidc = new this.opm.Provider(oidcPort, {
       // the rest of your configuration...
 
+      ttl: {
+        RefreshToken: 3600 * 24 * 42,
+        Session: 3600 * 24 * 42
+      },
       clients: [
         {
           client_id: 'foo',
@@ -140,7 +144,8 @@ export class OidcService {
           useGrantedResource: () => true,
           getResourceServerInfo: () => ({
             scope: this.configService.get('ressourceServer.scopes')!,
-            accessTokenFormat: 'jwt'
+            accessTokenFormat: 'jwt',
+            accessTokenTTL: 30 * 60
           })
         }
       },
