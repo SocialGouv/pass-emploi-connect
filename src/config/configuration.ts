@@ -15,6 +15,10 @@ export default () => {
     publicAddress:
       process.env.PUBLIC_ADDRESS ||
       `http://localhost:${process.env.PORT ? parseInt(process.env.PORT, 10) : 5050}`,
+    passemploiapi: {
+      url: process.env.PASS_EMPLOI_API_URL,
+      key: process.env.PASS_EMPLOI_API_KEY
+    },
     redis: {
       url: process.env.REDIS_URL
     },

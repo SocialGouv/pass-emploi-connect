@@ -30,7 +30,7 @@ export class TokenService {
 
     const data = await this.redisClient.get(
       tokenType,
-      Account.generateAccountId(user)
+      Account.fromUserAccountToAccountId(user)
     )
     if (data) {
       try {
@@ -59,7 +59,7 @@ export class TokenService {
 
     await this.redisClient.setWithExpiry(
       tokenType,
-      Account.generateAccountId(user),
+      Account.fromUserAccountToAccountId(user),
       JSON.stringify(tokenToSave),
       ttl
     )

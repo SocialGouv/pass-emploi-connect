@@ -60,7 +60,7 @@ export class MiloConseillerController {
       interactionDetails.uid
     )
 
-    const accountId = Account.generateAccountId({
+    const accountId = Account.fromUserAccountToAccountId({
       sub: userInfo.sub,
       type: User.Type.CONSEILLER,
       structure: User.Structure.POLE_EMPLOI

@@ -5,9 +5,10 @@ import { OidcController } from './oidc.controller'
 import { OidcService } from './oidc.service'
 import { OidcProviderModuleProvider } from './provider'
 import { TokenExchangeGrant } from './token-exchange.grant'
+import { PassEmploiAPIModule } from '../pass-emploi-api/pass-emploi-api.module'
 
 @Module({
-  imports: [ConfigModule, TokenModule],
+  imports: [ConfigModule, TokenModule, PassEmploiAPIModule],
   providers: [OidcService, OidcProviderModuleProvider, TokenExchangeGrant],
   exports: [OidcService, TokenExchangeGrant],
   controllers: [OidcController]

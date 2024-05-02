@@ -3,6 +3,10 @@ import * as Joi from 'joi'
 export const configurationSchema = Joi.object({
   port: Joi.number(),
   publicAddress: Joi.string().required(),
+  passemploiapi: Joi.object({
+    url: Joi.string().required(),
+    key: Joi.string().required()
+  }).required(),
   redis: Joi.object({
     url: Joi.string().required()
   }).required(),

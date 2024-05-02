@@ -7,7 +7,6 @@ import { FrancetravailConseillerModule } from './idp/francetravail-conseiller/fr
 import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravail-jeune.module'
 import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.module'
 import { configureLoggerModule } from './logger.module'
-import { OidcModule } from './oidc-provider/oidc.module'
 
 @Module({
   imports: [
@@ -17,9 +16,6 @@ import { OidcModule } from './oidc-provider/oidc.module'
       load: [configuration]
     }),
     configureLoggerModule(),
-    HttpModule.register({
-      timeout: 5000
-    }),
     FrancetravailJeuneModule,
     FrancetravailConseillerModule,
     MiloConseillerModule

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
 import { JWKS } from 'oidc-provider'
 import { Account } from '../domain/account'
-import { User } from '../domain/user'
+import { User, UserAccount } from '../domain/user'
 import { RedisAdapter } from '../redis/redis.adapter'
 import { RedisInjectionToken } from '../redis/redis.provider'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
@@ -13,6 +13,7 @@ import {
   grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters
 } from './token-exchange.grant'
+import { PassEmploiAPIService } from '../pass-emploi-api/pass-emploi-api.service'
 
 @Injectable()
 export class OidcService {
@@ -24,7 +25,8 @@ export class OidcService {
     private configService: ConfigService,
     @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
     @Inject(RedisInjectionToken) private readonly redisClient: Redis,
-    private readonly tokenExchangeGrant: TokenExchangeGrant
+    private readonly tokenExchangeGrant: TokenExchangeGrant,
+    private readonly passemploiapiService: PassEmploiAPIService
   ) {
     const oidcPort = this.configService.get<string>('publicAddress')!
     const clients = this.configService.get('clients')
@@ -58,10 +60,6 @@ export class OidcService {
       clientDefaults: {
         grant_types: ['authorization_code'],
         id_token_signed_response_alg: 'ES384',
-        // authorization_signed_response_alg: 'ES384',
-        // token_endpoint_auth_signing_alg: 'ES384',
-        // userinfo_signed_response_alg: 'ES384',
-        // request_object_signing_alg: 'ES384',
         response_types: ['code'],
         token_endpoint_auth_method: 'client_secret_basic'
       },
@@ -74,37 +72,33 @@ export class OidcService {
         short: { path: '/' }
       },
       adapter: (name: string) => new RedisAdapter(name, this.redisClient),
-      findAccount: (context, accountId: string) => {
-        // TODO faire un appel d'API pour récupérer les infos sauf si context.oidc.result est présent
-        this.logger.log('#### FIND ACC CTX RESULT %j', context.oidc.result)
-
-        const userIds: Record<User.Structure, string> = {
-          MILO: '20097302-448d-4048-a0ae-306964aab60e',
-          POLE_EMPLOI: 'cbf8fb13-8438-4981-8bbd-d74fbfb71fda',
-          POLE_EMPLOI_BRSA: '401f0f85-c678-49b6-996a-f9759136d43b'
-        }
+      findAccount: async (context, accountId: string) => {
         let user: User
+
+        // présent uniquement dans le cas d'un authorize
         if (context.oidc.result) {
+          this.logger.debug('findAccount context ok')
           user = {
-            userId:
-              userIds[context.oidc.result.userStructure as User.Structure],
-            userRoles: [],
+            userId: context.oidc.result.id as string,
+            userRoles: context.oidc.result.userRoles as string[],
             userStructure: context.oidc.result.userStructure as User.Structure,
             userType: context.oidc.result.userType as User.Type,
             email: context.oidc.result.email as string,
             family_name: context.oidc.result.family_name as string,
             given_name: context.oidc.result.given_name as string
           }
-        } else {
-          user = {
-            userId: userIds[Account.getStructureFromAccountId(accountId)],
-            userRoles: [],
-            userStructure: Account.getStructureFromAccountId(accountId),
-            userType: Account.getTypeFromAccountId(accountId),
-            email: 'jopa@octo.com',
-            family_name: 'Page',
-            given_name: 'Joseph'
+        }
+        // context non présent dans le cas d'un get/post token
+        else {
+          this.logger.debug('findAccount context undefined')
+
+          const userAccount = Account.fromAccountIdToUserAccount(accountId)
+          const apiUser = await this.passemploiapiService.getUser(userAccount)
+          if (!apiUser) {
+            this.logger.debug('could not get user from API')
+            throw new Error('could not get user from API')
           }
+          user = apiUser
         }
         return {
           ...user,
@@ -138,7 +132,6 @@ export class OidcService {
         }
       },
       features: {
-        // claimsParameter: { enabled: true },
         devInteractions: { enabled: false }, // change this to false to disable the dev interactions
         userinfo: { enabled: true },
         resourceIndicators: {
@@ -178,11 +171,6 @@ export class OidcService {
         }
       }
     })
-
-    // TODO inject tokenStore
-    // const tokenExchangeHandler = tokenExchangeHandlerFactory({
-    //   tokenStore:
-    // })
 
     this.oidc.registerGrantType(
       tokenExchangeGrantType,

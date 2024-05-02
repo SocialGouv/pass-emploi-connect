@@ -9,6 +9,7 @@ import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
 import { generateNewGrantId } from '../utils'
 import { TokenService } from '../../token/token.service'
 import { Context, ContextKey } from '../../context/context.provider'
+import { PassEmploiAPIService } from '../../pass-emploi-api/pass-emploi-api.service'
 
 @Injectable()
 export class FrancetravailConseillerService {
@@ -35,7 +36,8 @@ export class FrancetravailConseillerService {
     private readonly configService: ConfigService,
     private readonly oidcService: OidcService,
     private readonly tokenService: TokenService,
-    private readonly context: Context
+    private readonly context: Context,
+    private readonly passemploiapi: PassEmploiAPIService
   ) {
     this.logger = new Logger('FrancetravailConseillerService')
     this.ACCESS_TOKEN_DEFAULT_EXPIRES_IN = this.configService.get<number>(
@@ -104,7 +106,7 @@ export class FrancetravailConseillerService {
       type: User.Type.CONSEILLER,
       structure: User.Structure.POLE_EMPLOI
     }
-    const accountId = Account.generateAccountId(userAccount)
+    const accountId = Account.fromUserAccountToAccountId(userAccount)
 
     this.tokenService.setToken(userAccount, 'access_token', {
       token: tokenSet.access_token!,
@@ -131,6 +133,20 @@ export class FrancetravailConseillerService {
       grantId
     )
 
+    // TODO PUT Utilisateur
+    const apiUser = await this.passemploiapi.putUser(userAccount.sub, {
+      nom: userInfo.given_name,
+      prenom: userInfo.family_name,
+      email: userInfo.email,
+      structure: userAccount.structure,
+      type: userAccount.type
+    })
+
+    if (!apiUser) {
+      this.logger.debug('could not put user')
+      throw new Error('could not put user')
+    }
+
     const result: InteractionResults = {
       login: { accountId },
       consent: { grantId: newGrantId },
@@ -138,10 +154,10 @@ export class FrancetravailConseillerService {
       userStructure: User.Structure.POLE_EMPLOI,
       email: userInfo.email,
       family_name: userInfo.family_name,
-      given_name: userInfo.given_name
+      given_name: userInfo.given_name,
+      userRoles: apiUser.userRoles,
+      userId: apiUser.userId
     }
-
-    // TODO PUT Utilisateur
 
     await this.oidcService.interactionFinished(request, response, result)
   }

@@ -6,12 +6,19 @@ const structureIndex = 1
 const subIndex = 2
 
 export namespace Account {
-  export function generateAccountId(userAccount: UserAccount): string {
+  export function fromUserAccountToAccountId(userAccount: UserAccount): string {
     const accountIdArray = []
     accountIdArray[typeIndex] = userAccount.type
     accountIdArray[structureIndex] = userAccount.structure
     accountIdArray[subIndex] = userAccount.sub
     return accountIdArray.join(separator)
+  }
+  export function fromAccountIdToUserAccount(accountId: string): UserAccount {
+    return {
+      sub: getSubFromAccountId(accountId),
+      type: getTypeFromAccountId(accountId),
+      structure: getStructureFromAccountId(accountId)
+    }
   }
 
   export function getSubFromAccountId(accountId: string): string {
