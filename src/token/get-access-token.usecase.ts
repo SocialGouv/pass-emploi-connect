@@ -15,10 +15,13 @@
 // retourne access token, expires in et scope
 
 import { Injectable, Logger } from '@nestjs/common'
+import { Issuer } from 'openid-client'
+import { Context, ContextKey } from '../context/context.provider'
 import { UserAccount } from '../domain/user'
 import { TokenData, TokenService } from './token.service'
-import { Issuer, TokenSet } from 'openid-client'
-import { Context, ContextKey } from '../context/context.provider'
+import { ConfigService } from '@nestjs/config'
+
+const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 
 interface Inputs {
   userAccount: UserAccount
@@ -29,6 +32,7 @@ export class GetAccessTokenUsecase {
   private readonly logger: Logger
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly tokenService: TokenService,
     private readonly context: Context
   ) {
@@ -37,41 +41,47 @@ export class GetAccessTokenUsecase {
 
   async execute(query: Inputs): Promise<TokenData | undefined> {
     try {
-      const tokenData = await this.tokenService.getToken(
+      const storedAccessTokenData = await this.tokenService.getToken(
         query.userAccount,
         'access_token'
       )
 
-      try {
-        const refreshToken = await this.refresh(query.userAccount)
-        this.logger.debug(refreshToken)
-      } catch (e) {
-        this.logger.debug('ERR refresh')
-        this.logger.error(e)
+      if (
+        storedAccessTokenData &&
+        storedAccessTokenData.expiresIn >
+          MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS
+      ) {
+        return storedAccessTokenData
       }
 
-      return tokenData
-    } catch (error) {
+      this.logger.debug('OK?')
+      const newAccessTokenData = await this.refresh(query.userAccount)
+      this.logger.debug('OK!')
+      return newAccessTokenData
+    } catch (e) {
+      this.logger.error(e)
       return undefined
     }
   }
 
-  private async refresh(userAccount: UserAccount): Promise<TokenSet> {
+  private async refresh(userAccount: UserAccount): Promise<TokenData> {
     const refreshToken = await this.tokenService.getToken(
       userAccount,
       'refresh_token'
     )
 
     if (!refreshToken) {
+      this.logger.error("l'utilisateur n'est pas authentifié")
       throw Error("l'utilisateur n'est pas authentifié")
     }
+
+    // TODO selon l'idp
+
+    this.logger.debug('refresh le token')
 
     const issuerConfig = JSON.parse(
       this.context.get(ContextKey.FT_CONSEILLER_ISSUER)
     )
-    // TODO traiter l'erreur undefined is not a valid json
-    this.logger.debug('HERE')
-    this.logger.debug('%j', issuerConfig)
     const clientConfig = JSON.parse(
       this.context.get(ContextKey.FT_CONSEILLER_CLIENT)
     )
@@ -79,13 +89,18 @@ export class GetAccessTokenUsecase {
     const client = new issuer.Client(clientConfig)
 
     const tokenSet = await client.refresh(refreshToken.token)
-
-    this.tokenService.setToken(userAccount, 'access_token', {
+    const tokenData: TokenData = {
       token: tokenSet.access_token!,
-      expiresIn: tokenSet.expires_in ?? 60,
+      expiresIn:
+        tokenSet.expires_in ??
+        this.configService.get<number>(
+          'francetravailConseiller.accessTokenMaxAge'
+        )!,
       scope: tokenSet.scope
-    })
+    }
 
-    return tokenSet
+    await this.tokenService.setToken(userAccount, 'access_token', tokenData)
+
+    return tokenData
   }
 }

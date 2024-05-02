@@ -14,6 +14,7 @@ export class Context {
 
   constructor() {
     this.asyncLocalStorage = new AsyncLocalStorage()
+    this.start()
   }
 
   start(): void {

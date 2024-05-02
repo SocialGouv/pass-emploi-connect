@@ -29,7 +29,9 @@ export const configurationSchema = Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
     scopes: Joi.string().required(),
-    redirectUri: Joi.string().required()
+    redirectUri: Joi.string().required(),
+    accessTokenMaxAge: Joi.number().required(),
+    refreshTokenMaxAge: Joi.number().required()
   }),
   francetravailConseiller: Joi.object({
     issuer: Joi.string().required(),
@@ -41,7 +43,9 @@ export const configurationSchema = Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
     scopes: Joi.string().required(),
-    redirectUri: Joi.string().required()
+    redirectUri: Joi.string().required(),
+    accessTokenMaxAge: Joi.number().required(),
+    refreshTokenMaxAge: Joi.number().required()
   }),
   miloConseiller: Joi.object({
     issuer: Joi.string().required(),
@@ -52,6 +56,8 @@ export const configurationSchema = Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
     scopes: Joi.string().required(),
-    redirectUri: Joi.string().required()
+    redirectUri: Joi.string().required(),
+    accessTokenMaxAge: Joi.number().required(),
+    refreshTokenMaxAge: Joi.number().required()
   })
 })

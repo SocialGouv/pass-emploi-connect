@@ -10,12 +10,12 @@ import { generateNewGrantId } from '../utils'
 import { TokenService } from '../../token/token.service'
 import { Context, ContextKey } from '../../context/context.provider'
 
-const ACCESS_TOKEN_DEFAULT_EXPIRES_IN = 3600
-const REFRESH_TOKEN_DEFAULT_EXPIRES_IN = 3600 * 24 * 42
-
 @Injectable()
 export class FrancetravailConseillerService {
   private readonly logger: Logger
+  private readonly ACCESS_TOKEN_DEFAULT_EXPIRES_IN: number
+  private readonly REFRESH_TOKEN_DEFAULT_EXPIRES_IN: number
+
   private readonly idp: {
     issuer: string
     realm: string
@@ -38,6 +38,12 @@ export class FrancetravailConseillerService {
     private readonly context: Context
   ) {
     this.logger = new Logger('FrancetravailConseillerService')
+    this.ACCESS_TOKEN_DEFAULT_EXPIRES_IN = this.configService.get<number>(
+      'francetravailConseiller.accessTokenMaxAge'
+    )!
+    this.REFRESH_TOKEN_DEFAULT_EXPIRES_IN = this.configService.get<number>(
+      'francetravailConseiller.accessTokenMaxAge'
+    )!
 
     this.idp = this.configService.get('francetravailConseiller')!
 
@@ -102,7 +108,7 @@ export class FrancetravailConseillerService {
 
     this.tokenService.setToken(userAccount, 'access_token', {
       token: tokenSet.access_token!,
-      expiresIn: tokenSet.expires_in ?? ACCESS_TOKEN_DEFAULT_EXPIRES_IN,
+      expiresIn: tokenSet.expires_in ?? this.ACCESS_TOKEN_DEFAULT_EXPIRES_IN,
       scope: tokenSet.scope
     })
     if (tokenSet.refresh_token) {
@@ -112,7 +118,7 @@ export class FrancetravailConseillerService {
       } catch (e) {}
       this.tokenService.setToken(userAccount, 'refresh_token', {
         token: tokenSet.refresh_token,
-        expiresIn: refreshExpiresIn ?? REFRESH_TOKEN_DEFAULT_EXPIRES_IN,
+        expiresIn: refreshExpiresIn ?? this.REFRESH_TOKEN_DEFAULT_EXPIRES_IN,
         scope: tokenSet.scope
       })
     }
@@ -138,26 +144,5 @@ export class FrancetravailConseillerService {
     // TODO PUT Utilisateur
 
     await this.oidcService.interactionFinished(request, response, result)
-  }
-
-  async refresh(userAccount: UserAccount): Promise<TokenSet> {
-    const refreshToken = await this.tokenService.getToken(
-      userAccount,
-      'refresh_token'
-    )
-
-    if (!refreshToken) {
-      throw Error("l'utilisateur n'est pas authentifié")
-    }
-
-    const tokenSet = await this.client.refresh(refreshToken.token)
-
-    this.tokenService.setToken(userAccount, 'access_token', {
-      token: tokenSet.access_token!,
-      expiresIn: tokenSet.expires_in ?? REFRESH_TOKEN_DEFAULT_EXPIRES_IN,
-      scope: tokenSet.scope
-    })
-
-    return tokenSet
   }
 }
