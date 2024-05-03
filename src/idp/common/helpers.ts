@@ -1,10 +1,11 @@
 import { ConfigService } from '@nestjs/config'
-import { OidcService } from '../oidc-provider/oidc.service'
+import { OidcService } from '../../oidc-provider/oidc.service'
 
 export async function generateNewGrantId(
   configService: ConfigService,
   oidcService: OidcService,
   accountId: string,
+  clientId: string,
   grantId?: string
 ) {
   let grant
@@ -12,7 +13,7 @@ export async function generateNewGrantId(
     // modification du grant existant dans la session
     grant = await oidcService.findGrant(grantId)
   } else {
-    grant = oidcService.createGrant(accountId)
+    grant = oidcService.createGrant(accountId, clientId)
   }
 
   grant!.addOIDCScope('openid')

@@ -12,8 +12,26 @@ export const configurationSchema = Joi.object({
   }).required(),
   clients: Joi.object({
     web: Joi.object({
+      id: Joi.string().required(),
       secret: Joi.string().required(),
-      callback: Joi.string().required()
+      callbacks: Joi.array().items(Joi.string().required()).min(1).required(),
+      logoutCallbacks: Joi.array()
+        .items(Joi.string().required())
+        .min(1)
+        .required()
+    }).required(),
+    app: Joi.object({
+      id: Joi.string().required(),
+      secret: Joi.string().required(),
+      callbacks: Joi.array().items(Joi.string().required()).min(1).required()
+    }).required(),
+    api: Joi.object({
+      id: Joi.string().required(),
+      secret: Joi.string().required()
+    }).required(),
+    swagger: Joi.object({
+      id: Joi.string().required(),
+      callbacks: Joi.array().items(Joi.string().required()).min(1).required()
     }).required()
   }).required(),
   jwks: Joi.object({
@@ -23,58 +41,64 @@ export const configurationSchema = Joi.object({
     url: Joi.string().required(),
     scopes: Joi.string().required()
   }),
-  francetravailJeune: Joi.object({
-    issuer: Joi.string().required(),
-    realm: Joi.string().required(),
-    authorizationUrl: Joi.string().required(),
-    tokenUrl: Joi.string().required(),
-    jwks: Joi.string().required(),
-    userinfo: Joi.string().required(),
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-    scopes: Joi.string().required(),
-    redirectUri: Joi.string().required(),
-    accessTokenMaxAge: Joi.number().required(),
-    refreshTokenMaxAge: Joi.number().required()
-  }),
-  francetravailConseiller: Joi.object({
-    issuer: Joi.string().required(),
-    realm: Joi.string().required(),
-    authorizationUrl: Joi.string().required(),
-    tokenUrl: Joi.string().required(),
-    jwks: Joi.string().required(),
-    userinfo: Joi.string().required(),
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-    scopes: Joi.string().required(),
-    redirectUri: Joi.string().required(),
-    accessTokenMaxAge: Joi.number().required(),
-    refreshTokenMaxAge: Joi.number().required()
-  }),
-  miloConseiller: Joi.object({
-    issuer: Joi.string().required(),
-    authorizationUrl: Joi.string().required(),
-    tokenUrl: Joi.string().required(),
-    jwks: Joi.string().required(),
-    userinfo: Joi.string().required(),
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-    scopes: Joi.string().required(),
-    redirectUri: Joi.string().required(),
-    accessTokenMaxAge: Joi.number().required(),
-    refreshTokenMaxAge: Joi.number().required()
-  }),
-  miloJeune: Joi.object({
-    issuer: Joi.string().required(),
-    authorizationUrl: Joi.string().required(),
-    tokenUrl: Joi.string().required(),
-    jwks: Joi.string().required(),
-    userinfo: Joi.string().required(),
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-    scopes: Joi.string().required(),
-    redirectUri: Joi.string().required(),
-    accessTokenMaxAge: Joi.number().required(),
-    refreshTokenMaxAge: Joi.number().required()
-  })
+  idps: Joi.object({
+    francetravailJeune: Joi.object({
+      issuer: Joi.string().required(),
+      realm: Joi.string().required(),
+      authorizationUrl: Joi.string().required(),
+      tokenUrl: Joi.string().required(),
+      jwks: Joi.string().required(),
+      userinfo: Joi.string().required(),
+      clientId: Joi.string().required(),
+      clientSecret: Joi.string().required(),
+      scopes: Joi.string().required(),
+      redirectUri: Joi.string().required(),
+      logout: Joi.string().required(),
+      accessTokenMaxAge: Joi.number().required(),
+      refreshTokenMaxAge: Joi.number().required()
+    }),
+    francetravailConseiller: Joi.object({
+      issuer: Joi.string().required(),
+      realm: Joi.string().required(),
+      authorizationUrl: Joi.string().required(),
+      tokenUrl: Joi.string().required(),
+      jwks: Joi.string().required(),
+      userinfo: Joi.string().required(),
+      clientId: Joi.string().required(),
+      clientSecret: Joi.string().required(),
+      scopes: Joi.string().required(),
+      redirectUri: Joi.string().required(),
+      logout: Joi.string().required(),
+      accessTokenMaxAge: Joi.number().required(),
+      refreshTokenMaxAge: Joi.number().required()
+    }),
+    miloConseiller: Joi.object({
+      issuer: Joi.string().required(),
+      authorizationUrl: Joi.string().required(),
+      tokenUrl: Joi.string().required(),
+      jwks: Joi.string().required(),
+      userinfo: Joi.string().required(),
+      clientId: Joi.string().required(),
+      clientSecret: Joi.string().required(),
+      scopes: Joi.string().required(),
+      redirectUri: Joi.string().required(),
+      logout: Joi.string().required(),
+      accessTokenMaxAge: Joi.number().required(),
+      refreshTokenMaxAge: Joi.number().required()
+    }),
+    miloJeune: Joi.object({
+      issuer: Joi.string().required(),
+      authorizationUrl: Joi.string().required(),
+      tokenUrl: Joi.string().required(),
+      jwks: Joi.string().required(),
+      userinfo: Joi.string().required(),
+      clientId: Joi.string().required(),
+      clientSecret: Joi.string().required(),
+      scopes: Joi.string().required(),
+      redirectUri: Joi.string().required(),
+      logout: Joi.string().required(),
+      accessTokenMaxAge: Joi.number().required(),
+      refreshTokenMaxAge: Joi.number().required()
+    })
+  }).required()
 })

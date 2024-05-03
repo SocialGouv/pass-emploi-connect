@@ -51,7 +51,11 @@ export class TokenService {
     this.logger.debug('SET TOKEN %s %j %j', tokenType, user, tokenData)
 
     const MARGIN_SECONDS = 1
-    const ttl = tokenData.expiresIn - MARGIN_SECONDS
+    const ttl =
+      tokenData.expiresIn > MARGIN_SECONDS
+        ? tokenData.expiresIn - MARGIN_SECONDS
+        : tokenData.expiresIn
+
     const tokenToSave = fromTokenDataToTokenToSave({
       ...tokenData,
       expiresIn: ttl

@@ -11,7 +11,7 @@ import {
 import { Request, Response } from 'express'
 import { FrancetravailConseillerService } from './francetravail-conseiller.service'
 
-@Controller(['francetravail-conseiller', 'auth/realms/pass-emploi'])
+@Controller()
 export class FrancetravailConseillerController {
   private readonly logger: Logger
 
@@ -21,7 +21,7 @@ export class FrancetravailConseillerController {
     this.logger = new Logger('FrancetravailConseillerController')
   }
 
-  @Get('connect/:interactionId')
+  @Get('francetravail-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async connect(
     @Param('interactionId') interactionId: string
@@ -35,7 +35,7 @@ export class FrancetravailConseillerController {
     }
   }
 
-  @Get(['callback', 'broker/pe-conseiller/endpoint'])
+  @Get('auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response

@@ -4,7 +4,8 @@ import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
 import { JWKS } from 'oidc-provider'
 import { Account } from '../domain/account'
-import { User, UserAccount } from '../domain/user'
+import { User } from '../domain/user'
+import { PassEmploiAPIService } from '../pass-emploi-api/pass-emploi-api.service'
 import { RedisAdapter } from '../redis/redis.adapter'
 import { RedisInjectionToken } from '../redis/redis.provider'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
@@ -13,7 +14,6 @@ import {
   grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters
 } from './token-exchange.grant'
-import { PassEmploiAPIService } from '../pass-emploi-api/pass-emploi-api.service'
 
 @Injectable()
 export class OidcService {
@@ -32,44 +32,76 @@ export class OidcService {
     const clients = this.configService.get('clients')
     this.jwks = this.configService.get<JWKS>('jwks')!
 
-    this.logger = new Logger('OIDC Service')
-    this.logger.log('OIDC Service loading')
+    this.logger = new Logger('OidcService')
 
     this.oidc = new this.opm.Provider(oidcPort, {
-      // the rest of your configuration...
-
+      routes: {
+        authorization: '/protocol/openid-connect/auth',
+        backchannel_authentication: '/protocol/openid-connect/ext/ciba/auth',
+        device_authorization: '/protocol/openid-connect/auth/device',
+        end_session: '/protocol/openid-connect/logout',
+        introspection: '/protocol/openid-connect/token/introspection',
+        jwks: '/protocol/openid-connect/certs',
+        pushed_authorization_request:
+          '/protocol/openid-connect/ext/par/request',
+        registration: '/clients-registrations/openid-connect',
+        revocation: '/protocol/openid-connect/revoke',
+        token: '/protocol/openid-connect/token',
+        userinfo: '/protocol/openid-connect/userinfo'
+      },
       ttl: {
         RefreshToken: 3600 * 24 * 42,
         Session: 3600 * 24 * 42
       },
+      issueRefreshToken: async function issueRefreshToken(_ctx, client, _code) {
+        return client.grantTypeAllowed('refresh_token')
+      },
+      extraParams: ['kc_idp_hint'],
       clients: [
         {
-          client_id: 'foo',
-          client_secret: 'bar',
-          redirect_uris: [`${oidcPort}/cb`],
-          grant_types: ['authorization_code', tokenExchangeGrantType], //  'implicit'
-          response_types: ['code'] // 'code id_token'
+          client_id: clients.api.id,
+          client_secret: clients.api.secret,
+          grant_types: [tokenExchangeGrantType],
+          response_types: []
         },
         {
-          client_id: 'pass-emploi-web',
+          client_id: clients.web.id,
           client_secret: clients.web.secret,
-          redirect_uris: [clients.web.callback],
-          grant_types: ['authorization_code'],
-          response_types: ['code']
+          redirect_uris: clients.web.callbacks,
+          grant_types: ['authorization_code', 'refresh_token'],
+          response_types: ['code'],
+          token_endpoint_auth_method: 'client_secret_basic',
+          post_logout_redirect_uris: clients.web.logoutCallbacks
+        },
+        {
+          client_id: clients.app.id,
+          client_secret: clients.app.secret,
+          application_type: 'native',
+          redirect_uris: clients.app.callbacks,
+          grant_types: ['authorization_code', 'refresh_token'],
+          response_types: ['code'],
+          token_endpoint_auth_method: 'client_secret_basic'
+        },
+        {
+          client_id: clients.swagger.id,
+          application_type: 'web',
+          redirect_uris: clients.swagger.callbacks,
+          grant_types: ['implicit'],
+          response_types: ['id_token'],
+          token_endpoint_auth_method: 'none'
         }
       ],
-      enabledJWA: {
-        idTokenSigningAlgValues: ['ES384']
-      },
-      clientDefaults: {
-        grant_types: ['authorization_code'],
-        id_token_signed_response_alg: 'ES384',
-        response_types: ['code'],
-        token_endpoint_auth_method: 'client_secret_basic'
-      },
+      // si besoin de changer l'algo des jwks
+      // enabledJWA: {
+      //   idTokenSigningAlgValues: ['ES384']
+      // },
+      // clientDefaults: {
+      //   id_token_signed_response_alg: 'ES384',
+      // },
       jwks: this.jwks,
       pkce: {
-        required: () => false
+        required: () => false,
+        methods: ['S256', 'plain']
       },
       cookies: {
         keys: ['my-secret-key'],
@@ -81,7 +113,6 @@ export class OidcService {
 
         // présent uniquement dans le cas d'un authorize
         if (context.oidc.result) {
-          this.logger.debug('findAccount context ok')
           user = {
             userId: context.oidc.result.id as string,
             userRoles: context.oidc.result.userRoles as string[],
@@ -94,13 +125,11 @@ export class OidcService {
         }
         // context non présent dans le cas d'un get/post token
         else {
-          this.logger.debug('findAccount context undefined')
-
           const userAccount = Account.fromAccountIdToUserAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(userAccount)
           if (!apiUser) {
-            this.logger.debug('could not get user from API')
-            throw new Error('could not get user from API')
+            this.logger.debug('Could not get user from API')
+            throw new Error('Could not get user from API')
           }
           user = apiUser
         }
@@ -119,12 +148,11 @@ export class OidcService {
           'userStructure',
           'userType',
           'family_name',
-          'given_name'
+          'given_name',
+          'preferred_username'
         ]
       },
       extraTokenClaims: (context, _token) => {
-        this.logger.log('#### account %j', context.oidc.account)
-        this.logger.log('#### claims %j', context.oidc.account?.claims)
         return {
           userId: context.oidc.account?.userId,
           userRoles: context.oidc.account?.userRoles,
@@ -132,11 +160,14 @@ export class OidcService {
           userType: context.oidc.account?.userType as User.Type,
           email: context.oidc.account?.email as string,
           family_name: context.oidc.account?.family_name as string,
-          given_name: context.oidc.account?.given_name as string
+          given_name: context.oidc.account?.given_name as string,
+          preferred_username:
+            (context.oidc.account?.username as string) ??
+            (context.oidc.account?.preferred_username as string)
         }
       },
       features: {
-        devInteractions: { enabled: false }, // change this to false to disable the dev interactions
+        devInteractions: { enabled: false },
         userinfo: { enabled: true },
         resourceIndicators: {
           enabled: true,
@@ -150,12 +181,17 @@ export class OidcService {
         }
       },
       interactions: {
-        url(ctx, interaction) {
-          if (!ctx.request.query.kc_idp_hint) {
+        async url(ctx, interaction) {
+          if (ctx.request.query.kc_idp_hint) {
+            interaction.params.kc_idp_hint = ctx.request.query.kc_idp_hint
+            await interaction.persist()
+          }
+
+          if (!interaction.params.kc_idp_hint) {
             return `/choice/${interaction.uid}`
           }
 
-          const connector = `${ctx.request.query.kc_idp_hint}`
+          const connector = `${interaction.params.kc_idp_hint}`
 
           switch (connector) {
             case 'similo-jeune':
@@ -212,10 +248,10 @@ export class OidcService {
     return this.oidc
   }
 
-  createGrant(accountId: string) {
+  createGrant(accountId: string, clientId: string) {
     const grant = new this.oidc.Grant({
       accountId,
-      clientId: 'pass-emploi-web'
+      clientId
     })
     return grant
   }

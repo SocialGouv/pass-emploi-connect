@@ -11,7 +11,7 @@ import {
 import { Request, Response } from 'express'
 import { FrancetravailJeuneService } from './francetravail-jeune.service'
 
-@Controller(['francetravail-jeune', 'auth/realms/pass-emploi'])
+@Controller()
 export class FrancetravailJeuneController {
   private readonly logger: Logger
 
@@ -21,7 +21,7 @@ export class FrancetravailJeuneController {
     this.logger = new Logger('FrancetravailJeuneController')
   }
 
-  @Get('connect/:interactionId')
+  @Get('francetravail-jeune/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async connect(
     @Param('interactionId') interactionId: string
@@ -33,7 +33,7 @@ export class FrancetravailJeuneController {
     }
   }
 
-  @Get(['callback', 'broker/pe-jeune/endpoint'])
+  @Get('auth/realms/pass-emploi/broker/pe-jeune/endpoint')
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response

@@ -16,7 +16,11 @@
 
 import { Injectable, Logger } from '@nestjs/common'
 import { Issuer } from 'openid-client'
-import { Context, ContextKey } from '../context/context.provider'
+import {
+  Context,
+  ContextKey,
+  ContextKeyType
+} from '../context/context.provider'
 import { UserAccount } from '../domain/user'
 import { TokenData, TokenService } from './token.service'
 import { ConfigService } from '@nestjs/config'
@@ -75,15 +79,21 @@ export class GetAccessTokenUsecase {
       throw Error("l'utilisateur n'est pas authentifié")
     }
 
-    // TODO selon l'idp
-
     this.logger.debug('refresh le token')
 
     const issuerConfig = JSON.parse(
-      this.context.get(ContextKey.FT_CONSEILLER_ISSUER)
+      this.context.get({
+        userType: userAccount.type,
+        userStructure: userAccount.structure,
+        key: ContextKeyType.ISSUER
+      })
     )
     const clientConfig = JSON.parse(
-      this.context.get(ContextKey.FT_CONSEILLER_CLIENT)
+      this.context.get({
+        userType: userAccount.type,
+        userStructure: userAccount.structure,
+        key: ContextKeyType.CLIENT
+      })
     )
     const issuer = new Issuer(issuerConfig)
     const client = new issuer.Client(clientConfig)
