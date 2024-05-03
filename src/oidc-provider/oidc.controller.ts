@@ -15,7 +15,7 @@ export class OidcController {
   @All('/*')
   public mountedOidc(@Req() req: Request, @Res() res: Response): Promise<void> {
     try {
-      this.logger.debug('BONJOUUUUUUUUUUUUUUUUUUUUUUUR')
+      this.logger.debug('BONJOUR')
       req.url = req.originalUrl.replace('/oidc', '')
       return this.callback(req, res)
     } catch (e) {

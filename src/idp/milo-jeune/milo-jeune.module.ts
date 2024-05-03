@@ -4,8 +4,8 @@ import { ConfigModule } from '@nestjs/config'
 import { ContextModule } from '../../context/context.module'
 import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
-import { FrancetravailJeuneController } from './francetravail-jeune.controller'
-import { FrancetravailJeuneService } from './francetravail-jeune.service'
+import { MiloJeuneController } from './milo-jeune.controller'
+import { MiloJeuneService } from './milo-jeune.service'
 import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.module'
 
 @Module({
@@ -16,8 +16,8 @@ import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.modul
     TokenModule,
     PassEmploiAPIModule
   ],
-  providers: [FrancetravailJeuneService],
+  providers: [MiloJeuneService],
   exports: [],
-  controllers: [FrancetravailJeuneController]
+  controllers: [MiloJeuneController]
 })
-export class FrancetravailJeuneModule {}
+export class MiloJeuneModule {}

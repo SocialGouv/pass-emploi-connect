@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
-import { BaseClient, Issuer, TokenSet } from 'openid-client'
-import { Account } from '../../domain/account'
-import { User, UserAccount } from '../../domain/user'
-import { OidcService } from '../../oidc-provider/oidc.service'
 import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
-import { generateNewGrantId } from '../utils'
-import { TokenService } from '../../token/token.service'
+import { BaseClient, Issuer } from 'openid-client'
 import { Context, ContextKey } from '../../context/context.provider'
+import { Account } from '../../domain/account'
+import { User } from '../../domain/user'
+import { OidcService } from '../../oidc-provider/oidc.service'
 import { PassEmploiAPIService } from '../../pass-emploi-api/pass-emploi-api.service'
+import { TokenService } from '../../token/token.service'
+import { generateNewGrantId } from '../utils'
 
 @Injectable()
 export class FrancetravailConseillerService {

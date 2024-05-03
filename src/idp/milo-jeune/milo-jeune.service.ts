@@ -12,7 +12,7 @@ import { TokenService } from '../../token/token.service'
 import { generateNewGrantId } from '../utils'
 
 @Injectable()
-export class FrancetravailJeuneService {
+export class MiloJeuneService {
   private readonly logger: Logger
   private readonly ACCESS_TOKEN_DEFAULT_EXPIRES_IN: number
   private readonly REFRESH_TOKEN_DEFAULT_EXPIRES_IN: number
@@ -39,15 +39,15 @@ export class FrancetravailJeuneService {
     private readonly context: Context,
     private readonly passemploiapi: PassEmploiAPIService
   ) {
-    this.logger = new Logger('FrancetravailJeuneService')
+    this.logger = new Logger('MiloJeuneService')
     this.ACCESS_TOKEN_DEFAULT_EXPIRES_IN = this.configService.get<number>(
-      'francetravailJeune.accessTokenMaxAge'
+      'miloJeune.accessTokenMaxAge'
     )!
     this.REFRESH_TOKEN_DEFAULT_EXPIRES_IN = this.configService.get<number>(
-      'francetravailJeune.accessTokenMaxAge'
+      'miloJeune.accessTokenMaxAge'
     )!
 
-    this.idp = this.configService.get('francetravailJeune')!
+    this.idp = this.configService.get('miloJeune')!
 
     const issuerConfig = {
       issuer: this.idp.issuer,

@@ -7,6 +7,7 @@ import { FrancetravailConseillerModule } from './idp/francetravail-conseiller/fr
 import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravail-jeune.module'
 import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.module'
 import { configureLoggerModule } from './logger.module'
+import { MiloJeuneModule } from './idp/milo-jeune/milo-jeune.module'
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { configureLoggerModule } from './logger.module'
     configureLoggerModule(),
     FrancetravailJeuneModule,
     FrancetravailConseillerModule,
-    MiloConseillerModule
+    MiloConseillerModule,
+    MiloJeuneModule
   ],
   controllers: [AppController]
 })
