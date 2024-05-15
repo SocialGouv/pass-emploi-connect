@@ -17,10 +17,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Issuer } from 'openid-client'
 import {
-  Context,
+  ContextStorage,
   ContextKey,
   ContextKeyType
-} from '../context/context.provider'
+} from '../context-storage/context-storage.provider'
 import { UserAccount } from '../domain/user'
 import { TokenData, TokenService } from './token.service'
 import { ConfigService } from '@nestjs/config'
@@ -38,7 +38,7 @@ export class GetAccessTokenUsecase {
   constructor(
     private readonly configService: ConfigService,
     private readonly tokenService: TokenService,
-    private readonly context: Context
+    private readonly context: ContextStorage
   ) {
     this.logger = new Logger('GetAccessTokenUsecase')
   }
@@ -75,28 +75,31 @@ export class GetAccessTokenUsecase {
     )
 
     if (!refreshToken) {
-      this.logger.error("l'utilisateur n'est pas authentifié")
-      throw Error("l'utilisateur n'est pas authentifié")
+      this.logger.error("L'utilisateur n'a pas de refresh token")
+      throw Error("L'utilisateur n'a pas de refresh token")
     }
 
-    this.logger.debug('refresh le token')
-
-    const issuerConfig = JSON.parse(
+    this.logger.debug('Refresh token')
+    const [issuerConfig, clientConfig] = await Promise.all([
       this.context.get({
         userType: userAccount.type,
         userStructure: userAccount.structure,
         key: ContextKeyType.ISSUER
-      })
-    )
-    const clientConfig = JSON.parse(
+      }),
       this.context.get({
         userType: userAccount.type,
         userStructure: userAccount.structure,
         key: ContextKeyType.CLIENT
       })
-    )
-    const issuer = new Issuer(issuerConfig)
-    const client = new issuer.Client(clientConfig)
+    ])
+
+    if (!issuerConfig || !clientConfig) {
+      this.logger.error('Config introuvable pour le refresh')
+      throw Error('Config introuvable pour le refresh')
+    }
+
+    const issuer = new Issuer(JSON.parse(issuerConfig))
+    const client = new issuer.Client(JSON.parse(clientConfig))
 
     const tokenSet = await client.refresh(refreshToken.token)
     const tokenData: TokenData = {

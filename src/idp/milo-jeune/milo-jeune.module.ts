@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 
 import { ConfigModule } from '@nestjs/config'
-import { ContextModule } from '../../context/context.module'
+import { ContextStorageModule } from '../../context-storage/context-storage.module'
 import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
 import { MiloJeuneController } from './milo-jeune.controller'
@@ -11,7 +11,7 @@ import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.modul
 @Module({
   imports: [
     ConfigModule,
-    ContextModule,
+    ContextStorageModule,
     OidcModule,
     TokenModule,
     PassEmploiAPIModule

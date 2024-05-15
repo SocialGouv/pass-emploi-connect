@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
 import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
-import { Context, ContextKeyType } from '../../context/context.provider'
+import {
+  ContextStorage,
+  ContextKeyType
+} from '../../context-storage/context-storage.provider'
 import { Account } from '../../domain/account'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
@@ -25,7 +28,7 @@ export abstract class IdpService {
     userType: User.Type,
     userStructure: User.Structure,
     idpConfigIdentifier: IdpConfigIdentifier,
-    private readonly context: Context,
+    private readonly contextStorage: ContextStorage,
     private readonly configService: ConfigService,
     private readonly oidcService: OidcService,
     private readonly tokenService: TokenService,
@@ -52,7 +55,7 @@ export abstract class IdpService {
       scope: this.idp.scopes,
       token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
     }
-    this.context.set(
+    this.contextStorage.set(
       {
         userType,
         userStructure,
@@ -60,7 +63,7 @@ export abstract class IdpService {
       },
       JSON.stringify(issuerConfig)
     )
-    this.context.set(
+    this.contextStorage.set(
       {
         userType,
         userStructure,

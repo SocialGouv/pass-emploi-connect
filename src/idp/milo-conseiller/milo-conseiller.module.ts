@@ -6,13 +6,13 @@ import { TokenModule } from '../../token/token.module'
 import { MiloConseillerController } from './milo-conseiller.controller'
 import { MiloConseillerService } from './milo-conseiller.service'
 import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.module'
-import { ContextModule } from '../../context/context.module'
+import { ContextStorageModule } from '../../context-storage/context-storage.module'
 
 @Module({
   imports: [
     ConfigModule,
     OidcModule,
-    ContextModule,
+    ContextStorageModule,
     TokenModule,
     PassEmploiAPIModule
   ],
