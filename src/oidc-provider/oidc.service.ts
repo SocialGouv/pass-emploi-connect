@@ -88,7 +88,7 @@ export class OidcService {
           redirect_uris: clients.swagger.callbacks,
           grant_types: ['authorization_code', 'refresh_token'],
           response_types: ['code'],
-          token_endpoint_auth_method: 'client_secret_post'
+          token_endpoint_auth_method: 'none'
         }
       ],
       // si besoin de changer l'algo des jwks
@@ -201,13 +201,17 @@ export class OidcService {
             case 'similo-conseiller':
               return `/milo-conseiller/connect/${interaction.uid}`
             case 'pe-jeune':
-              return `/francetravail-jeune/connect/${interaction.uid}`
+              return `/francetravail-jeune/connect/${interaction.uid}?type=cej`
             case 'pe-brsa-jeune':
-              return `/francetravail-brsa/connect/${interaction.uid}`
+              return `/francetravail-jeune/connect/${interaction.uid}?type=brsa`
+            case 'pe-aij-jeune':
+              return `/francetravail-jeune/connect/${interaction.uid}?type=aij`
             case 'pe-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}`
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=cej`
             case 'pe-brsa-conseiller':
-              return `/francetravail-conseiller/connect/${interaction.uid}`
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=brsa`
+            case 'pe-aij-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=aij`
             default:
               return `/choice/${interaction.uid}`
           }

@@ -5,8 +5,10 @@ import { ContextStorageModule } from '../../context-storage/context-storage.modu
 import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
 import { FrancetravailJeuneController } from './francetravail-jeune.controller'
-import { FrancetravailJeuneService } from './francetravail-jeune.service'
+import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
 import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.module'
+import { FrancetravailAIJService } from './francetravail-aij.service'
+import { FrancetravailBRSAService } from './francetravail-brsa.service'
 
 @Module({
   imports: [
@@ -16,7 +18,11 @@ import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.modul
     TokenModule,
     PassEmploiAPIModule
   ],
-  providers: [FrancetravailJeuneService],
+  providers: [
+    FrancetravailJeuneCEJService,
+    FrancetravailAIJService,
+    FrancetravailBRSAService
+  ],
   exports: [],
   controllers: [FrancetravailJeuneController]
 })

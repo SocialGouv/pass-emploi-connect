@@ -26,6 +26,7 @@ export namespace User {
   export enum Structure {
     MILO = 'MILO',
     POLE_EMPLOI = 'POLE_EMPLOI',
-    POLE_EMPLOI_BRSA = 'POLE_EMPLOI_BRSA'
+    POLE_EMPLOI_BRSA = 'POLE_EMPLOI_BRSA',
+    POLE_EMPLOI_AIJ = 'POLE_EMPLOI_AIJ'
   }
 }

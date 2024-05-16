@@ -9,7 +9,7 @@ import { TokenService } from '../../token/token.service'
 import { IdpService } from '../common/idp.service'
 
 @Injectable()
-export class FrancetravailJeuneCEJService extends IdpService {
+export class FrancetravailConseillerCEJService extends IdpService {
   constructor(
     context: ContextStorage,
     configService: ConfigService,
@@ -18,10 +18,10 @@ export class FrancetravailJeuneCEJService extends IdpService {
     passemploiapi: PassEmploiAPIService
   ) {
     super(
-      'FrancetravailJeuneCEJService',
-      User.Type.JEUNE,
+      'FrancetravailConseillerCEJService',
+      User.Type.CONSEILLER,
       User.Structure.POLE_EMPLOI,
-      IdpConfigIdentifier.FT_JEUNE,
+      IdpConfigIdentifier.FT_CONSEILLER,
       context,
       configService,
       oidcService,

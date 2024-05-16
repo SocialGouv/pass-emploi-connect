@@ -75,11 +75,12 @@ export abstract class IdpService {
     this.client = new issuer.Client(clientConfig)
   }
 
-  getAuthorizationUrl(interactionId: string): string {
+  getAuthorizationUrl(interactionId: string, state?: string): string {
     return this.client.authorizationUrl({
       nonce: interactionId,
       realm: this.idp.realm,
-      scope: this.idp.scopes
+      scope: this.idp.scopes,
+      state
     })
   }
 
@@ -90,7 +91,8 @@ export abstract class IdpService {
     )
     const params = this.client.callbackParams(request)
     const tokenSet = await this.client.callback(this.idp.redirectUri, params, {
-      nonce: interactionDetails.uid
+      nonce: interactionDetails.uid,
+      state: request.query.state ? (request.query.state as string) : undefined
     })
 
     const userInfo = await this.client.userinfo(tokenSet, {

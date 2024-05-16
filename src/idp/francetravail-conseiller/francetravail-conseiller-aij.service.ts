@@ -9,7 +9,7 @@ import { TokenService } from '../../token/token.service'
 import { IdpService } from '../common/idp.service'
 
 @Injectable()
-export class FrancetravailConseillerService extends IdpService {
+export class FrancetravailConseillerAIJService extends IdpService {
   constructor(
     context: ContextStorage,
     configService: ConfigService,
@@ -18,9 +18,9 @@ export class FrancetravailConseillerService extends IdpService {
     passemploiapi: PassEmploiAPIService
   ) {
     super(
-      'FrancetravailConseillerService',
+      'FrancetravailConseillerAIJService',
       User.Type.CONSEILLER,
-      User.Structure.POLE_EMPLOI,
+      User.Structure.POLE_EMPLOI_AIJ,
       IdpConfigIdentifier.FT_CONSEILLER,
       context,
       configService,
