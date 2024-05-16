@@ -11,6 +11,7 @@ export interface UserInfoAPI {
   email?: string
   type: User.Type
   structure: User.Structure
+  username?: string
 }
 
 @Injectable()
@@ -48,7 +49,8 @@ export class PassEmploiAPIService {
         userRoles: apiUser.data.roles,
         given_name: apiUser.data.prenom,
         family_name: apiUser.data.nom,
-        email: apiUser.data.email
+        email: apiUser.data.email,
+        preferred_username: apiUser.data.username
       }
       return user
     } catch (e) {
@@ -78,7 +80,8 @@ export class PassEmploiAPIService {
         userRoles: apiUser.data.roles,
         given_name: apiUser.data.prenom,
         family_name: apiUser.data.nom,
-        email: apiUser.data.email
+        email: apiUser.data.email,
+        preferred_username: apiUser.data.username
       }
       return user
     } catch (e) {

@@ -31,6 +31,7 @@ export const configurationSchema = Joi.object({
     }).required(),
     swagger: Joi.object({
       id: Joi.string().required(),
+      secret: Joi.string().required(),
       callbacks: Joi.array().items(Joi.string().required()).min(1).required()
     }).required()
   }).required(),

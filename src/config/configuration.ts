@@ -73,6 +73,7 @@ export default () => {
       },
       swagger: {
         id: process.env.CLIENT_SWAGGER_ID,
+        secret: process.env.CLIENT_SWAGGER_SECRET,
         callbacks: JSON.parse(process.env.CLIENT_SWAGGER_CALLBACKS!)
       }
     },

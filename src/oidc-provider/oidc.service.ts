@@ -84,11 +84,11 @@ export class OidcService {
         },
         {
           client_id: clients.swagger.id,
-          application_type: 'web',
+          client_secret: 'jopa',
           redirect_uris: clients.swagger.callbacks,
-          grant_types: ['implicit'],
-          response_types: ['id_token'],
-          token_endpoint_auth_method: 'none'
+          grant_types: ['authorization_code', 'refresh_token'],
+          response_types: ['code'],
+          token_endpoint_auth_method: 'client_secret_post'
         }
       ],
       // si besoin de changer l'algo des jwks
@@ -120,7 +120,8 @@ export class OidcService {
             userType: context.oidc.result.userType as User.Type,
             email: context.oidc.result.email as string,
             family_name: context.oidc.result.family_name as string,
-            given_name: context.oidc.result.given_name as string
+            given_name: context.oidc.result.given_name as string,
+            preferred_username: context.oidc.result.preferred_username as string
           }
         }
         // context non présent dans le cas d'un get/post token
@@ -136,7 +137,10 @@ export class OidcService {
         return {
           ...user,
           accountId,
-          claims: () => ({ sub: accountId.split('|')[2], ...user })
+          claims: () => ({
+            ...user,
+            sub: Account.getSubFromAccountId(accountId)
+          })
         }
       },
       claims: {
@@ -156,14 +160,12 @@ export class OidcService {
         return {
           userId: context.oidc.account?.userId,
           userRoles: context.oidc.account?.userRoles,
-          userStructure: context.oidc.account?.userStructure as User.Structure,
-          userType: context.oidc.account?.userType as User.Type,
-          email: context.oidc.account?.email as string,
-          family_name: context.oidc.account?.family_name as string,
-          given_name: context.oidc.account?.given_name as string,
-          preferred_username:
-            (context.oidc.account?.username as string) ??
-            (context.oidc.account?.preferred_username as string)
+          userStructure: context.oidc.account?.userStructure,
+          userType: context.oidc.account?.userType,
+          email: context.oidc.account?.email,
+          family_name: context.oidc.account?.family_name,
+          given_name: context.oidc.account?.given_name,
+          preferred_username: context.oidc.account?.preferred_username
         }
       },
       features: {

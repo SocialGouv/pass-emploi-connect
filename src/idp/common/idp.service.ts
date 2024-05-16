@@ -130,12 +130,14 @@ export abstract class IdpService {
       grantId
     )
 
+    // besoin de persister le preferred_username parce que le get token n'a pas cette info dans le context
     const apiUser = await this.passemploiapi.putUser(userAccount.sub, {
       nom: userInfo.given_name,
       prenom: userInfo.family_name,
       email: userInfo.email,
       structure: userAccount.structure,
-      type: userAccount.type
+      type: userAccount.type,
+      username: userInfo.preferred_username
     })
 
     if (!apiUser) {
@@ -152,7 +154,8 @@ export abstract class IdpService {
       family_name: userInfo.family_name,
       given_name: userInfo.given_name,
       userRoles: apiUser.userRoles,
-      userId: apiUser.userId
+      userId: apiUser.userId,
+      preferred_username: userInfo.preferred_username
     }
 
     await this.oidcService.interactionFinished(request, response, result)
