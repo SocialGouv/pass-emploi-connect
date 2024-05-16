@@ -6,42 +6,55 @@ volumes:
   authentik-certs:
   authentik-custom-templates:
 
+x-service: &api-definition
+  build:
+    context: .
+    dockerfile: Dockerfile.dev
+  environment:
+    PORT: '5000'
+    DATABASE_URL: postgresql://passemploi:passemploi@db/passemploidb
+    LOG_LEVEL: trace
+  env_file:
+    - path: ./.environment
+  links:
+    - db
+    - redis
+  develop:
+    watch:
+      - action: rebuild
+        path: package.json
+      - action: rebuild
+        path: yarn.lock
+      - action: sync+restart
+        path: ./tsconfig.json
+        target: /usr/src/app/tsconfig.json
+      - action: sync
+        path: ./
+        target: /usr/src/app/
+        ignore:
+          - node_modules/
+          - dist/
+          - certs/
+          - .vscode/
+          - docker-compose.yml
+
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    <<: *api-definition
     ports:
       - '8082:5000' # Application
       - '9229:9229' # NodeJS debugger
     environment:
-      PORT: 5000
+      PORT: '5000'
       DATABASE_URL: postgresql://passemploi:passemploi@db/passemploidb
       LOG_LEVEL: trace
       VIRTUAL_HOST: id.pass-emploi.incubateur.net
-      VIRTUAL_PORT: 5000
-    env_file:
-      - path: ./.environment
-    depends_on:
-      - db
-      - redis
-    develop:
-      watch:
-        - action: rebuild
-          path: package.json
-        - action: rebuild
-          path: yarn.lock
-        - action: sync+restart
-          path: ./tsconfig.json
-          target: /usr/src/app/tsconfig.json
-        - action: sync
-          path: ./
-          target: /usr/src/app/
-          ignore:
-            - node_modules/
-            - dist/
-            - .vscode/
+      VIRTUAL_PORT: '5000'
     command: yarn watch
+
+  # test:
+  #   <<: *api-definition
+  #   command: yarn test:e2e
 
   db:
     image: docker.io/postgis/postgis:16-3.4-alpine
@@ -137,9 +150,9 @@ services:
   #     - redis
 
   https:
-    image: nginxproxy/nginx-proxy
+    image: docker.io/nginxproxy/nginx-proxy
     ports:
-      - "443:443"
+      - '443:443'
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./certs:/etc/nginx/certs
