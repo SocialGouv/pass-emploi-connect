@@ -7,6 +7,9 @@ export const configurationSchema = Joi.object({
     url: Joi.string().required(),
     key: Joi.string().required()
   }).required(),
+  cors: Joi.object({
+    allowedOrigins: Joi.array().items(Joi.string())
+  }),
   redis: Joi.object({
     url: Joi.string().required()
   }).required(),

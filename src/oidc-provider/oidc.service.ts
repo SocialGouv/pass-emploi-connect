@@ -84,11 +84,11 @@ export class OidcService {
         },
         {
           client_id: clients.swagger.id,
-          client_secret: 'jopa',
+          client_secret: clients.swagger.secret,
           redirect_uris: clients.swagger.callbacks,
           grant_types: ['authorization_code', 'refresh_token'],
           response_types: ['code'],
-          token_endpoint_auth_method: 'none'
+          token_endpoint_auth_method: 'client_secret_post'
         }
       ],
       // si besoin de changer l'algo des jwks

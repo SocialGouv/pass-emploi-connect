@@ -48,6 +48,11 @@ export default () => {
     publicAddress:
       process.env.PUBLIC_ADDRESS ||
       `http://localhost:${process.env.PORT ? parseInt(process.env.PORT, 10) : 5050}`,
+    cors: {
+      allowedOrigins: process.env.CORS_ALLOWED_ORIGINS
+        ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS)
+        : []
+    },
     passemploiapi: {
       url: process.env.PASS_EMPLOI_API_URL,
       key: process.env.PASS_EMPLOI_API_KEY
