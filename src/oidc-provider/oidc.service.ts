@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { JWKS } from 'oidc-provider'
+import { ErrorOut, JWKS } from 'oidc-provider'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
 import { PassEmploiAPIService } from '../pass-emploi-api/pass-emploi-api.service'
@@ -14,6 +14,8 @@ import {
   grantType as tokenExchangeGrantType,
   parameters as tokenExchangeParameters
 } from './token-exchange.grant'
+import * as sanitizeHtml from 'sanitize-html'
+import { isFailure } from '../result/result'
 
 @Injectable()
 export class OidcService {
@@ -103,6 +105,77 @@ export class OidcService {
         required: () => false,
         methods: ['S256', 'plain']
       },
+      renderError: (ctx, out, _error) => {
+        ctx.type = 'html'
+        ctx.body = `<!DOCTYPE html>
+        <html>
+        
+        <head>
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta charset="utf-8">
+          <title>Portail de connexion</title>
+          <style>
+            @import url(https://fonts.googleapis.com/css?family=Roboto:400,100);
+        
+            body {
+              background-color: #f7f7ff;
+              font-family: Roboto, sans-serif;
+              margin-top: 100px;
+              margin-bottom: 25px
+            }
+        
+            .container {
+              background-color: #f9ffff;
+              width: 60vw;
+              text-align: center;
+              padding: 5px;
+              margin: 0 auto;
+              border-radius: 10px;
+              box-shadow: 0 0 10px rgb(59, 105, 209, 0.3);
+            }
+        
+            h1 {
+              font-weight: 1000;
+              color: rgb(59, 105, 209);
+              text-align: center;
+              font-size: 2.3em;
+              padding: 50px;
+            }
+        
+            .footer-text {
+              margin-top: 50px;
+              color: rgb(126, 126, 130);
+            }
+        
+            a {
+              color: inherit;
+            }
+        
+            pre {
+              white-space: pre-wrap;
+              white-space: -moz-pre-wrap;
+              white-space: -pre-wrap;
+              white-space: -o-pre-wrap;
+              word-wrap: break-word;
+              margin: 0 0 0 1em;
+              text-indent: -1em
+            }
+          </style>
+        </head>
+        
+        <body>
+          <div class="container">
+            <h1>Portail de connexion</h1>
+            <p>Une erreur technique s'est produite</p>
+            ${this.logErrors(out)}
+            <p class="footer-text"><a
+                href="mailto:support@pass-emploi.beta.gouv.fr?subject=Erreur technique lors de la connexion">Contacter le
+                support</a></p>
+          </div>
+        </body>
+        
+        </html>`
+      },
       cookies: {
         keys: ['my-secret-key'],
         short: { path: '/' }
@@ -128,11 +201,11 @@ export class OidcService {
         else {
           const userAccount = Account.fromAccountIdToUserAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(userAccount)
-          if (!apiUser) {
-            this.logger.debug('Could not get user from API')
+          if (isFailure(apiUser)) {
+            this.logger.error('Could not get user from API')
             throw new Error('Could not get user from API')
           }
-          user = apiUser
+          user = apiUser.data
         }
         return {
           ...user,
@@ -187,29 +260,59 @@ export class OidcService {
             // @param ctx - koa request context
             // @param form - form source (id=""op.logoutForm"") to be embedded in the page and submitted by
             //   the End-User
-            ctx.body = `<!DOCTYPE html>
-              <html>
-                <head>
-                  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                  <meta charset="utf-8">
-                  <title>Logout Request</title>
-                  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                  <style>
-                    @import url(https://fonts.googleapis.com/css?family=Roboto:400,100);button,h1{text-align:center}h1{font-weight:100;font-size:1.3em}body{font-family:Roboto,sans-serif;margin-top:25px;margin-bottom:25px}.container{padding:0 40px 10px;width:274px;background-color:#F7F7F7;margin:0 auto 10px;border-radius:2px;box-shadow:0 2px 2px rgba(0,0,0,.3);overflow:hidden}button{font-size:14px;font-family:Arial,sans-serif;font-weight:700;height:36px;padding:0 8px;width:100%;display:block;margin-bottom:10px;position:relative;border:0;color:#fff;text-shadow:0 1px rgba(0,0,0,.1);background-color:#4d90fe;cursor:pointer}button:hover{border:0;text-shadow:0 1px rgba(0,0,0,.3);background-color:#357ae8}
-                  </style>
-                </head>
-                <body>
-                  <div class="container">
-                    <h1>Voulez-vous vraiment vous déconnecter ?</h1>
-                    ${form}
-                    <button autofocus type="submit" form="op.logoutForm" value="yes" name="logout">Oui, me déconnecter</button>
-                    <button type="submit" form="op.logoutForm">Non, rester connecté</button>
-                  </div>
-                  <script type="text/javascript">
-                    document.querySelector('form[id="op.logoutForm"]').submit();
-                  </script>
-                </body>
-              </html>`
+            ctx.body = `<html>
+
+            <head>
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta charset="utf-8">
+              <title>Portail de connexion</title>
+              <style>
+                @import url(https://fonts.googleapis.com/css?family=Roboto:400,100);
+            
+                body {
+                  background-color: #f7f7ff;
+                  font-family: Roboto, sans-serif;
+                  margin-top: 100px;
+                  margin-bottom: 25px;
+                  text-align: center
+                }
+            
+                .container {
+                  width: 40vw;
+                  padding: 5px;
+                  margin: 0 auto;
+                }
+            
+                button {
+                  border: none;
+                  outline: none;
+                  color: rgb(59, 105, 209);
+                  font-size: 14px;
+                  font-weight: 700;
+                  padding: 10px;
+                  width: 100%;
+                  border-radius: 10px;
+                  background-color: #ffffff;
+                }
+            
+                button:hover {
+                  background-color: rgb(59, 105, 209);
+                  color: white;
+                }
+              </style>
+            </head>
+            
+            <body>
+              <div class="container">
+                ${form}
+                <button autofocus type="submit" form="op.logoutForm" value="yes" name="logout">Déconnexion...</button>
+              </div>
+              <script type="text/javascript">
+                document.querySelector('form[id="op.logoutForm"]').submit();
+              </script>
+            </body>
+            
+            </html>`
           }
         }
       },
@@ -295,5 +398,18 @@ export class OidcService {
 
   findGrant(grantId: string) {
     return this.oidc.Grant.find(grantId)
+  }
+
+  private logErrors(errors: ErrorOut): string {
+    this.logger.error(errors)
+    if (this.configService.get('environment') !== 'prod') {
+      return Object.entries(errors)
+        .map(
+          ([key, value]) =>
+            `<pre><strong>${key}</strong>: ${sanitizeHtml(value)}</pre>`
+        )
+        .join('')
+    }
+    return '<p>Veuillez réessayer plus tard</p>'
   }
 }

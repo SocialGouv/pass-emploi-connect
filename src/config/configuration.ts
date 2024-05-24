@@ -44,6 +44,7 @@ const IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
 
 export default () => {
   const configuration: Configuration = {
+    environment: process.env.ENVIRONMENT,
     port: process.env.PORT ? parseInt(process.env.PORT, 10) : 5050,
     publicAddress:
       process.env.PUBLIC_ADDRESS ||

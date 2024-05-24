@@ -5,11 +5,13 @@ import {
   Logger,
   Param,
   Redirect,
+  Render,
   Req,
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { MiloJeuneService } from './milo-jeune.service'
+import { handleResult } from '../../result/result.handler'
 
 @Controller()
 export class MiloJeuneController {
@@ -32,10 +34,12 @@ export class MiloJeuneController {
   }
 
   @Get('auth/realms/pass-emploi/broker/similo-jeune/endpoint')
+  @Render('index')
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<void> {
-    await this.miloJeuneService.callback(request, response)
+  ): Promise<any> {
+    const result = await this.miloJeuneService.callback(request, response)
+    return handleResult(result)
   }
 }

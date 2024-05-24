@@ -14,6 +14,7 @@ import { TokenService } from '../../token/token.service'
 import { generateNewGrantId } from './helpers'
 import { BaseClient, Issuer } from 'openid-client'
 import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
+import { Result, emptySuccess, isFailure } from '../../result/result'
 
 export abstract class IdpService {
   private idpName: string
@@ -84,7 +85,7 @@ export abstract class IdpService {
     })
   }
 
-  async callback(request: Request, response: Response): Promise<void> {
+  async callback(request: Request, response: Response): Promise<Result> {
     const interactionDetails = await this.oidcService.interactionDetails(
       request,
       response
@@ -133,7 +134,7 @@ export abstract class IdpService {
     )
 
     // besoin de persister le preferred_username parce que le get token n'a pas cette info dans le context
-    const apiUser = await this.passemploiapi.putUser(userAccount.sub, {
+    const apiUserResult = await this.passemploiapi.putUser(userAccount.sub, {
       nom: userInfo.given_name,
       prenom: userInfo.family_name,
       email: userInfo.email,
@@ -142,9 +143,9 @@ export abstract class IdpService {
       username: userInfo.preferred_username
     })
 
-    if (!apiUser) {
-      this.logger.debug('Could not put user')
-      throw new Error('Could not put user')
+    if (isFailure(apiUserResult)) {
+      this.logger.error('Could not put user')
+      return apiUserResult
     }
 
     const result: InteractionResults = {
@@ -155,11 +156,12 @@ export abstract class IdpService {
       email: userInfo.email,
       family_name: userInfo.family_name,
       given_name: userInfo.given_name,
-      userRoles: apiUser.userRoles,
-      userId: apiUser.userId,
+      userRoles: apiUserResult.data.userRoles,
+      userId: apiUserResult.data.userId,
       preferred_username: userInfo.preferred_username
     }
 
     await this.oidcService.interactionFinished(request, response, result)
+    return emptySuccess()
   }
 }

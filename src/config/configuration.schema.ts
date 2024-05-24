@@ -1,6 +1,7 @@
 import * as Joi from 'joi'
 
 export const configurationSchema = Joi.object({
+  environment: Joi.string().valid('prod', 'staging').required(),
   port: Joi.number(),
   publicAddress: Joi.string().required(),
   passemploiapi: Joi.object({

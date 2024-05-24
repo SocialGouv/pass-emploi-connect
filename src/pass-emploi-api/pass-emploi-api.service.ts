@@ -1,9 +1,10 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { User, UserAccount } from '../domain/user'
-import { Account } from '../domain/account'
 import { firstValueFrom } from 'rxjs'
+import { User, UserAccount } from '../domain/user'
+import { NonTraitable, NonTrouveError } from '../result/error'
+import { Result, failure, success } from '../result/result'
 
 export interface UserInfoAPI {
   nom?: string
@@ -29,10 +30,7 @@ export class PassEmploiAPIService {
     this.apiKey = this.configService.get('passemploiapi.key')!
   }
 
-  async putUser(
-    sub: string,
-    userInfoAPI: UserInfoAPI
-  ): Promise<User | undefined> {
+  async putUser(sub: string, userInfoAPI: UserInfoAPI): Promise<Result<User>> {
     try {
       const apiUser = await firstValueFrom(
         this.httpService.put(`${this.apiUrl}/auth/users/${sub}`, userInfoAPI, {
@@ -52,14 +50,14 @@ export class PassEmploiAPIService {
         email: apiUser.data.email,
         preferred_username: apiUser.data.username
       }
-      return user
+      return success(user)
     } catch (e) {
       this.logger.error(e)
-      return undefined
+      return failure(new NonTraitable(e.response?.data?.code))
     }
   }
 
-  async getUser(userAccount: UserAccount): Promise<User | undefined> {
+  async getUser(userAccount: UserAccount): Promise<Result<User>> {
     try {
       const apiUser = await firstValueFrom(
         this.httpService.get(`${this.apiUrl}/auth/users/${userAccount.sub}`, {
@@ -83,10 +81,10 @@ export class PassEmploiAPIService {
         email: apiUser.data.email,
         preferred_username: apiUser.data.username
       }
-      return user
+      return success(user)
     } catch (e) {
       this.logger.error(e)
-      return undefined
+      return failure(new NonTrouveError('User', userAccount.sub))
     }
   }
 }

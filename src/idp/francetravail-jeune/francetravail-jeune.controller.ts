@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   Redirect,
+  Render,
   Req,
   Res
 } from '@nestjs/common'
@@ -13,6 +14,7 @@ import { Request, Response } from 'express'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
 import { FrancetravailAIJService } from './francetravail-aij.service'
 import { FrancetravailBRSAService } from './francetravail-brsa.service'
+import { handleResult } from '../../result/result.handler'
 
 @Controller()
 export class FrancetravailJeuneController {
@@ -61,22 +63,28 @@ export class FrancetravailJeuneController {
   }
 
   @Get('auth/realms/pass-emploi/broker/pe-jeune/endpoint')
+  @Render('index')
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<void> {
+  ): Promise<any> {
     const ftType = request.query.state
+    let result
 
     switch (ftType) {
       case 'aij':
-        await this.francetravailAIJService.callback(request, response)
+        result = await this.francetravailAIJService.callback(request, response)
         break
       case 'brsa':
-        await this.francetravailBRSAService.callback(request, response)
+        result = await this.francetravailBRSAService.callback(request, response)
         break
       default:
-        await this.francetravailJeuneCEJService.callback(request, response)
+        result = await this.francetravailJeuneCEJService.callback(
+          request,
+          response
+        )
         break
     }
+    return handleResult(result)
   }
 }
