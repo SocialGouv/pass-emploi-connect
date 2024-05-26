@@ -27,6 +27,6 @@ async function bootstrap() {
   app.setViewEngine('hbs')
 
   const port = appConfig.get('port')
-  await app.listen(port)
+  await app.listen(port, '0.0.0.0')
 }
 bootstrap()
