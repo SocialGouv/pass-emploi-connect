@@ -6,15 +6,14 @@ import {
   Param,
   Query,
   Redirect,
-  Render,
   Req,
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
+import { handleResult } from '../../result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
-import { handleResult } from '../../result/result.handler'
+import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
 
 @Controller()
 export class FrancetravailConseillerController {
@@ -69,7 +68,7 @@ export class FrancetravailConseillerController {
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<any> {
+  ): Promise<unknown> {
     const ftType = request.query.state
     let result
     switch (ftType) {

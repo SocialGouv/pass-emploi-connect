@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Inject, Injectable, Logger } from '@nestjs/common'
 
 import { ConfigService } from '@nestjs/config'
@@ -199,8 +201,8 @@ export class OidcService {
         }
         // context non présent dans le cas d'un get/post token
         else {
-          const userAccount = Account.fromAccountIdToUserAccount(accountId)
-          const apiUser = await this.passemploiapiService.getUser(userAccount)
+          const account = Account.fromAccountIdToAccount(accountId)
+          const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
             this.logger.error('Could not get user from API')
             throw new Error('Could not get user from API')
@@ -257,6 +259,7 @@ export class OidcService {
         },
         rpInitiatedLogout: {
           enabled: true,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           logoutSource: async function logoutSource(ctx: any, form: any) {
             // @param ctx - koa request context
             // @param form - form source (id=""op.logoutForm"") to be embedded in the page and submitted by

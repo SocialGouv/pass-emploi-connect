@@ -11,12 +11,6 @@ export interface User {
   preferred_username?: string
 }
 
-export interface UserAccount {
-  sub: string
-  type: User.Type
-  structure: User.Structure
-}
-
 export namespace User {
   export enum Type {
     JEUNE = 'JEUNE',

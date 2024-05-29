@@ -332,6 +332,10 @@ paket-files/
 # FAKE - F# Make
 .fake/
 
+# Tests
+/coverage
+/.nyc_output
+
 # JetBrains Rider
 .idea/
 *.sln.iml

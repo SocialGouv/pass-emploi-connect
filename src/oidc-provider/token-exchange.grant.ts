@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { KoaContextWithOIDC } from 'oidc-provider'
-import { User, UserAccount } from '../domain/user'
+import { User } from '../domain/user'
 import { GetAccessTokenUsecase } from '../token/get-access-token.usecase'
 import { ValidateJWTUsecase } from '../token/verify-jwt.usecase'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
@@ -59,12 +59,14 @@ export class TokenExchangeGrant {
       throw new this.opm.errors.InvalidGrant(message)
     }
 
-    const userAccount: UserAccount = {
+    const account: Account = {
       sub: Account.getSubFromAccountId(tokenPayload.sub!),
       type: tokenPayload.userType! as User.Type,
       structure: tokenPayload.userStructure! as User.Structure
     }
-    const tokenData = await this.getAccessTokenUsecase.execute({ userAccount })
+    const tokenData = await this.getAccessTokenUsecase.execute({
+      account
+    })
 
     if (!tokenData) {
       const message = 'unable to find an access_token'

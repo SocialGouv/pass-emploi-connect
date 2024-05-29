@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { RedisClient } from '../redis/redis.client'
-import { UserAccount } from '../domain/user'
 import { Account } from '../domain/account'
 import { DateTime } from 'luxon'
 
@@ -23,14 +22,14 @@ export class TokenService {
   }
 
   async getToken(
-    user: UserAccount,
+    user: Account,
     tokenType: 'access_token' | 'refresh_token'
   ): Promise<TokenData | undefined> {
     this.logger.debug('GET TOKEN %j', user)
 
     const data = await this.redisClient.get(
       tokenType,
-      Account.fromUserAccountToAccountId(user)
+      Account.fromAccountToAccountId(user)
     )
     if (data) {
       try {
@@ -44,7 +43,7 @@ export class TokenService {
   }
 
   async setToken(
-    user: UserAccount,
+    user: Account,
     tokenType: 'access_token' | 'refresh_token',
     tokenData: TokenData
   ): Promise<void> {
@@ -63,7 +62,7 @@ export class TokenService {
 
     await this.redisClient.setWithExpiry(
       tokenType,
-      Account.fromUserAccountToAccountId(user),
+      Account.fromAccountToAccountId(user),
       JSON.stringify(tokenToSave),
       ttl
     )
