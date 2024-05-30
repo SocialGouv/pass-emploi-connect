@@ -19,6 +19,7 @@ export const configurationSchema = Joi.object({
       id: Joi.string().required(),
       secret: Joi.string().required(),
       callbacks: Joi.array().items(Joi.string().required()).min(1).required(),
+      errorCallback: Joi.string().required(),
       logoutCallbacks: Joi.array()
         .items(Joi.string().required())
         .min(1)

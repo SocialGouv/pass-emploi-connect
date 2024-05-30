@@ -1,6 +1,7 @@
 export interface DomainError {
   readonly code: string
   readonly message: string
+  readonly reason?: string
 }
 
 export class NonTrouveError implements DomainError {
@@ -16,16 +17,16 @@ export class NonTrouveError implements DomainError {
 export class NonTraitable implements DomainError {
   static CODE = 'NON_TRAITABLE'
   readonly code: string = NonTraitable.CODE
+  readonly reason: NonTraitableReason
   readonly message: string
 
-  constructor(
-    nonTraitableCode: NonTraitableCode = NonTraitableCode.NON_TRAITABLE
-  ) {
-    this.message = mapNonTraitableMessage[nonTraitableCode]
+  constructor(reason: NonTraitableReason = NonTraitableReason.NON_TRAITABLE) {
+    this.reason = reason
+    this.message = mapNonTraitableMessage[reason]
   }
 }
 
-export enum NonTraitableCode {
+export enum NonTraitableReason {
   NON_TRAITABLE = 'NON_TRAITABLE',
   UTILISATEUR_INEXISTANT = 'UTILISATEUR_INEXISTANT',
   UTILISATEUR_DEJA_MILO = 'UTILISATEUR_DEJA_MILO',
@@ -36,7 +37,7 @@ export enum NonTraitableCode {
   UTILISATEUR_NOUVEAU_PE_BRSA = 'UTILISATEUR_NOUVEAU_PE_BRSA'
 }
 
-const mapNonTraitableMessage: Record<NonTraitableCode, string> = {
+const mapNonTraitableMessage: Record<NonTraitableReason, string> = {
   NON_TRAITABLE: 'Utilisateur non traitable',
   UTILISATEUR_INEXISTANT:
     'Aucun utilisateur trouvé, veuillez contacter votre conseiller',

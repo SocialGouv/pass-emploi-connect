@@ -206,6 +206,7 @@ export class OidcService {
             throw new Error('Could not get user from API')
           }
           user = apiUser.data
+          throw new Error('Could not get user from API')
         }
         return {
           ...user,

@@ -3,10 +3,9 @@ import { NestFactory } from '@nestjs/core'
 import { Logger } from 'nestjs-pino'
 import { join } from 'path'
 import { AppModule } from './app.module'
-import { NestExpressApplication } from '@nestjs/platform-express'
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule)
+  const app = await NestFactory.create(AppModule)
 
   const logger = app.get(Logger)
   app.useLogger(logger)
@@ -22,9 +21,6 @@ async function bootstrap() {
   } else {
     logger.warn('No CORS domain configured so CORS is disabled.')
   }
-
-  app.setBaseViewsDir(join(__dirname, '..', 'views'));
-  app.setViewEngine('hbs')
 
   const port = appConfig.get('port')
   await app.listen(port, '0.0.0.0')

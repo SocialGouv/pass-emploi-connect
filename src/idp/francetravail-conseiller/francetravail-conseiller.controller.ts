@@ -65,7 +65,7 @@ export class FrancetravailConseillerController {
   }
 
   @Get('auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-  @Render('index')
+  @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
