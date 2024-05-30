@@ -15,20 +15,19 @@
 // retourne access token, expires in et scope
 
 import { Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { Issuer } from 'openid-client'
 import {
-  ContextStorage,
-  ContextKey,
-  ContextKeyType
+  ContextKeyType,
+  ContextStorage
 } from '../context-storage/context-storage.provider'
-import { UserAccount } from '../domain/user'
+import { Account } from '../domain/account'
 import { TokenData, TokenService } from './token.service'
-import { ConfigService } from '@nestjs/config'
 
 const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 
 interface Inputs {
-  userAccount: UserAccount
+  account: Account
 }
 
 @Injectable()
@@ -46,7 +45,7 @@ export class GetAccessTokenUsecase {
   async execute(query: Inputs): Promise<TokenData | undefined> {
     try {
       const storedAccessTokenData = await this.tokenService.getToken(
-        query.userAccount,
+        query.account,
         'access_token'
       )
 
@@ -59,7 +58,7 @@ export class GetAccessTokenUsecase {
       }
 
       this.logger.debug('OK?')
-      const newAccessTokenData = await this.refresh(query.userAccount)
+      const newAccessTokenData = await this.refresh(query.account)
       this.logger.debug('OK!')
       return newAccessTokenData
     } catch (e) {
@@ -68,9 +67,9 @@ export class GetAccessTokenUsecase {
     }
   }
 
-  private async refresh(userAccount: UserAccount): Promise<TokenData> {
+  private async refresh(account: Account): Promise<TokenData> {
     const refreshToken = await this.tokenService.getToken(
-      userAccount,
+      account,
       'refresh_token'
     )
 
@@ -82,13 +81,13 @@ export class GetAccessTokenUsecase {
     this.logger.debug('Refresh token')
     const [issuerConfig, clientConfig] = await Promise.all([
       this.context.get({
-        userType: userAccount.type,
-        userStructure: userAccount.structure,
+        userType: account.type,
+        userStructure: account.structure,
         key: ContextKeyType.ISSUER
       }),
       this.context.get({
-        userType: userAccount.type,
-        userStructure: userAccount.structure,
+        userType: account.type,
+        userStructure: account.structure,
         key: ContextKeyType.CLIENT
       })
     ])
@@ -112,7 +111,7 @@ export class GetAccessTokenUsecase {
       scope: tokenSet.scope
     }
 
-    await this.tokenService.setToken(userAccount, 'access_token', tokenData)
+    await this.tokenService.setToken(account, 'access_token', tokenData)
 
     return tokenData
   }

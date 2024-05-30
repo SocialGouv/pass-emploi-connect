@@ -7,7 +7,7 @@ export async function generateNewGrantId(
   accountId: string,
   clientId: string,
   grantId?: string
-) {
+): Promise<string> {
   let grant
   if (grantId) {
     // modification du grant existant dans la session

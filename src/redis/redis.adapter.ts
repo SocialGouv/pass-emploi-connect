@@ -1,7 +1,9 @@
-import { Inject, Logger } from '@nestjs/common'
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+import { Logger } from '@nestjs/common'
 import Redis from 'ioredis'
 import { Adapter, AdapterPayload } from 'oidc-provider'
-// @ts-ignore
+// @ts-expect-error - loadash
 import * as isEmpty from 'lodash.isempty'
 
 const grantable = new Set([
@@ -34,10 +36,7 @@ function uidKeyFor(uid: string) {
 export class RedisAdapter implements Adapter {
   private logger: Logger
 
-  constructor(
-    private name: string,
-    private readonly redisClient: Redis
-  ) {
+  constructor(private name: string, private readonly redisClient: Redis) {
     this.logger = new Logger('RedisAdapter')
     this.logger.debug('Redis adapter created ' + this.name)
   }

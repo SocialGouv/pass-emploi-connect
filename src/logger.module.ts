@@ -27,6 +27,7 @@ export const configureLoggerModule = (): DynamicModule =>
             return { level: label }
           }
         },
+        // eslint-disable-next-line no-process-env
         level: process.env.LOG_LEVEL ?? 'info'
       }
     ]

@@ -1,20 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
 import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
+import { BaseClient, Issuer } from 'openid-client'
+import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
 import {
-  ContextStorage,
-  ContextKeyType
+  ContextKeyType,
+  ContextStorage
 } from '../../context-storage/context-storage.provider'
 import { Account } from '../../domain/account'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { PassEmploiAPIService } from '../../pass-emploi-api/pass-emploi-api.service'
+import { Result, emptySuccess, isFailure } from '../../result/result'
 import { TokenService } from '../../token/token.service'
 import { generateNewGrantId } from './helpers'
-import { BaseClient, Issuer } from 'openid-client'
-import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
-import { Result, emptySuccess, isFailure } from '../../result/result'
 
 export abstract class IdpService {
   private idpName: string
@@ -100,14 +100,14 @@ export abstract class IdpService {
       params: { realm: this.idp.realm }
     })
 
-    const userAccount = {
+    const account = {
       sub: userInfo.sub,
       type: this.userType,
       structure: this.userStructure
     }
-    const accountId = Account.fromUserAccountToAccountId(userAccount)
+    const accountId = Account.fromAccountToAccountId(account)
 
-    this.tokenService.setToken(userAccount, 'access_token', {
+    this.tokenService.setToken(account, 'access_token', {
       token: tokenSet.access_token!,
       expiresIn: tokenSet.expires_in || this.idp.accessTokenMaxAge,
       scope: tokenSet.scope
@@ -117,7 +117,7 @@ export abstract class IdpService {
       try {
         refreshExpiresIn = tokenSet.refresh_expires_in as number
       } catch (e) {}
-      this.tokenService.setToken(userAccount, 'refresh_token', {
+      this.tokenService.setToken(account, 'refresh_token', {
         token: tokenSet.refresh_token,
         expiresIn: refreshExpiresIn || this.idp.refreshTokenMaxAge,
         scope: tokenSet.scope
@@ -134,12 +134,12 @@ export abstract class IdpService {
     )
 
     // besoin de persister le preferred_username parce que le get token n'a pas cette info dans le context
-    const apiUserResult = await this.passemploiapi.putUser(userAccount.sub, {
+    const apiUserResult = await this.passemploiapi.putUser(account.sub, {
       nom: userInfo.given_name,
       prenom: userInfo.family_name,
       email: userInfo.email,
-      structure: userAccount.structure,
-      type: userAccount.type,
+      structure: account.structure,
+      type: account.type,
       username: userInfo.preferred_username
     })
 

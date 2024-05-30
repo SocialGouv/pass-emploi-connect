@@ -5,13 +5,12 @@ import {
   Logger,
   Param,
   Redirect,
-  Render,
   Req,
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { MiloConseillerService } from './milo-conseiller.service'
 import { handleResult } from '../../result/result.handler'
+import { MiloConseillerService } from './milo-conseiller.service'
 
 @Controller()
 export class MiloConseillerController {
@@ -27,7 +26,7 @@ export class MiloConseillerController {
     @Param('interactionId') interactionId: string
   ): Promise<{ url: string }> {
     const authorizationUrl =
-      await this.miloConseillerService.getAuthorizationUrl(interactionId)
+      this.miloConseillerService.getAuthorizationUrl(interactionId)
     return {
       url: authorizationUrl
     }
@@ -38,7 +37,7 @@ export class MiloConseillerController {
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<any> {
+  ): Promise<unknown> {
     const result = await this.miloConseillerService.callback(request, response)
     return handleResult(result)
   }

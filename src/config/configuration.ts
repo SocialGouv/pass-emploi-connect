@@ -66,7 +66,7 @@ export default () => {
         id: process.env.CLIENT_WEB_ID,
         secret: process.env.CLIENT_WEB_SECRET,
         callbacks: JSON.parse(process.env.CLIENT_WEB_CALLBACKS!),
-        errorCallback: JSON.parse(process.env.CLIENT_WEB_ERROR_CALLBACK!),
+        errorCallback: process.env.CLIENT_WEB_ERROR_CALLBACK!,
         logoutCallbacks: JSON.parse(process.env.CLIENT_WEB_LOGOUT_CALLBACKS!)
       },
       app: {

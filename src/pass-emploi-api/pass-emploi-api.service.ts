@@ -2,11 +2,12 @@ import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { firstValueFrom } from 'rxjs'
-import { User, UserAccount } from '../domain/user'
+import { User } from '../domain/user'
 import { NonTraitable, NonTrouveError } from '../result/error'
 import { Result, failure, success } from '../result/result'
+import { Account } from '../domain/account'
 
-export interface UserInfoAPI {
+export interface PassEmploiUser {
   nom?: string
   prenom?: string
   email?: string
@@ -30,14 +31,21 @@ export class PassEmploiAPIService {
     this.apiKey = this.configService.get('passemploiapi.key')!
   }
 
-  async putUser(sub: string, userInfoAPI: UserInfoAPI): Promise<Result<User>> {
+  async putUser(
+    sub: string,
+    passEmploiUser: PassEmploiUser
+  ): Promise<Result<User>> {
     try {
       const apiUser = await firstValueFrom(
-        this.httpService.put(`${this.apiUrl}/auth/users/${sub}`, userInfoAPI, {
-          headers: {
-            'X-API-KEY': this.apiKey
+        this.httpService.put(
+          `${this.apiUrl}/auth/users/${sub}`,
+          passEmploiUser,
+          {
+            headers: {
+              'X-API-KEY': this.apiKey
+            }
           }
-        })
+        )
       )
 
       const user: User = {
@@ -57,13 +65,13 @@ export class PassEmploiAPIService {
     }
   }
 
-  async getUser(userAccount: UserAccount): Promise<Result<User>> {
+  async getUser(account: Account): Promise<Result<User>> {
     try {
       const apiUser = await firstValueFrom(
-        this.httpService.get(`${this.apiUrl}/auth/users/${userAccount.sub}`, {
+        this.httpService.get(`${this.apiUrl}/auth/users/${account.sub}`, {
           params: {
-            typeUtilisateur: userAccount.type,
-            structureUtilisateur: userAccount.structure
+            typeUtilisateur: account.type,
+            structureUtilisateur: account.structure
           },
           headers: {
             'X-API-KEY': this.apiKey
@@ -73,8 +81,8 @@ export class PassEmploiAPIService {
 
       const user: User = {
         userId: apiUser.data.id,
-        userType: userAccount.type,
-        userStructure: userAccount.structure,
+        userType: account.type,
+        userStructure: account.structure,
         userRoles: apiUser.data.roles,
         given_name: apiUser.data.prenom,
         family_name: apiUser.data.nom,
@@ -84,7 +92,7 @@ export class PassEmploiAPIService {
       return success(user)
     } catch (e) {
       this.logger.error(e)
-      return failure(new NonTrouveError('User', userAccount.sub))
+      return failure(new NonTrouveError('User', account.sub))
     }
   }
 }

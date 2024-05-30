@@ -1,19 +1,25 @@
-import { User, UserAccount } from './user'
+import { User } from './user'
 
 const separator = '|'
 const typeIndex = 0
 const structureIndex = 1
 const subIndex = 2
 
+export interface Account {
+  sub: string
+  type: User.Type
+  structure: User.Structure
+}
+
 export namespace Account {
-  export function fromUserAccountToAccountId(userAccount: UserAccount): string {
+  export function fromAccountToAccountId(account: Account): string {
     const accountIdArray = []
-    accountIdArray[typeIndex] = userAccount.type
-    accountIdArray[structureIndex] = userAccount.structure
-    accountIdArray[subIndex] = userAccount.sub
+    accountIdArray[typeIndex] = account.type
+    accountIdArray[structureIndex] = account.structure
+    accountIdArray[subIndex] = account.sub
     return accountIdArray.join(separator)
   }
-  export function fromAccountIdToUserAccount(accountId: string): UserAccount {
+  export function fromAccountIdToAccount(accountId: string): Account {
     return {
       sub: getSubFromAccountId(accountId),
       type: getTypeFromAccountId(accountId),
