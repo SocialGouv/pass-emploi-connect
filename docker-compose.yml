@@ -1,24 +1,20 @@
 ---
-volumes:
-  db-data:
-  redis-data:
-  authentik-media:
-  authentik-certs:
-  authentik-custom-templates:
-
 x-service: &api-definition
   build:
     context: .
     dockerfile: Dockerfile.dev
   environment:
     PORT: '5000'
-    DATABASE_URL: postgresql://passemploi:passemploi@db/passemploidb
+    # DATABASE_URL: postgresql://passemploi:passemploi@db/passemploidb
     LOG_LEVEL: trace
   env_file:
     - path: ./.environment
-  links:
-    - db
-    - redis
+  depends_on:
+    # db:
+    #   condition: service_healthy
+    #   restart: true
+    redis:
+      condition: service_started
   develop:
     watch:
       - action: rebuild
@@ -46,7 +42,7 @@ services:
       - '9229:9229' # NodeJS debugger
     environment:
       PORT: '5000'
-      DATABASE_URL: postgresql://passemploi:passemploi@db/passemploidb
+      # DATABASE_URL: postgresql://passemploi:passemploi@db/passemploidb
       LOG_LEVEL: trace
       VIRTUAL_HOST: id.pass-emploi.incubateur.net
       VIRTUAL_PORT: '5000'
@@ -56,25 +52,25 @@ services:
   #   <<: *api-definition
   #   command: yarn test:e2e
 
-  db:
-    image: docker.io/postgis/postgis:16-3.4-alpine
-    platform: linux/amd64
-    container_name: cej-auth-postgres
-    ports:
-      - '54322:5432'
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
-      start_period: 20s
-      interval: 30s
-      retries: 5
-      timeout: 5s
-    environment:
-      POSTGRES_USER: passemploi
-      POSTGRES_PASSWORD: passemploi
-      POSTGRES_DB: passemploidb
-    volumes:
-      - db-data:/var/lib/postgresql
+  # db:
+  #   image: docker.io/postgis/postgis:16-3.4-alpine
+  #   platform: linux/amd64
+  #   container_name: cej-auth-postgres
+  #   ports:
+  #     - '54322:5432'
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
+  #     start_period: 20s
+  #     interval: 30s
+  #     retries: 5
+  #     timeout: 5s
+  #   environment:
+  #     POSTGRES_USER: passemploi
+  #     POSTGRES_PASSWORD: passemploi
+  #     POSTGRES_DB: passemploidb
+  #   volumes:
+  #     - db-data:/var/lib/postgresql
 
   redis:
     image: docker.io/redis/redis-stack:7.2.0-v9
@@ -95,60 +91,6 @@ services:
       REDIS_PASSWORD: myredispassword
       REDIS_ARGS: '--requirepass myredispassword --appendonly yes --save 60 1 --loglevel warning'
 
-  # authentik-web:
-  #   image: ghcr.io/goauthentik/server:2024.2.2
-  #   restart: unless-stopped
-  #   command: server
-  #   environment:
-  #     AUTHENTIK_LOG_LEVEL: error
-  #     AUTHENTIK_REDIS__HOST: redis
-  #     AUTHENTIK_REDIS__PASSWORD: myredispassword
-  #     AUTHENTIK_POSTGRESQL__HOST: db
-  #     AUTHENTIK_POSTGRESQL__USER: passemploi
-  #     AUTHENTIK_POSTGRESQL__NAME: passemploidb
-  #     AUTHENTIK_POSTGRESQL__PASSWORD: passemploi
-  #     AUTHENTIK_SECRET_KEY: nyp+Eq8zAUKuKbWiNzhCX7Mo3Tmlqj79JK7yENZvh+zHjE4y
-  #     AUTHENTIK_ERROR_REPORTING__ENABLED: true
-  #   volumes:
-  #     - authentik-media:/media
-  #     - authentik-custom-templates:/templates
-  #   ports:
-  #     - 9000:9000
-  #     - 9443:9443
-  #   depends_on:
-  #     - db
-  #     - redis
-
-  # authentik-worker:
-  #   image: ghcr.io/goauthentik/server:2024.2.2
-  #   restart: unless-stopped
-  #   command: worker
-  #   environment:
-  #     AUTHENTIK_LOG_LEVEL: error
-  #     AUTHENTIK_REDIS__HOST: redis
-  #     AUTHENTIK_REDIS__PASSWORD: myredispassword
-  #     AUTHENTIK_POSTGRESQL__HOST: db
-  #     AUTHENTIK_POSTGRESQL__USER: passemploi
-  #     AUTHENTIK_POSTGRESQL__NAME: passemploidb
-  #     AUTHENTIK_POSTGRESQL__PASSWORD: passemploi
-  #     AUTHENTIK_SECRET_KEY: nyp+Eq8zAUKuKbWiNzhCX7Mo3Tmlqj79JK7yENZvh+zHjE4y
-  #     AUTHENTIK_ERROR_REPORTING__ENABLED: true
-  #   # `user: root` and the docker socket volume are optional.
-  #   # See more for the docker socket integration here:
-  #   # https://goauthentik.io/docs/outposts/integrations/docker
-  #   # Removing `user: root` also prevents the worker from fixing the permissions
-  #   # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
-  #   # (1000:1000 by default)
-  #   # user: root
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - authentik-media:/media
-  #     - authentik-certs:/certs
-  #     - authentik-custom-templates:/templates
-  #   depends_on:
-  #     - db
-  #     - redis
-
   https:
     image: docker.io/nginxproxy/nginx-proxy
     ports:
@@ -156,3 +98,7 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./certs:/etc/nginx/certs
+
+volumes:
+  # db-data:
+  redis-data:
