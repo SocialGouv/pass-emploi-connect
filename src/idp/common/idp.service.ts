@@ -107,7 +107,7 @@ export abstract class IdpService {
     }
     const accountId = Account.fromAccountToAccountId(account)
 
-    this.tokenService.setToken(account, 'access_token', {
+    await this.tokenService.setToken(account, 'access_token', {
       token: tokenSet.access_token!,
       expiresIn: tokenSet.expires_in || this.idp.accessTokenMaxAge,
       scope: tokenSet.scope
@@ -117,7 +117,7 @@ export abstract class IdpService {
       try {
         refreshExpiresIn = tokenSet.refresh_expires_in as number
       } catch (e) {}
-      this.tokenService.setToken(account, 'refresh_token', {
+      await this.tokenService.setToken(account, 'refresh_token', {
         token: tokenSet.refresh_token,
         expiresIn: refreshExpiresIn || this.idp.refreshTokenMaxAge,
         scope: tokenSet.scope

@@ -5,6 +5,7 @@ import { GetAccessTokenUsecase } from '../token/get-access-token.usecase'
 import { ValidateJWTUsecase } from '../token/verify-jwt.usecase'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
 import { Account } from '../domain/account'
+import { isFailure } from '../result/result'
 
 export const gty = 'token_exchange'
 export const grantType = 'urn:ietf:params:oauth:grant-type:token-exchange'
@@ -64,11 +65,11 @@ export class TokenExchangeGrant {
       type: tokenPayload.userType! as User.Type,
       structure: tokenPayload.userStructure! as User.Structure
     }
-    const tokenData = await this.getAccessTokenUsecase.execute({
+    const resultTokenData = await this.getAccessTokenUsecase.execute({
       account
     })
 
-    if (!tokenData) {
+    if (isFailure(resultTokenData)) {
       const message = 'unable to find an access_token'
       this.logger.warn(message)
       throw new this.opm.errors.InvalidTarget(message)
@@ -76,13 +77,11 @@ export class TokenExchangeGrant {
 
     context.body = {
       issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-      access_token: tokenData.token,
+      access_token: resultTokenData.data.token,
       token_type: 'bearer',
-      expires_in: tokenData.expiresIn,
-      scope: tokenData.scope
+      expires_in: resultTokenData.data.expiresIn,
+      scope: resultTokenData.data.scope
     }
-
-    this.logger.debug('End token exchange Grant')
 
     await next()
   }
