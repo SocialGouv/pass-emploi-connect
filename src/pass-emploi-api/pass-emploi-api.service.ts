@@ -6,6 +6,7 @@ import { User } from '../domain/user'
 import { NonTraitable, NonTrouveError } from '../result/error'
 import { Result, failure, success } from '../result/result'
 import { Account } from '../domain/account'
+import { buildError } from '../logger.module'
 
 export interface PassEmploiUser {
   nom?: string
@@ -60,7 +61,7 @@ export class PassEmploiAPIService {
       }
       return success(user)
     } catch (e) {
-      this.logger.error(e)
+      this.logger.error(buildError('Erreur PUT User', e))
       return failure(new NonTraitable(e.response?.data?.code))
     }
   }
@@ -91,7 +92,7 @@ export class PassEmploiAPIService {
       }
       return success(user)
     } catch (e) {
-      this.logger.error(e)
+      this.logger.error(buildError('Erreur GET User', e))
       return failure(new NonTrouveError('User', account.sub))
     }
   }

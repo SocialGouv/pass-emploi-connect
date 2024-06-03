@@ -20,9 +20,13 @@ export class NonTraitable implements DomainError {
   readonly reason: NonTraitableReason
   readonly message: string
 
-  constructor(reason: NonTraitableReason = NonTraitableReason.NON_TRAITABLE) {
-    this.reason = reason
-    this.message = mapNonTraitableMessage[reason]
+  constructor(reason?: string) {
+    this.reason =
+      reason &&
+      Object.values(NonTraitableReason).includes(reason as NonTraitableReason)
+        ? (reason as NonTraitableReason)
+        : NonTraitableReason.NON_TRAITABLE
+    this.message = mapNonTraitableMessage[this.reason]
   }
 }
 

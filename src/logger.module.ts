@@ -1,6 +1,9 @@
 import { DynamicModule } from '@nestjs/common'
 import { IncomingMessage } from 'http'
 import { LoggerModule } from 'nestjs-pino'
+import { ReqId } from 'pino-http'
+import { Request } from 'express'
+import * as uuid from 'uuid'
 
 export const configureLoggerModule = (): DynamicModule =>
   LoggerModule.forRoot({
@@ -16,19 +19,33 @@ export const configureLoggerModule = (): DynamicModule =>
             return false
           }
         },
-        // todo montrer
-        // redact: [
-        //   'req.headers.authorization',
-        //   'req.headers.cookie',
-        //   'req.headers["x-api-key"]'
-        // ],
+        redact: [
+          'req.headers.authorization',
+          'req.headers.cookie',
+          'req.headers["x-api-key"]'
+        ],
         formatters: {
           level(label): object {
             return { level: label }
           }
         },
         // eslint-disable-next-line no-process-env
-        level: process.env.LOG_LEVEL ?? 'info'
+        level: process.env.LOG_LEVEL ?? 'info',
+        // TODO APM
+        // mixin: (): (() => MixinFn) => {
+        //   let currentTraceIds = getAPMInstance().currentTraceIds
+        //   const apmEstDesactive = Object.keys(currentTraceIds).length === 0
+        //   if (apmEstDesactive) {
+        //     // @ts-ignore
+        //     currentTraceIds =
+        //       getWorkerTrackingServiceInstance().getCurrentJobTracking()
+        //         ?.currentTraceIds
+        //   }
+        //   // @ts-ignore
+        //   return !Object.keys(currentTraceIds).length ? {} : { currentTraceIds }
+        // },
+        genReqId: (request: Request): ReqId =>
+          request.header('X-Request-ID') ?? uuid.v4()
       }
     ]
   })
