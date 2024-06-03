@@ -6,6 +6,7 @@ import { ValidateJWTUsecase } from '../token/verify-jwt.usecase'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
 import { Account } from '../domain/account'
 import { isFailure } from '../result/result'
+import { buildError } from '../logger.module'
 
 export const gty = 'token_exchange'
 export const grantType = 'urn:ietf:params:oauth:grant-type:token-exchange'
@@ -38,25 +39,21 @@ export class TokenExchangeGrant {
     context: KoaContextWithOIDC,
     next: () => Promise<void>
   ): Promise<void> => {
-    // Vérifier les paramètres d'input
     const subjectToken = context.oidc.params?.subject_token as string
     if (!subjectToken) {
       const message = 'subject token not found'
-      this.logger.warn(message)
+      this.logger.error(message)
       throw new this.opm.errors.InvalidGrant(message)
     }
 
-    // Vérifie que l'input est un access token valide
-    // faut-il vérifier les permissions à faire le token exchange ?
     let tokenPayload
-    // TODO passer par une erreur métier
     try {
       tokenPayload = await this.validateJWTUsecase.execute({
         token: subjectToken
       })
     } catch (e) {
       const message = 'subject token is invalid'
-      this.logger.warn(message)
+      this.logger.error(buildError(message, e))
       throw new this.opm.errors.InvalidGrant(message)
     }
 
@@ -71,7 +68,8 @@ export class TokenExchangeGrant {
 
     if (isFailure(resultTokenData)) {
       const message = 'unable to find an access_token'
-      this.logger.warn(message)
+      this.logger.error(resultTokenData.error.message)
+      this.logger.error(message)
       throw new this.opm.errors.InvalidTarget(message)
     }
 

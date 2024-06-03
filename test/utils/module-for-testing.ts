@@ -94,7 +94,7 @@ export const testConfig = (): ConfigService => {
       url: 'rsrc',
       scopes: ''
     },
-    jwks: [],
+    jwks: JSON.parse(process.env.JWKS!),
     idps: {
       francetravailJeune: {
         issuer: 'ft-jeune.com',
@@ -156,7 +156,9 @@ export const testConfig = (): ConfigService => {
       }
     },
     test: {
-      miloConseillerOfflineToken: process.env.TEST_MILO_CONSEILLER_OFFLINE_TOKEN
+      miloConseillerOfflineToken:
+        process.env.TEST_MILO_CONSEILLER_OFFLINE_TOKEN,
+      miloConseillerCEJJWT: process.env.TEST_MILO_CONSEILLER_CEJ_JWT
     }
   })
 }

@@ -1,19 +1,3 @@
-// prend en input un user account et renoive un access token en output
-// cherche access token dans le redis
-// gerer le cas ou l'access token expire bientot (30s) et du coup lancer le refresh
-// si l'access token est valide il le retourne
-
-// sinon on le refresh en appelant l'idp sur l'url de refresh
-
-// si reussi, on stock le nouveau acces token
-// calul expires at avant de le stocker
-
-// dès qu'on a une erreur => erreur indépendante de oidc module interprétées comme erreur métier et qu"on puisse renvoyer invalid grant
-
-// tout à la fin calcule expires in
-
-// retourne access token, expires in et scope
-
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Issuer } from 'openid-client'
@@ -26,6 +10,7 @@ import { TokenData, TokenService } from './token.service'
 import { Result, failure, success } from '../result/result'
 import { buildError } from '../logger.module'
 import { NonTrouveError } from '../result/error'
+import { getIdpConfigIdentifier } from '../config/configuration'
 
 const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 
@@ -109,7 +94,10 @@ export class GetAccessTokenUsecase {
         expiresIn:
           tokenSet.expires_in ??
           this.configService.get<number>(
-            'francetravailConseiller.accessTokenMaxAge'
+            `${getIdpConfigIdentifier(
+              account.type,
+              account.structure
+            )}.accessTokenMaxAge`
           )!,
         scope: tokenSet.scope
       }

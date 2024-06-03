@@ -1,16 +1,20 @@
 import { expect } from 'chai'
 import {
+  IdpConfig,
+  getIdpConfigIdentifier
+} from '../../src/config/configuration'
+import {
   ContextKeyType,
   ContextStorage
 } from '../../src/context-storage/context-storage.provider'
+import { User } from '../../src/domain/user'
+import { NonTrouveError } from '../../src/result/error'
 import { failure, success } from '../../src/result/result'
 import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { TokenService } from '../../src/token/token.service'
-import { unAccount } from '../fixtures/fixtures'
+import { unAccount } from '../utils/fixtures'
 import { StubbedClass, stubClass } from '../utils'
 import { testConfig } from '../utils/module-for-testing'
-import { IdpConfig, IdpConfigIdentifier } from '../../src/config/configuration'
-import { NonTrouveError } from '../../src/result/error'
 
 describe('GetAccessTokenUsecase', () => {
   let getAccessTokenUsecase: GetAccessTokenUsecase
@@ -19,7 +23,9 @@ describe('GetAccessTokenUsecase', () => {
   let context: StubbedClass<ContextStorage>
 
   const idp: IdpConfig =
-    configService.get('idps')[IdpConfigIdentifier.MILO_CONSEILLER]!
+    configService.get('idps')[
+      getIdpConfigIdentifier(User.Type.CONSEILLER, User.Structure.MILO)
+    ]!
 
   const issuerConfig = {
     issuer: idp.issuer,
