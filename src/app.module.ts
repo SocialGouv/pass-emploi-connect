@@ -7,6 +7,7 @@ import { FrancetravailJeuneModule } from './idp/francetravail-jeune/francetravai
 import { MiloConseillerModule } from './idp/milo-conseiller/milo-conseiller.module'
 import { MiloJeuneModule } from './idp/milo-jeune/milo-jeune.module'
 import { configureLoggerModule } from './logger.module'
+import { TerminusModule } from '@nestjs/terminus'
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { configureLoggerModule } from './logger.module'
       cache: true,
       load: [configuration]
     }),
+    TerminusModule,
     configureLoggerModule(),
     FrancetravailJeuneModule,
     FrancetravailConseillerModule,

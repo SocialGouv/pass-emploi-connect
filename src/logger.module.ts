@@ -52,12 +52,16 @@ export const configureLoggerModule = (): DynamicModule =>
 
 export interface LogError {
   message: string
-  err: Error
+  err?: Error | string
 }
 
 export function buildError(message: string, error: Error): LogError {
   return {
     message,
-    err: error
+    err: isEnumerable(error) ? error : error.stack
   }
+}
+
+function isEnumerable(error: Error): boolean {
+  return Boolean(Object.keys(error).length)
 }

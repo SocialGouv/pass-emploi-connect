@@ -1,14 +1,30 @@
 /* eslint-disable */
 import * as Joi from 'joi'
 import { configurationSchema } from './configuration.schema'
+import { User } from '../domain/user'
 
 type ClientIdentifier = 'web' | 'app' | 'api' | 'swagger'
 type Client = Record<ClientIdentifier, unknown>
-export enum IdpConfigIdentifier {
+enum IdpConfigIdentifier {
   MILO_CONSEILLER = 'miloConseiller',
   MILO_JEUNE = 'miloJeune',
   FT_CONSEILLER = 'francetravailConseiller',
   FT_JEUNE = 'francetravailJeune'
+}
+export function getIdpConfigIdentifier(
+  type: User.Type,
+  structure: User.Structure
+): IdpConfigIdentifier {
+  switch (structure) {
+    case User.Structure.MILO:
+      if (type === User.Type.JEUNE) return IdpConfigIdentifier.MILO_JEUNE
+      return IdpConfigIdentifier.MILO_CONSEILLER
+    case User.Structure.POLE_EMPLOI:
+    case User.Structure.POLE_EMPLOI_AIJ:
+    case User.Structure.POLE_EMPLOI_BRSA:
+      if (type === User.Type.JEUNE) return IdpConfigIdentifier.FT_JEUNE
+      return IdpConfigIdentifier.FT_CONSEILLER
+  }
 }
 export interface IdpConfig {
   issuer: string
@@ -48,7 +64,9 @@ export default () => {
     port: process.env.PORT ? parseInt(process.env.PORT, 10) : 5050,
     publicAddress:
       process.env.PUBLIC_ADDRESS ||
-      `http://localhost:${process.env.PORT ? parseInt(process.env.PORT, 10) : 5050}`,
+      `http://localhost:${
+        process.env.PORT ? parseInt(process.env.PORT, 10) : 5050
+      }`,
     cors: {
       allowedOrigins: process.env.CORS_ALLOWED_ORIGINS
         ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS)

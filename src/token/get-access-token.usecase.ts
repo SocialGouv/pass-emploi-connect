@@ -1,19 +1,3 @@
-// prend en input un user account et renoive un access token en output
-// cherche access token dans le redis
-// gerer le cas ou l'access token expire bientot (30s) et du coup lancer le refresh
-// si l'access token est valide il le retourne
-
-// sinon on le refresh en appelant l'idp sur l'url de refresh
-
-// si reussi, on stock le nouveau acces token
-// calul expires at avant de le stocker
-
-// dès qu'on a une erreur => erreur indépendante de oidc module interprétées comme erreur métier et qu"on puisse renvoyer invalid grant
-
-// tout à la fin calcule expires in
-
-// retourne access token, expires in et scope
-
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Issuer } from 'openid-client'
@@ -23,6 +7,10 @@ import {
 } from '../context-storage/context-storage.provider'
 import { Account } from '../domain/account'
 import { TokenData, TokenService } from './token.service'
+import { Result, failure, success } from '../result/result'
+import { buildError } from '../logger.module'
+import { NonTrouveError } from '../result/error'
+import { getIdpConfigIdentifier } from '../config/configuration'
 
 const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 
@@ -42,7 +30,7 @@ export class GetAccessTokenUsecase {
     this.logger = new Logger('GetAccessTokenUsecase')
   }
 
-  async execute(query: Inputs): Promise<TokenData | undefined> {
+  async execute(query: Inputs): Promise<Result<TokenData>> {
     try {
       const storedAccessTokenData = await this.tokenService.getToken(
         query.account,
@@ -54,20 +42,18 @@ export class GetAccessTokenUsecase {
         storedAccessTokenData.expiresIn >
           MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS
       ) {
-        return storedAccessTokenData
+        return success(storedAccessTokenData)
       }
 
-      this.logger.debug('OK?')
-      const newAccessTokenData = await this.refresh(query.account)
-      this.logger.debug('OK!')
-      return newAccessTokenData
+      const newTokenDataResult = await this.refresh(query.account)
+      return newTokenDataResult
     } catch (e) {
-      this.logger.error(e)
-      return undefined
+      this.logger.error(buildError('Erreur inconnue GET AccessTokenUsecase', e))
+      return failure(new NonTrouveError('AcessToken'))
     }
   }
 
-  private async refresh(account: Account): Promise<TokenData> {
+  private async refresh(account: Account): Promise<Result<TokenData>> {
     const refreshToken = await this.tokenService.getToken(
       account,
       'refresh_token'
@@ -75,10 +61,11 @@ export class GetAccessTokenUsecase {
 
     if (!refreshToken) {
       this.logger.error("L'utilisateur n'a pas de refresh token")
-      throw Error("L'utilisateur n'a pas de refresh token")
+      return failure(
+        new NonTrouveError("L'utilisateur n'a pas de refresh token")
+      )
     }
 
-    this.logger.debug('Refresh token')
     const [issuerConfig, clientConfig] = await Promise.all([
       this.context.get({
         userType: account.type,
@@ -94,25 +81,33 @@ export class GetAccessTokenUsecase {
 
     if (!issuerConfig || !clientConfig) {
       this.logger.error('Config introuvable pour le refresh')
-      throw Error('Config introuvable pour le refresh')
+      return failure(new NonTrouveError('Config introuvable pour le refresh'))
     }
 
-    const issuer = new Issuer(JSON.parse(issuerConfig))
-    const client = new issuer.Client(JSON.parse(clientConfig))
+    try {
+      const issuer = new Issuer(JSON.parse(issuerConfig))
+      const client = new issuer.Client(JSON.parse(clientConfig))
 
-    const tokenSet = await client.refresh(refreshToken.token)
-    const tokenData: TokenData = {
-      token: tokenSet.access_token!,
-      expiresIn:
-        tokenSet.expires_in ??
-        this.configService.get<number>(
-          'francetravailConseiller.accessTokenMaxAge'
-        )!,
-      scope: tokenSet.scope
+      const tokenSet = await client.refresh(refreshToken.token)
+      const tokenData: TokenData = {
+        token: tokenSet.access_token!,
+        expiresIn:
+          tokenSet.expires_in ??
+          this.configService.get<number>(
+            `${getIdpConfigIdentifier(
+              account.type,
+              account.structure
+            )}.accessTokenMaxAge`
+          )!,
+        scope: tokenSet.scope
+      }
+
+      await this.tokenService.setToken(account, 'access_token', tokenData)
+
+      return success(tokenData)
+    } catch (e) {
+      this.logger.error(buildError('Erreur refresh token', e))
+      return failure(new NonTrouveError('Erreur refresh token'))
     }
-
-    await this.tokenService.setToken(account, 'access_token', tokenData)
-
-    return tokenData
   }
 }

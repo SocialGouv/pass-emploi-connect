@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { IdpConfigIdentifier } from '../../config/configuration'
 import { ContextStorage } from '../../context-storage/context-storage.provider'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
@@ -21,7 +20,6 @@ export class FrancetravailConseillerBRSAService extends IdpService {
       'FrancetravailConseillerBRSAService',
       User.Type.CONSEILLER,
       User.Structure.POLE_EMPLOI_BRSA,
-      IdpConfigIdentifier.FT_CONSEILLER,
       context,
       configService,
       oidcService,
