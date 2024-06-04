@@ -23,6 +23,8 @@
     "noUnusedLocals": false
   },
   "ts-node": {
-    "files": true
+    "moduleTypes": {
+      "test/integration/**/*.ts": "cjs"
+    }
   }
 }

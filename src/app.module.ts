@@ -25,4 +25,5 @@ import { TerminusModule } from '@nestjs/terminus'
   ],
   controllers: [AppController]
 })
+
 export class AppModule {}
