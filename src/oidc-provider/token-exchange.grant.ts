@@ -46,21 +46,22 @@ export class TokenExchangeGrant {
       throw new this.opm.errors.InvalidGrant(message)
     }
 
-    let tokenPayload
-    try {
-      tokenPayload = await this.validateJWTUsecase.execute({
-        token: subjectToken
-      })
-    } catch (e) {
+    const tokenPayloadResult = await this.validateJWTUsecase.execute({
+      token: subjectToken
+    })
+
+    if (isFailure(tokenPayloadResult)) {
       const message = 'subject token is invalid'
-      this.logger.error(buildError(message, e))
+      this.logger.error(
+        buildError(message, Error(tokenPayloadResult.error.code))
+      )
       throw new this.opm.errors.InvalidGrant(message)
     }
 
     const account: Account = {
-      sub: Account.getSubFromAccountId(tokenPayload.sub!),
-      type: tokenPayload.userType! as User.Type,
-      structure: tokenPayload.userStructure! as User.Structure
+      sub: Account.getSubFromAccountId(tokenPayloadResult.data.sub!),
+      type: tokenPayloadResult.data.userType! as User.Type,
+      structure: tokenPayloadResult.data.userStructure! as User.Structure
     }
     const resultTokenData = await this.getAccessTokenUsecase.execute({
       account

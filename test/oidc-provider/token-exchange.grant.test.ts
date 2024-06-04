@@ -8,7 +8,7 @@ import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
 import { StubbedClass, createSandbox, stubClass } from '../utils'
 import { unAccount, unTokenData } from '../utils/fixtures'
-import { NonTrouveError } from '../../src/result/error'
+import { JWTError, NonTrouveError } from '../../src/result/error'
 
 describe('TokenExchangeGrant', () => {
   let tokenExchangeGrant: TokenExchangeGrant
@@ -34,11 +34,13 @@ describe('TokenExchangeGrant', () => {
         oidc: { params: { subject_token: 'tok' } },
         body: {}
       }
-      validateJWTUsecase.execute.resolves({
-        sub: 'CONSEILLER|MILO|id-auth',
-        userType: 'CONSEILLER',
-        userStructure: 'MILO'
-      })
+      validateJWTUsecase.execute.resolves(
+        success({
+          sub: 'CONSEILLER|MILO|id-auth',
+          userType: 'CONSEILLER',
+          userStructure: 'MILO'
+        })
+      )
       const tokenData = unTokenData()
       getAccessTokenUsecase.execute.resolves(success(tokenData))
 
@@ -91,7 +93,7 @@ describe('TokenExchangeGrant', () => {
         oidc: { params: { subject_token: 'tok' } },
         body: {}
       }
-      validateJWTUsecase.execute.throws()
+      validateJWTUsecase.execute.resolves(failure(new JWTError('ERR')))
 
       try {
         // When
@@ -117,11 +119,13 @@ describe('TokenExchangeGrant', () => {
         oidc: { params: { subject_token: 'tok' } },
         body: {}
       }
-      validateJWTUsecase.execute.resolves({
-        sub: 'CONSEILLER|MILO|id-auth',
-        userType: 'CONSEILLER',
-        userStructure: 'MILO'
-      })
+      validateJWTUsecase.execute.resolves(
+        success({
+          sub: 'CONSEILLER|MILO|id-auth',
+          userType: 'CONSEILLER',
+          userStructure: 'MILO'
+        })
+      )
       getAccessTokenUsecase.execute.resolves(
         failure(new NonTrouveError('token'))
       )
