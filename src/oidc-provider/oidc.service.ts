@@ -66,7 +66,7 @@ export class OidcService {
           client_id: clients.api.id,
           client_secret: clients.api.secret,
           grant_types: [tokenExchangeGrantType],
-          response_types: []
+          response_types: [],
         },
         {
           client_id: clients.web.id,
