@@ -50,7 +50,10 @@ jobs:
           IDP_MILO_CONSEILLER_SCOPES: ${{ secrets.IDP_MILO_CONSEILLER_SCOPES }}
           IDP_MILO_CONSEILLER_TOKEN_URL: ${{ secrets.IDP_MILO_CONSEILLER_TOKEN_URL }}
           IDP_MILO_CONSEILLER_USERINFO: ${{ secrets.IDP_MILO_CONSEILLER_USERINFO }}
+          JWKS: ${{ secrets.JWKS }}
           TEST_MILO_CONSEILLER_OFFLINE_TOKEN: ${{ secrets.TEST_MILO_CONSEILLER_OFFLINE_TOKEN }}
+          TEST_MILO_CONSEILLER_CEJ_JWT: ${{ secrets.TEST_MILO_CONSEILLER_CEJ_JWT }}
+          TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED: ${{ secrets.TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED }}
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:

@@ -55,7 +55,8 @@ export class OidcService {
       },
       ttl: {
         RefreshToken: 3600 * 24 * 42,
-        Session: 3600 * 24 * 42
+        Session: 3600 * 24 * 42,
+        AccessToken: 1800
       },
       issueRefreshToken: async function issueRefreshToken(_ctx, client, _code) {
         return client.grantTypeAllowed('refresh_token')

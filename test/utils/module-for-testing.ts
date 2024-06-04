@@ -158,7 +158,9 @@ export const testConfig = (): ConfigService => {
     test: {
       miloConseillerOfflineToken:
         process.env.TEST_MILO_CONSEILLER_OFFLINE_TOKEN,
-      miloConseillerCEJJWT: process.env.TEST_MILO_CONSEILLER_CEJ_JWT
+      miloConseillerCEJJWT: process.env.TEST_MILO_CONSEILLER_CEJ_JWT,
+      miloConseillerCEJJWTExpired:
+        process.env.TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED
     }
   })
 }
