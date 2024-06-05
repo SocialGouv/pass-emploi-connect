@@ -9,14 +9,15 @@ import {
   ContextStorage
 } from '../../context-storage/context-storage.provider'
 import { Account } from '../../domain/account'
-import { User } from '../../domain/user'
+import { User, estJeuneFT } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
-import { PassEmploiAPIService } from '../../pass-emploi-api/pass-emploi-api.service'
-import { Result, emptySuccess, isFailure } from '../../result/result'
+import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
+import { Result, emptySuccess, isFailure, isSuccess } from '../../result/result'
 import { TokenService } from '../../token/token.service'
 import { generateNewGrantId } from './helpers'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../../apm.init'
+import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 
 export abstract class IdpService {
   private idpName: string
@@ -35,7 +36,8 @@ export abstract class IdpService {
     private readonly configService: ConfigService,
     private readonly oidcService: OidcService,
     private readonly tokenService: TokenService,
-    private readonly passemploiapi: PassEmploiAPIService
+    private readonly passemploiapi: PassEmploiAPIClient,
+    private readonly francetravailapi: FrancetravailAPIClient
   ) {
     this.logger = new Logger(idpName)
     this.apmService = getAPMInstance()
@@ -139,11 +141,24 @@ export abstract class IdpService {
       grantId
     )
 
+    let coordonnees
+    if (estJeuneFT(this.userType, this.userStructure)) {
+      const coordonneesResult = await this.francetravailapi.getCoordonness(
+        tokenSet.access_token!
+      )
+      if (isSuccess(coordonneesResult)) {
+        coordonnees = coordonneesResult.data
+      }
+    }
+    const nom = coordonnees?.nom ?? userInfo.given_name
+    const prenom = coordonnees?.prenom ?? userInfo.family_name
+    const email = coordonnees?.email ?? userInfo.email
+
     // besoin de persister le preferred_username parce que le get token n'a pas cette info dans le context
     const apiUserResult = await this.passemploiapi.putUser(account.sub, {
-      nom: userInfo.given_name,
-      prenom: userInfo.family_name,
-      email: userInfo.email,
+      nom,
+      prenom,
+      email,
       structure: account.structure,
       type: account.type,
       username: userInfo.preferred_username
@@ -160,9 +175,9 @@ export abstract class IdpService {
       consent: { grantId: newGrantId },
       userType: this.userType,
       userStructure: this.userStructure,
-      email: userInfo.email,
-      family_name: userInfo.family_name,
-      given_name: userInfo.given_name,
+      email: email,
+      family_name: nom,
+      given_name: prenom,
       userRoles: apiUserResult.data.userRoles,
       userId: apiUserResult.data.userId,
       preferred_username: userInfo.preferred_username

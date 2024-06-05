@@ -20,7 +20,7 @@ export interface PassEmploiUser {
 }
 
 @Injectable()
-export class PassEmploiAPIService {
+export class PassEmploiAPIClient {
   private readonly logger: Logger
   private readonly apiUrl: string
   private readonly apiKey: string
@@ -30,10 +30,10 @@ export class PassEmploiAPIService {
     private readonly configService: ConfigService,
     private httpService: HttpService
   ) {
-    this.logger = new Logger('PassEmploiAPIService')
+    this.logger = new Logger('PassEmploiAPIClient')
     this.apmService = getAPMInstance()
-    this.apiUrl = this.configService.get('passemploiapi.url')!
-    this.apiKey = this.configService.get('passemploiapi.key')!
+    this.apiUrl = this.configService.get('apis.passemploi.url')!
+    this.apiKey = this.configService.get('apis.passemploi.key')!
   }
 
   async putUser(
@@ -98,6 +98,7 @@ export class PassEmploiAPIService {
       return success(user)
     } catch (e) {
       this.logger.error(buildError('Erreur GET User', e))
+      this.apmService.captureError(e)
       return failure(new NonTrouveError('User', account.sub))
     }
   }

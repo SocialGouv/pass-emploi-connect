@@ -1,19 +1,19 @@
 import { HttpService } from '@nestjs/axios'
 import { expect } from 'chai'
 import * as nock from 'nock'
-import { PassEmploiAPIService } from '../../src/pass-emploi-api/pass-emploi-api.service'
+import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { NonTraitable, NonTrouveError } from '../../src/result/error'
 import { failure, success } from '../../src/result/result'
 import { unAccount, unPassEmploiUser, unUser } from '../utils/fixtures'
 import { testConfig } from '../utils/module-for-testing'
 
-describe('PassEmploiAPIService', () => {
-  let passEmploiAPIService: PassEmploiAPIService
+describe('PassEmploiAPIClient', () => {
+  let passEmploiAPIClient: PassEmploiAPIClient
   const configService = testConfig()
 
   beforeEach(() => {
     const httpService = new HttpService()
-    passEmploiAPIService = new PassEmploiAPIService(configService, httpService)
+    passEmploiAPIClient = new PassEmploiAPIClient(configService, httpService)
   })
   describe('putUser', () => {
     it("retourne l'utilisateur lorsque l'appel est ok", async () => {
@@ -38,7 +38,7 @@ describe('PassEmploiAPIService', () => {
         .isDone()
 
       // When
-      const response = await passEmploiAPIService.putUser(
+      const response = await passEmploiAPIClient.putUser(
         'un-sub',
         unPassEmploiUser()
       )
@@ -57,7 +57,7 @@ describe('PassEmploiAPIService', () => {
         .isDone()
 
       // When
-      const response = await passEmploiAPIService.putUser(
+      const response = await passEmploiAPIClient.putUser(
         'un-sub',
         unPassEmploiUser()
       )
@@ -78,7 +78,7 @@ describe('PassEmploiAPIService', () => {
         .isDone()
 
       // When
-      const response = await passEmploiAPIService.putUser(
+      const response = await passEmploiAPIClient.putUser(
         'un-sub',
         unPassEmploiUser()
       )
@@ -111,7 +111,7 @@ describe('PassEmploiAPIService', () => {
         .isDone()
 
       // When
-      const response = await passEmploiAPIService.getUser(account)
+      const response = await passEmploiAPIClient.getUser(account)
 
       // Then
       expect(response).to.deep.equal(success(unUser()))
@@ -129,7 +129,7 @@ describe('PassEmploiAPIService', () => {
         .isDone()
 
       // When
-      const response = await passEmploiAPIService.getUser(unAccount())
+      const response = await passEmploiAPIClient.getUser(unAccount())
 
       // Then
       expect(response).to.deep.equal(

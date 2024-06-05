@@ -3,7 +3,7 @@ import { HttpModule } from '@nestjs/axios'
 import { INestApplication, Provider, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SinonSandbox, createSandbox } from 'sinon'
-import { PassEmploiAPIService } from '../../src/pass-emploi-api/pass-emploi-api.service'
+import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { stubClassSandbox } from './types'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import * as dotenv from 'dotenv'
@@ -60,9 +60,14 @@ export const testConfig = (): ConfigService => {
     cors: {
       allowedOrigins: []
     },
-    passemploiapi: {
-      url: 'https://api.pass-emploi.fr',
-      key: 'pass-emploi-api-key'
+    apis: {
+      passemploi: {
+        url: 'https://api.pass-emploi.fr',
+        key: 'pass-emploi-api-key'
+      },
+      francetravail: {
+        url: 'https://pe.qvr'
+      }
     },
     redis: {
       url: 'redis://localhost:6767'
@@ -172,8 +177,8 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       useValue: testConfig()
     },
     {
-      provide: PassEmploiAPIService,
-      useValue: stubClassSandbox(PassEmploiAPIService, sandbox)
+      provide: PassEmploiAPIClient,
+      useValue: stubClassSandbox(PassEmploiAPIClient, sandbox)
     }
   ]
   return providers

@@ -49,7 +49,8 @@ export enum NonTraitableReason {
   UTILISATEUR_DEJA_PE = 'UTILISATEUR_DEJA_PE',
   UTILISATEUR_NOUVEAU_PE = 'UTILISATEUR_NOUVEAU_PE',
   UTILISATEUR_DEJA_PE_BRSA = 'UTILISATEUR_DEJA_PE_BRSA',
-  UTILISATEUR_NOUVEAU_PE_BRSA = 'UTILISATEUR_NOUVEAU_PE_BRSA'
+  UTILISATEUR_NOUVEAU_PE_BRSA = 'UTILISATEUR_NOUVEAU_PE_BRSA',
+  UTILISATEUR_CONSEILLER_MAUVAISE_STRUCTURE = 'UTILISATEUR_CONSEILLER_MAUVAISE_STRUCTURE'
 }
 
 const mapNonTraitableMessage: Record<NonTraitableReason, string> = {
@@ -66,5 +67,7 @@ const mapNonTraitableMessage: Record<NonTraitableReason, string> = {
   UTILISATEUR_DEJA_PE_BRSA:
     'Veuillez vous connecter en choisissant France Travail BRSA',
   UTILISATEUR_NOUVEAU_PE_BRSA:
-    'Veuillez vous connecter en choisissant France Travail BRSA'
+    'Veuillez vous connecter en choisissant France Travail BRSA',
+  UTILISATEUR_CONSEILLER_MAUVAISE_STRUCTURE:
+    'Veuillez vous connecter avec une autre méthode'
 }

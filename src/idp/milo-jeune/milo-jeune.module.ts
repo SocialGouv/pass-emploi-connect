@@ -6,7 +6,7 @@ import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
 import { MiloJeuneController } from './milo-jeune.controller'
 import { MiloJeuneService } from './milo-jeune.service'
-import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.module'
+import { APIModule } from '../../api/api.module'
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.modul
     ContextStorageModule,
     OidcModule,
     TokenModule,
-    PassEmploiAPIModule
+    APIModule
   ],
   providers: [MiloJeuneService],
   exports: [],

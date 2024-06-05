@@ -1,7 +1,7 @@
 import { JWTPayload } from 'jose'
 import { Account } from '../../src/domain/account'
 import { User } from '../../src/domain/user'
-import { PassEmploiUser } from '../../src/pass-emploi-api/pass-emploi-api.service'
+import { PassEmploiUser } from '../../src/api/pass-emploi-api.client'
 import { TokenData } from '../../src/token/token.service'
 import { DateTime } from 'luxon'
 
