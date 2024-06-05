@@ -4,6 +4,17 @@ export interface DomainError {
   readonly reason?: string
 }
 
+export class JWTError implements DomainError {
+  static CODE = 'JWT_ERROR'
+  code: string = JWTError.CODE
+  readonly message: string
+
+  constructor(code: string) {
+    this.message = `JWT Error`
+    this.code = code
+  }
+}
+
 export class NonTrouveError implements DomainError {
   static CODE = 'NON_TROUVE'
   readonly code: string = NonTrouveError.CODE

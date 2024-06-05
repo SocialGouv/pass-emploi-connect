@@ -4,7 +4,7 @@ import * as nock from 'nock'
 import { PassEmploiAPIService } from '../../src/pass-emploi-api/pass-emploi-api.service'
 import { NonTraitable, NonTrouveError } from '../../src/result/error'
 import { failure, success } from '../../src/result/result'
-import { unAccount, unPassEmploiUser, unUser } from '../fixtures/fixtures'
+import { unAccount, unPassEmploiUser, unUser } from '../utils/fixtures'
 import { testConfig } from '../utils/module-for-testing'
 
 describe('PassEmploiAPIService', () => {

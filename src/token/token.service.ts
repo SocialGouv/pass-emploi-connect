@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { RedisClient } from '../redis/redis.client'
+import { DateService } from '../date.service'
 import { Account } from '../domain/account'
-import { DateTime } from 'luxon'
+import { RedisClient } from '../redis/redis.client'
+import { buildError } from '../logger.module'
 
 export type TokenData = {
   token: string
@@ -17,80 +18,75 @@ type SavedTokenData = {
 @Injectable()
 export class TokenService {
   private readonly logger: Logger
-  constructor(private readonly redisClient: RedisClient) {
+  constructor(
+    private readonly redisClient: RedisClient,
+    private readonly dateService: DateService
+  ) {
     this.logger = new Logger('TokenService')
   }
 
   async getToken(
-    user: Account,
+    account: Account,
     tokenType: 'access_token' | 'refresh_token'
   ): Promise<TokenData | undefined> {
-    this.logger.debug('GET TOKEN %j', user)
-
     const data = await this.redisClient.get(
       tokenType,
-      Account.fromAccountToAccountId(user)
+      Account.fromAccountToAccountId(account)
     )
     if (data) {
       try {
         const savedTokenData: SavedTokenData = JSON.parse(data)
-        return fromSavedTokenToTokenData(savedTokenData)
+        return this.fromSavedTokenToTokenData(savedTokenData)
       } catch (e) {
-        this.logger.warn('get token invalid data format')
+        this.logger.error(buildError('get token invalid data format', e))
       }
     }
     return undefined
   }
 
   async setToken(
-    user: Account,
+    account: Account,
     tokenType: 'access_token' | 'refresh_token',
     tokenData: TokenData
   ): Promise<void> {
-    this.logger.debug('SET TOKEN %s %j %j', tokenType, user, tokenData)
-
     const MARGIN_SECONDS = 1
     const ttl =
       tokenData.expiresIn > MARGIN_SECONDS
         ? tokenData.expiresIn - MARGIN_SECONDS
         : tokenData.expiresIn
 
-    const tokenToSave = fromTokenDataToTokenToSave({
+    const tokenToSave = this.fromTokenDataToTokenToSave({
       ...tokenData,
       expiresIn: ttl
     })
 
     await this.redisClient.setWithExpiry(
       tokenType,
-      Account.fromAccountToAccountId(user),
+      Account.fromAccountToAccountId(account),
       JSON.stringify(tokenToSave),
       ttl
     )
   }
-}
 
-function fromTokenDataToTokenToSave(tokenData: TokenData): SavedTokenData {
-  const currentTime = DateTime.now()
-  const expiresAt = currentTime
-    .plus({ seconds: tokenData.expiresIn })
-    .toMillis()
-  return {
-    token: tokenData.token,
-    scope: tokenData.scope,
-    expiresAt
+  private fromTokenDataToTokenToSave(tokenData: TokenData): SavedTokenData {
+    const expiresAt = this.dateService
+      .now()
+      .plus({ seconds: tokenData.expiresIn })
+      .toSeconds()
+    return {
+      token: tokenData.token,
+      scope: tokenData.scope,
+      expiresAt
+    }
   }
-}
 
-function fromSavedTokenToTokenData(savedTokenData: SavedTokenData): TokenData {
-  const NUMBER_OF_MILLISECONDS_IN_A_SECOND = 1000
-  const currentTimestamp = DateTime.now().toMillis()
-  const expiresIn = Math.floor(
-    (savedTokenData.expiresAt - currentTimestamp) /
-      NUMBER_OF_MILLISECONDS_IN_A_SECOND
-  )
-  return {
-    token: savedTokenData.token,
-    scope: savedTokenData.scope,
-    expiresIn
+  private fromSavedTokenToTokenData(savedTokenData: SavedTokenData): TokenData {
+    const currentTimestamp = this.dateService.now().toSeconds()
+    const expiresIn = savedTokenData.expiresAt - currentTimestamp
+    return {
+      token: savedTokenData.token,
+      scope: savedTokenData.scope,
+      expiresIn
+    }
   }
 }

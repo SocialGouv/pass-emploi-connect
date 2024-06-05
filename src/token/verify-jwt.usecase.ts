@@ -3,6 +3,9 @@ import { ConfigService } from '@nestjs/config'
 import { JWK, JWTPayload, errors, importJWK, jwtVerify } from 'jose'
 import { DateTime } from 'luxon'
 import { JWKS } from 'oidc-provider'
+import { DateService } from '../date.service'
+import { JWTError } from '../result/error'
+import { Result, failure, success } from '../result/result'
 
 interface Inputs {
   token: string
@@ -11,31 +14,41 @@ interface Inputs {
 export class ValidateJWTUsecase {
   private readonly logger: Logger
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private dateService: DateService
+  ) {
     this.logger = new Logger('ValidateJWTUsecase')
   }
 
-  // TODO renvoyer une erreur métier
-  async execute(inputs: Inputs): Promise<JWTPayload> {
+  async execute(inputs: Inputs): Promise<Result<JWTPayload>> {
     const JWKS = this.configService.get<JWKS>('jwks')!
+    const error: JWTError = new JWTError(errors.JWKSNoMatchingKey.code)
 
     for (const JWK of JWKS.keys) {
       try {
         const importedJWK = await importJWK(JWK as JWK)
         const { payload } = await jwtVerify(inputs.token, importedJWK)
 
-        if (!payload.exp || this.isExpired(payload.exp)) {
-          throw errors.JWTExpired
+        if (this.isExpired(payload.exp)) {
+          error.code = errors.JWTExpired.code
+          return failure(error)
         }
-        return payload
-      } catch (e) {}
+        return success(payload)
+      } catch (e) {
+        error.code = e.code ?? errors.JWKSNoMatchingKey.code
+      }
     }
-    throw errors.JWKSNoMatchingKey
+    return failure(error)
   }
 
-  private isExpired(exp: number): boolean {
-    const expirationTime = DateTime.fromMillis(exp)
-    const currentTime = DateTime.now()
-    return currentTime < expirationTime
+  private isExpired(exp?: number): boolean {
+    if (!exp) {
+      return true
+    }
+    const tokenExpirationTime =
+      DateTime.fromSeconds(exp).setZone('Europe/Paris')
+    const currentTime = this.dateService.now().setZone('Europe/Paris')
+    return tokenExpirationTime.toUTC() < currentTime.toUTC()
   }
 }

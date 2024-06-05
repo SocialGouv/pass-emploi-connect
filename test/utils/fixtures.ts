@@ -1,6 +1,12 @@
+import { JWTPayload } from 'jose'
 import { Account } from '../../src/domain/account'
 import { User } from '../../src/domain/user'
 import { PassEmploiUser } from '../../src/pass-emploi-api/pass-emploi-api.service'
+import { TokenData } from '../../src/token/token.service'
+import { DateTime } from 'luxon'
+
+export const uneDatetime = (): DateTime =>
+  DateTime.fromISO('2024-06-01T12:00:00.000Z')
 
 export const unAccount = (args: Partial<Account> = {}): Account => {
   const defaults: Account = {
@@ -41,3 +47,32 @@ export const unPassEmploiUser = (
 
   return { ...defaults, ...args }
 }
+
+export const unTokenData = (args: Partial<TokenData> = {}): TokenData => {
+  const defaults: TokenData = {
+    token: 'un-token',
+    expiresIn: 100,
+    scope: ''
+  }
+
+  return { ...defaults, ...args }
+}
+
+export const unJwtPayloadValide = (): JWTPayload => ({
+  userId: 'cc03c25e-950e-4434-8103-583b8d9c29b3',
+  userRoles: ['SUPERVISEUR'],
+  userStructure: 'MILO',
+  userType: 'CONSEILLER',
+  email: 'frep+bdumont@octo.com',
+  family_name: 'Bernard',
+  given_name: 'Dumond',
+  preferred_username: 'b.dumont',
+  jti: 'MDdMtmMtBtQtiu_5Dozwz',
+  sub: 'CONSEILLER|MILO|df095ff0-23e9-48d3-8e26-358c3e614881',
+  iat: 1717506399,
+  exp: 1727874399,
+  scope: 'openid email profile',
+  client_id: 'pass-emploi-swagger',
+  iss: 'https://id.pass-emploi.incubateur.net',
+  aud: 'https://api.pass-emploi.incubateur.net'
+})

@@ -1,3 +1,4 @@
+/* eslint-disable no-process-env */
 import { HttpModule } from '@nestjs/axios'
 import { INestApplication, Provider, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
@@ -5,6 +6,8 @@ import { SinonSandbox, createSandbox } from 'sinon'
 import { PassEmploiAPIService } from '../../src/pass-emploi-api/pass-emploi-api.service'
 import { stubClassSandbox } from './types'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1800
 const IDP_FT_CONSEILLER_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 42
@@ -91,7 +94,7 @@ export const testConfig = (): ConfigService => {
       url: 'rsrc',
       scopes: ''
     },
-    jwks: [],
+    jwks: JSON.parse(process.env.JWKS!),
     idps: {
       francetravailJeune: {
         issuer: 'ft-jeune.com',
@@ -124,15 +127,15 @@ export const testConfig = (): ConfigService => {
         refreshTokenMaxAge: IDP_FT_CONSEILLER_REFRESH_TOKEN_MAX_AGE
       },
       miloConseiller: {
-        issuer: 'milo-conseiller.com',
-        authorizationUrl: 'milo-conseiller.com/authorize',
-        tokenUrl: 'milo-conseiller.com/token',
-        jwks: 'milo-conseiller.com/jwks',
-        userinfo: 'milo-conseiller.com/userinfo',
-        clientId: 'milo-conseiller',
-        clientSecret: 'milo-conseiller-secret',
-        scopes: '',
-        redirectUri: '',
+        issuer: process.env.IDP_MILO_CONSEILLER_ISSUER,
+        authorizationUrl: process.env.IDP_MILO_CONSEILLER_AUTHORIZATION_URL,
+        tokenUrl: process.env.IDP_MILO_CONSEILLER_TOKEN_URL,
+        jwks: process.env.IDP_MILO_CONSEILLER_JWKS,
+        userinfo: process.env.IDP_MILO_CONSEILLER_USERINFO,
+        clientId: process.env.IDP_MILO_CONSEILLER_CLIENT_ID,
+        clientSecret: process.env.IDP_MILO_CONSEILLER_CLIENT_SECRET,
+        scopes: process.env.IDP_MILO_CONSEILLER_SCOPES,
+        redirectUri: process.env.IDP_MILO_CONSEILLER_REDIRECT_URI,
         logout: '',
         accessTokenMaxAge: IDP_MILO_CONSEILLER_ACCESS_TOKEN_MAX_AGE,
         refreshTokenMaxAge: IDP_MILO_CONSEILLER_REFRESH_TOKEN_MAX_AGE
@@ -151,6 +154,13 @@ export const testConfig = (): ConfigService => {
         accessTokenMaxAge: IDP_MILO_JEUNE_ACCESS_TOKEN_MAX_AGE,
         refreshTokenMaxAge: IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE
       }
+    },
+    test: {
+      miloConseillerOfflineToken:
+        process.env.TEST_MILO_CONSEILLER_OFFLINE_TOKEN,
+      miloConseillerCEJJWT: process.env.TEST_MILO_CONSEILLER_CEJ_JWT,
+      miloConseillerCEJJWTExpired:
+        process.env.TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED
     }
   })
 }

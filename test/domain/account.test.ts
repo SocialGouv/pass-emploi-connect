@@ -1,5 +1,5 @@
 import { Account } from '../../src/domain/account'
-import { unAccount } from '../fixtures/fixtures'
+import { unAccount } from '../utils/fixtures'
 import { expect } from '../utils'
 
 describe('Account', () => {

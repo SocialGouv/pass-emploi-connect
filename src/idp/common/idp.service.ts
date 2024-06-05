@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
 import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
 import { BaseClient, Issuer } from 'openid-client'
-import { IdpConfig, IdpConfigIdentifier } from '../../config/configuration'
+import { IdpConfig, getIdpConfigIdentifier } from '../../config/configuration'
 import {
   ContextKeyType,
   ContextStorage
@@ -28,7 +28,6 @@ export abstract class IdpService {
     idpName: string,
     userType: User.Type,
     userStructure: User.Structure,
-    idpConfigIdentifier: IdpConfigIdentifier,
     private readonly contextStorage: ContextStorage,
     private readonly configService: ConfigService,
     private readonly oidcService: OidcService,
@@ -39,7 +38,10 @@ export abstract class IdpService {
     this.idpName = idpName
     this.userType = userType
     this.userStructure = userStructure
-    this.idp = this.configService.get('idps')[idpConfigIdentifier]!
+    this.idp =
+      this.configService.get('idps')[
+        getIdpConfigIdentifier(userType, userStructure)
+      ]!
 
     const issuerConfig = {
       issuer: this.idp.issuer,
@@ -107,7 +109,7 @@ export abstract class IdpService {
     }
     const accountId = Account.fromAccountToAccountId(account)
 
-    this.tokenService.setToken(account, 'access_token', {
+    await this.tokenService.setToken(account, 'access_token', {
       token: tokenSet.access_token!,
       expiresIn: tokenSet.expires_in || this.idp.accessTokenMaxAge,
       scope: tokenSet.scope
@@ -117,7 +119,7 @@ export abstract class IdpService {
       try {
         refreshExpiresIn = tokenSet.refresh_expires_in as number
       } catch (e) {}
-      this.tokenService.setToken(account, 'refresh_token', {
+      await this.tokenService.setToken(account, 'refresh_token', {
         token: tokenSet.refresh_token,
         expiresIn: refreshExpiresIn || this.idp.refreshTokenMaxAge,
         scope: tokenSet.scope

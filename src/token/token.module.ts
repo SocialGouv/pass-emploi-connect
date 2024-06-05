@@ -7,6 +7,7 @@ import { RedisProvider } from '../redis/redis.provider'
 import { GetAccessTokenUsecase } from './get-access-token.usecase'
 import { TokenService } from './token.service'
 import { ValidateJWTUsecase } from './verify-jwt.usecase'
+import { DateService } from '../date.service'
 
 @Module({
   imports: [ConfigModule, ContextStorageModule],
@@ -15,7 +16,8 @@ import { ValidateJWTUsecase } from './verify-jwt.usecase'
     RedisClient,
     TokenService,
     ValidateJWTUsecase,
-    GetAccessTokenUsecase
+    GetAccessTokenUsecase,
+    DateService
   ],
   exports: [
     RedisProvider,
