@@ -14,6 +14,7 @@ import { handleResult } from '../../result/result.handler'
 import { FrancetravailAIJService } from './francetravail-aij.service'
 import { FrancetravailBRSAService } from './francetravail-brsa.service'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
+import { User } from '../../domain/user'
 
 @Controller()
 export class FrancetravailJeuneController {
@@ -73,17 +74,24 @@ export class FrancetravailJeuneController {
     switch (ftType) {
       case 'aij':
         result = await this.francetravailAIJService.callback(request, response)
-        break
+        return handleResult(
+          result,
+          User.Type.JEUNE,
+          User.Structure.POLE_EMPLOI_AIJ
+        )
       case 'brsa':
         result = await this.francetravailBRSAService.callback(request, response)
-        break
+        return handleResult(
+          result,
+          User.Type.JEUNE,
+          User.Structure.POLE_EMPLOI_BRSA
+        )
       default:
         result = await this.francetravailJeuneCEJService.callback(
           request,
           response
         )
-        break
+        return handleResult(result, User.Type.JEUNE, User.Structure.POLE_EMPLOI)
     }
-    return handleResult(result)
   }
 }

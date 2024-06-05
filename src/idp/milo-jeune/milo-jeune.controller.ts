@@ -11,6 +11,7 @@ import {
 import { Request, Response } from 'express'
 import { handleResult } from '../../result/result.handler'
 import { MiloJeuneService } from './milo-jeune.service'
+import { User } from '../../domain/user'
 
 @Controller()
 export class MiloJeuneController {
@@ -39,6 +40,6 @@ export class MiloJeuneController {
     @Res({ passthrough: true }) response: Response
   ): Promise<unknown> {
     const result = await this.miloJeuneService.callback(request, response)
-    return handleResult(result)
+    return handleResult(result, User.Type.JEUNE, User.Structure.MILO)
   }
 }
