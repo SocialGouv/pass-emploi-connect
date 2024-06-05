@@ -2,6 +2,9 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { Logger } from 'nestjs-pino'
 import { AppModule } from './app.module'
+import { initializeAPMAgent } from './apm.init'
+
+initializeAPMAgent()
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)

@@ -6,11 +6,10 @@ import * as dirtyChai from 'dirty-chai'
 import { createSandbox } from 'sinon'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
-//import { buildTestingModuleForHttpTesting } from './module-for-testing'
 import { StubbedClass, stubClass } from './types'
-// import { setAPMInstance } from '../../src/infrastructure/monitoring/apm.init'
-// import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
-//import * as apm from 'elastic-apm-node'
+import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
+import * as apm from 'elastic-apm-node'
+import { setAPMInstance } from '../../src/apm.init'
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
@@ -22,11 +21,5 @@ export { createSandbox, expect, sinon }
 
 export { stubClass, StubbedClass }
 
-//export { buildTestingModuleForHttpTesting }
-
-// const instanceMock: StubbedType<apm.Agent> = stubInterface(createSandbox())
-// setAPMInstance(instanceMock)
-
-export function enleverLesUndefined<T>(objet: T): T {
-  return JSON.parse(JSON.stringify(objet))
-}
+const instanceMock: StubbedType<apm.Agent> = stubInterface(createSandbox())
+setAPMInstance(instanceMock)

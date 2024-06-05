@@ -18,12 +18,15 @@ import {
 } from './token-exchange.grant'
 import * as sanitizeHtml from 'sanitize-html'
 import { isFailure } from '../result/result'
+import * as APM from 'elastic-apm-node'
+import { getAPMInstance } from '../apm.init'
 
 @Injectable()
 export class OidcService {
   private readonly logger: Logger
   private readonly oidc: Provider
   private readonly jwks: JWKS
+  protected apmService: APM.Agent
 
   constructor(
     private configService: ConfigService,
@@ -37,6 +40,7 @@ export class OidcService {
     this.jwks = this.configService.get<JWKS>('jwks')!
 
     this.logger = new Logger('OidcService')
+    this.apmService = getAPMInstance()
 
     this.oidc = new this.opm.Provider(oidcPort, {
       routes: {
@@ -206,7 +210,9 @@ export class OidcService {
           const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
             this.logger.error('Could not get user from API')
-            throw new Error('Could not get user from API')
+            const error = new Error('Could not get user from API')
+            this.apmService.captureError(error)
+            throw error
           }
           user = apiUser.data
         }
@@ -372,6 +378,7 @@ export class OidcService {
       return this.oidc.callback()
     } catch (e) {
       this.logger.error(e)
+      this.apmService.captureError(e)
       throw e
     }
   }
@@ -408,10 +415,10 @@ export class OidcService {
     this.logger.error(errors)
     if (this.configService.get('environment') !== 'prod') {
       return Object.entries(errors)
-        .map(
-          ([key, value]) =>
-            `<pre><strong>${key}</strong>: ${sanitizeHtml(value)}</pre>`
-        )
+        .map(([key, value]) => {
+          this.apmService.captureError(`${key}: ${sanitizeHtml(value)}`)
+          return `<pre><strong>${key}</strong>: ${sanitizeHtml(value)}</pre>`
+        })
         .join('')
     }
     return '<p>Veuillez réessayer plus tard</p>'

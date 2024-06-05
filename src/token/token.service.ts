@@ -3,6 +3,8 @@ import { DateService } from '../date.service'
 import { Account } from '../domain/account'
 import { RedisClient } from '../redis/redis.client'
 import { buildError } from '../logger.module'
+import * as APM from 'elastic-apm-node'
+import { getAPMInstance } from '../apm.init'
 
 export type TokenData = {
   token: string
@@ -18,11 +20,14 @@ type SavedTokenData = {
 @Injectable()
 export class TokenService {
   private readonly logger: Logger
+  protected apmService: APM.Agent
+
   constructor(
     private readonly redisClient: RedisClient,
     private readonly dateService: DateService
   ) {
     this.logger = new Logger('TokenService')
+    this.apmService = getAPMInstance()
   }
 
   async getToken(
@@ -41,6 +46,7 @@ export class TokenService {
         }
         return this.fromSavedTokenToTokenData(savedTokenData)
       } catch (e) {
+        this.apmService.captureError(e)
         this.logger.error(buildError('get token invalid data format', e))
       }
     }

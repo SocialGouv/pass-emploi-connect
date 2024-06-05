@@ -15,6 +15,8 @@ import { PassEmploiAPIService } from '../../pass-emploi-api/pass-emploi-api.serv
 import { Result, emptySuccess, isFailure } from '../../result/result'
 import { TokenService } from '../../token/token.service'
 import { generateNewGrantId } from './helpers'
+import * as APM from 'elastic-apm-node'
+import { getAPMInstance } from '../../apm.init'
 
 export abstract class IdpService {
   private idpName: string
@@ -23,6 +25,7 @@ export abstract class IdpService {
   private userStructure: User.Structure
   private idp: IdpConfig
   private client: BaseClient
+  protected apmService: APM.Agent
 
   constructor(
     idpName: string,
@@ -35,6 +38,7 @@ export abstract class IdpService {
     private readonly passemploiapi: PassEmploiAPIService
   ) {
     this.logger = new Logger(idpName)
+    this.apmService = getAPMInstance()
     this.idpName = idpName
     this.userType = userType
     this.userStructure = userStructure
@@ -147,6 +151,7 @@ export abstract class IdpService {
 
     if (isFailure(apiUserResult)) {
       this.logger.error('Could not put user')
+      this.apmService.captureError(new Error('Could not put user'))
       return apiUserResult
     }
 

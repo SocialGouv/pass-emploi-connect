@@ -7,6 +7,8 @@ import { OIDC_PROVIDER_MODULE, OidcProviderModule } from './provider'
 import { Account } from '../domain/account'
 import { isFailure } from '../result/result'
 import { buildError } from '../logger.module'
+import * as APM from 'elastic-apm-node'
+import { getAPMInstance } from '../apm.init'
 
 export const gty = 'token_exchange'
 export const grantType = 'urn:ietf:params:oauth:grant-type:token-exchange'
@@ -25,6 +27,7 @@ export const parameters = new Set([
 @Injectable()
 export class TokenExchangeGrant {
   private logger: Logger
+  protected apmService: APM.Agent
 
   constructor(
     @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
@@ -32,6 +35,7 @@ export class TokenExchangeGrant {
     private readonly getAccessTokenUsecase: GetAccessTokenUsecase
   ) {
     this.logger = new Logger('TokenExchangeGrant')
+    this.apmService = getAPMInstance()
   }
 
   // This approach has the advantage of not creating a new function instance on each call to TokenExchangeGrant.handler, since this will be called a lot, you might want to go with this version to minimize memory allocations.
@@ -43,6 +47,7 @@ export class TokenExchangeGrant {
     if (!subjectToken) {
       const message = 'subject token not found'
       this.logger.error(message)
+      this.apmService.captureError(new Error(message))
       throw new this.opm.errors.InvalidGrant(message)
     }
 
@@ -53,8 +58,9 @@ export class TokenExchangeGrant {
     if (isFailure(tokenPayloadResult)) {
       const message = 'subject token is invalid'
       this.logger.error(
-        buildError(message, Error(tokenPayloadResult.error.code))
+        buildError(message, new Error(tokenPayloadResult.error.code))
       )
+      this.apmService.captureError(new Error(tokenPayloadResult.error.code))
       throw new this.opm.errors.InvalidGrant(message)
     }
 
@@ -71,6 +77,7 @@ export class TokenExchangeGrant {
       const message = 'unable to find an access_token'
       this.logger.error(resultTokenData.error.message)
       this.logger.error(message)
+      this.apmService.captureError(new Error(message))
       throw new this.opm.errors.InvalidTarget(message)
     }
 

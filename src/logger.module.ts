@@ -4,6 +4,8 @@ import { LoggerModule } from 'nestjs-pino'
 import { ReqId } from 'pino-http'
 import { Request } from 'express'
 import * as uuid from 'uuid'
+import { getAPMInstance } from './apm.init'
+import { MixinFn } from 'pino'
 
 export const configureLoggerModule = (): DynamicModule =>
   LoggerModule.forRoot({
@@ -31,19 +33,11 @@ export const configureLoggerModule = (): DynamicModule =>
         },
         // eslint-disable-next-line no-process-env
         level: process.env.LOG_LEVEL ?? 'info',
-        // TODO APM
-        // mixin: (): (() => MixinFn) => {
-        //   let currentTraceIds = getAPMInstance().currentTraceIds
-        //   const apmEstDesactive = Object.keys(currentTraceIds).length === 0
-        //   if (apmEstDesactive) {
-        //     // @ts-ignore
-        //     currentTraceIds =
-        //       getWorkerTrackingServiceInstance().getCurrentJobTracking()
-        //         ?.currentTraceIds
-        //   }
-        //   // @ts-ignore
-        //   return !Object.keys(currentTraceIds).length ? {} : { currentTraceIds }
-        // },
+        mixin: (): (() => MixinFn) => {
+          const currentTraceIds = getAPMInstance().currentTraceIds
+          // @ts-ignore
+          return !Object.keys(currentTraceIds).length ? {} : { currentTraceIds }
+        },
         genReqId: (request: Request): ReqId =>
           request.header('X-Request-ID') ?? uuid.v4()
       }

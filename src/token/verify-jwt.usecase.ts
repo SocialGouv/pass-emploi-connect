@@ -6,6 +6,8 @@ import { JWKS } from 'oidc-provider'
 import { DateService } from '../date.service'
 import { JWTError } from '../result/error'
 import { Result, failure, success } from '../result/result'
+import * as APM from 'elastic-apm-node'
+import { getAPMInstance } from '../apm.init'
 
 interface Inputs {
   token: string
@@ -13,12 +15,14 @@ interface Inputs {
 @Injectable()
 export class ValidateJWTUsecase {
   private readonly logger: Logger
+  protected apmService: APM.Agent
 
   constructor(
     private configService: ConfigService,
     private dateService: DateService
   ) {
     this.logger = new Logger('ValidateJWTUsecase')
+    this.apmService = getAPMInstance()
   }
 
   async execute(inputs: Inputs): Promise<Result<JWTPayload>> {

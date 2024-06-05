@@ -11,6 +11,8 @@ import { Result, failure, success } from '../result/result'
 import { buildError } from '../logger.module'
 import { NonTrouveError } from '../result/error'
 import { getIdpConfigIdentifier } from '../config/configuration'
+import * as APM from 'elastic-apm-node'
+import { getAPMInstance } from '../apm.init'
 
 const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 
@@ -21,6 +23,7 @@ interface Inputs {
 @Injectable()
 export class GetAccessTokenUsecase {
   private readonly logger: Logger
+  protected apmService: APM.Agent
 
   constructor(
     private readonly configService: ConfigService,
@@ -28,6 +31,7 @@ export class GetAccessTokenUsecase {
     private readonly context: ContextStorage
   ) {
     this.logger = new Logger('GetAccessTokenUsecase')
+    this.apmService = getAPMInstance()
   }
 
   async execute(query: Inputs): Promise<Result<TokenData>> {
@@ -49,6 +53,7 @@ export class GetAccessTokenUsecase {
       return newTokenDataResult
     } catch (e) {
       this.logger.error(buildError('Erreur inconnue GET AccessTokenUsecase', e))
+      this.apmService.captureError(e)
       return failure(new NonTrouveError('AcessToken'))
     }
   }
@@ -61,6 +66,9 @@ export class GetAccessTokenUsecase {
 
     if (!refreshToken) {
       this.logger.error("L'utilisateur n'a pas de refresh token")
+      this.apmService.captureError(
+        new Error("L'utilisateur n'a pas de refresh token")
+      )
       return failure(
         new NonTrouveError("L'utilisateur n'a pas de refresh token")
       )
@@ -81,6 +89,9 @@ export class GetAccessTokenUsecase {
 
     if (!issuerConfig || !clientConfig) {
       this.logger.error('Config introuvable pour le refresh')
+      this.apmService.captureError(
+        new Error('Config introuvable pour le refresh')
+      )
       return failure(new NonTrouveError('Config introuvable pour le refresh'))
     }
 
@@ -107,6 +118,7 @@ export class GetAccessTokenUsecase {
       return success(tokenData)
     } catch (e) {
       this.logger.error(buildError('Erreur refresh token', e))
+      this.apmService.captureError(e)
       return failure(new NonTrouveError('Erreur refresh token'))
     }
   }

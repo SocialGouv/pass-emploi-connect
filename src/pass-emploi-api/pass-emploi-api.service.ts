@@ -7,6 +7,8 @@ import { NonTraitable, NonTrouveError } from '../result/error'
 import { Result, failure, success } from '../result/result'
 import { Account } from '../domain/account'
 import { buildError } from '../logger.module'
+import * as APM from 'elastic-apm-node'
+import { getAPMInstance } from '../apm.init'
 
 export interface PassEmploiUser {
   nom?: string
@@ -22,12 +24,14 @@ export class PassEmploiAPIService {
   private readonly logger: Logger
   private readonly apiUrl: string
   private readonly apiKey: string
+  protected apmService: APM.Agent
 
   constructor(
     private readonly configService: ConfigService,
     private httpService: HttpService
   ) {
     this.logger = new Logger('PassEmploiAPIService')
+    this.apmService = getAPMInstance()
     this.apiUrl = this.configService.get('passemploiapi.url')!
     this.apiKey = this.configService.get('passemploiapi.key')!
   }
@@ -62,6 +66,7 @@ export class PassEmploiAPIService {
       return success(user)
     } catch (e) {
       this.logger.error(buildError('Erreur PUT User', e))
+      this.apmService.captureError(e)
       return failure(new NonTraitable(e.response?.data?.code))
     }
   }
