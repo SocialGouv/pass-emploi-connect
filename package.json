@@ -42,7 +42,7 @@
     "@types/oidc-provider": "^8.4.4",
     "@types/sanitize-html": "^2.11.0",
     "@types/pino-multi-stream": "^5.1.6",
-    "elastic-apm-node": "3.51.0",
+    "elastic-apm-node": "4.6.0",
     "ioredis": "^5.3.2",
     "joi": "^17.12.2",
     "jose": "^5.2.4",
