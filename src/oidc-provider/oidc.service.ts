@@ -7,7 +7,7 @@ import Redis from 'ioredis'
 import { ErrorOut, JWKS } from 'oidc-provider'
 import { Account } from '../domain/account'
 import { User } from '../domain/user'
-import { PassEmploiAPIService } from '../pass-emploi-api/pass-emploi-api.service'
+import { PassEmploiAPIClient } from '../api/pass-emploi-api.client'
 import { RedisAdapter } from '../redis/redis.adapter'
 import { RedisInjectionToken } from '../redis/redis.provider'
 import { OIDC_PROVIDER_MODULE, OidcProviderModule, Provider } from './provider'
@@ -33,7 +33,7 @@ export class OidcService {
     @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
     @Inject(RedisInjectionToken) private readonly redisClient: Redis,
     private readonly tokenExchangeGrant: TokenExchangeGrant,
-    private readonly passemploiapiService: PassEmploiAPIService
+    private readonly passemploiapiService: PassEmploiAPIClient
   ) {
     const oidcPort = this.configService.get<string>('publicAddress')!
     const clients = this.configService.get('clients')
@@ -59,8 +59,12 @@ export class OidcService {
       },
       ttl: {
         RefreshToken: 3600 * 24 * 42,
+        // Les autorisations accordés dans le Grant sont valables pour tout les access obtenus à partir d'une même refresh, sans limite de temps supplémentaire (donc ISO refresh)
+        Grant: 3600 * 24 * 42,
         Session: 3600 * 24 * 42,
-        AccessToken: 1800
+        AccessToken: 1800,
+        // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
+        Interaction: 60 * 15
       },
       issueRefreshToken: async function issueRefreshToken(_ctx, client, _code) {
         return client.grantTypeAllowed('refresh_token')

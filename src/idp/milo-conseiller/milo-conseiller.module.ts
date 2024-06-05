@@ -5,7 +5,7 @@ import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
 import { MiloConseillerController } from './milo-conseiller.controller'
 import { MiloConseillerService } from './milo-conseiller.service'
-import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.module'
+import { APIModule } from '../../api/api.module'
 import { ContextStorageModule } from '../../context-storage/context-storage.module'
 
 @Module({
@@ -14,7 +14,7 @@ import { ContextStorageModule } from '../../context-storage/context-storage.modu
     OidcModule,
     ContextStorageModule,
     TokenModule,
-    PassEmploiAPIModule
+    APIModule
   ],
   providers: [MiloConseillerService],
   exports: [],

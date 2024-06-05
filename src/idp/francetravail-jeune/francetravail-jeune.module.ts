@@ -6,7 +6,7 @@ import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
 import { FrancetravailJeuneController } from './francetravail-jeune.controller'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
-import { PassEmploiAPIModule } from '../../pass-emploi-api/pass-emploi-api.module'
+import { APIModule } from '../../api/api.module'
 import { FrancetravailAIJService } from './francetravail-aij.service'
 import { FrancetravailBRSAService } from './francetravail-brsa.service'
 
@@ -16,7 +16,7 @@ import { FrancetravailBRSAService } from './francetravail-brsa.service'
     ContextStorageModule,
     OidcModule,
     TokenModule,
-    PassEmploiAPIModule
+    APIModule
   ],
   providers: [
     FrancetravailJeuneCEJService,

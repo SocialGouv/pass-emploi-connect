@@ -72,9 +72,14 @@ export default () => {
         ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS)
         : []
     },
-    passemploiapi: {
-      url: process.env.PASS_EMPLOI_API_URL,
-      key: process.env.PASS_EMPLOI_API_KEY
+    apis: {
+      passemploi: {
+        url: process.env.PASS_EMPLOI_API_URL,
+        key: process.env.PASS_EMPLOI_API_KEY
+      },
+      francetravail: {
+        url: process.env.FT_JEUNE_API_URL
+      }
     },
     redis: {
       url: process.env.REDIS_URL

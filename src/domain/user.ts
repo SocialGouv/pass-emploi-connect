@@ -24,3 +24,17 @@ export namespace User {
     POLE_EMPLOI_AIJ = 'POLE_EMPLOI_AIJ'
   }
 }
+
+export function estJeuneFT(
+  userType: User.Type,
+  userStructure: User.Structure
+): boolean {
+  return (
+    userType === User.Type.JEUNE &&
+    [
+      User.Structure.POLE_EMPLOI,
+      User.Structure.POLE_EMPLOI_AIJ,
+      User.Structure.POLE_EMPLOI_BRSA
+    ].includes(userStructure)
+  )
+}

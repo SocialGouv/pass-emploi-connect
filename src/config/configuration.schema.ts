@@ -4,9 +4,14 @@ export const configurationSchema = Joi.object({
   environment: Joi.string().valid('prod', 'staging').required(),
   port: Joi.number(),
   publicAddress: Joi.string().required(),
-  passemploiapi: Joi.object({
-    url: Joi.string().required(),
-    key: Joi.string().required()
+  apis: Joi.object({
+    passemploi: Joi.object({
+      url: Joi.string().required(),
+      key: Joi.string().required()
+    }).required(),
+    francetravail: Joi.object({
+      url: Joi.string().required()
+    }).required()
   }).required(),
   cors: Joi.object({
     allowedOrigins: Joi.array().items(Joi.string())
