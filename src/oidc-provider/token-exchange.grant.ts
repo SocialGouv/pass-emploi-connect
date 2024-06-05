@@ -39,7 +39,7 @@ export class TokenExchangeGrant {
     context: KoaContextWithOIDC,
     next: () => Promise<void>
   ): Promise<void> => {
-    const subjectToken = context.oidc.params?.subject_token as string
+    const subjectToken = context.oidc?.params?.subject_token as string
     if (!subjectToken) {
       const message = 'subject token not found'
       this.logger.error(message)

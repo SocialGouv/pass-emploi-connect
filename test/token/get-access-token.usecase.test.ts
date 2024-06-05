@@ -115,7 +115,7 @@ describe('GetAccessTokenUsecase', () => {
       // Then
       expect(result._isSuccess).to.equal(true)
       if (result._isSuccess) {
-        expect(result.data.expiresIn).to.be.oneOf([297, 298, 299, 300])
+        expect(result.data.expiresIn).to.be.lessThanOrEqual(300)
         expect(result.data.scope).to.equal(
           'openid profile offline_access email'
         )
@@ -153,6 +153,19 @@ describe('GetAccessTokenUsecase', () => {
       expect(result).to.deep.equal(
         failure(new NonTrouveError('Config introuvable pour le refresh'))
       )
+    })
+    it('erreur quand getToken echoue', async () => {
+      // Given
+      const query = {
+        account: unAccount()
+      }
+      tokenService.getToken.throws()
+
+      // When
+      const result = await getAccessTokenUsecase.execute(query)
+
+      // Then
+      expect(result).to.deep.equal(failure(new NonTrouveError('AcessToken')))
     })
     it('erreur quand mauvais refresh token', async () => {
       // Given

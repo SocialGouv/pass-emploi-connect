@@ -68,5 +68,21 @@ describe('TokenService', () => {
         expiresIn: 299
       })
     })
+    it('undefined quand token mal formé', async () => {
+      // Given
+      const saved = {}
+      redisClient.get.resolves(JSON.stringify(saved))
+      dateService.now.returns(maintenant)
+
+      // When
+      const tokenData = await tokenService.getToken(unAccount(), 'access_token')
+
+      // Then
+      expect(redisClient.get).to.have.been.calledOnceWithExactly(
+        'access_token',
+        Account.fromAccountToAccountId(unAccount())
+      )
+      expect(tokenData).to.be.undefined()
+    })
   })
 })

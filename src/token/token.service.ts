@@ -36,6 +36,9 @@ export class TokenService {
     if (data) {
       try {
         const savedTokenData: SavedTokenData = JSON.parse(data)
+        if (!savedTokenData.token || !savedTokenData.expiresAt) {
+          throw new Error()
+        }
         return this.fromSavedTokenToTokenData(savedTokenData)
       } catch (e) {
         this.logger.error(buildError('get token invalid data format', e))
