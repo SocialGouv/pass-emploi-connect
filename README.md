@@ -1,4 +1,4 @@
-## Lancer l'app
+## Pass Emploi Connect
 ### Pré-requis <a name="pré-requis"></a>
 - Node 20.11.0
 - Docker et docker compose
@@ -34,4 +34,9 @@ Mettre en PROD un **HOTFIX** : faire une nouvelle version (`yarn release`) et un
 - Copier la clé
 - Attention : il faut au minimum 2 clés
 
-
+### IDPs et Discover
+- [Pass Emploi Connect](https://id.pass-emploi.incubateur.net/auth/realms/pass-emploi/.well-known/openid-configuration) 
+- [FT Conseiller](https://authentification-agent-va.pe-qvr.net/connexion/oauth2/.well-known/openid-configuration?realm=/agent) 
+- [FT Jeune/BRSA/AIJ](https://authentification-candidat-r.ft-qvr.fr/connexion/oauth2/realms/root/realms/individu/.well-known/openid-configuration) 
+- [MILO Conseiller](https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif/.well-known/openid-configuration) 
+- [MILO Jeune](https://sso-qlf.i-milo.fr/auth/realms/sue-jeunes-qualif/.well-known/openid-configuration) 
