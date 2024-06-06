@@ -17,9 +17,9 @@ import {
   parameters as tokenExchangeParameters
 } from './token-exchange.grant'
 import * as sanitizeHtml from 'sanitize-html'
-import { isFailure } from '../result/result'
+import { isFailure } from '../utils/result/result'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init'
 
 @Injectable()
 export class OidcService {

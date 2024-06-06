@@ -7,12 +7,12 @@ import {
 } from '../context-storage/context-storage.provider'
 import { Account } from '../domain/account'
 import { TokenData, TokenService } from './token.service'
-import { Result, failure, success } from '../result/result'
-import { buildError } from '../logger.module'
-import { NonTrouveError } from '../result/error'
+import { Result, failure, success } from '../utils/result/result'
+import { buildError } from '../utils/monitoring/logger.module'
+import { NonTrouveError } from '../utils/result/error'
 import { getIdpConfigIdentifier } from '../config/configuration'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init'
 
 const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 

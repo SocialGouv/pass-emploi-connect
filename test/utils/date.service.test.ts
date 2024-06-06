@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
-import { DateService } from '../src/date.service'
-import { expect } from './utils'
+import { DateService } from '../../src/utils/date.service'
+import { expect } from '../test-utils'
 
 describe('DateService', () => {
   describe('now', () => {

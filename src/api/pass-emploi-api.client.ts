@@ -3,12 +3,12 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { firstValueFrom } from 'rxjs'
 import { User } from '../domain/user'
-import { NonTraitable, NonTrouveError } from '../result/error'
-import { Result, failure, success } from '../result/result'
+import { NonTraitable, NonTrouveError } from '../utils/result/error'
+import { Result, failure, success } from '../utils/result/result'
 import { Account } from '../domain/account'
-import { buildError } from '../logger.module'
+import { buildError } from '../utils/monitoring/logger.module'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init'
 
 export interface PassEmploiUser {
   nom?: string

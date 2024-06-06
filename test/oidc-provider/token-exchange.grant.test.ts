@@ -3,12 +3,12 @@ import { expect } from 'chai'
 import { KoaContextWithOIDC } from 'oidc-provider'
 import { OidcProviderModule } from '../../src/oidc-provider/provider'
 import { TokenExchangeGrant } from '../../src/oidc-provider/token-exchange.grant'
-import { failure, success } from '../../src/result/result'
+import { failure, success } from '../../src/utils/result/result'
 import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
-import { StubbedClass, createSandbox, stubClass } from '../utils'
-import { unAccount, unTokenData } from '../utils/fixtures'
-import { JWTError, NonTrouveError } from '../../src/result/error'
+import { StubbedClass, createSandbox, stubClass } from '../test-utils'
+import { unAccount, unTokenData } from '../test-utils/fixtures'
+import { JWTError, NonTrouveError } from '../../src/utils/result/error'
 
 describe('TokenExchangeGrant', () => {
   let tokenExchangeGrant: TokenExchangeGrant

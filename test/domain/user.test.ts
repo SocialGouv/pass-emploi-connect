@@ -1,5 +1,5 @@
 import { User, estJeuneFT } from '../../src/domain/user'
-import { expect } from '../utils'
+import { expect } from '../test-utils'
 
 describe('User', () => {
   describe('estJeuneFT', () => {

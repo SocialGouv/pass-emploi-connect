@@ -5,9 +5,9 @@ import Redis from 'ioredis'
 import { Adapter, AdapterPayload } from 'oidc-provider'
 // @ts-expect-error - loadash
 import * as isEmpty from 'lodash.isempty'
-import { getAPMInstance } from '../apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init'
 import * as APM from 'elastic-apm-node'
-import { buildError } from '../logger.module'
+import { buildError } from '../utils/monitoring/logger.module'
 
 const grantable = new Set([
   'AccessToken',

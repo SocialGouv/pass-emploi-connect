@@ -8,13 +8,13 @@ import {
   ContextStorage
 } from '../../src/context-storage/context-storage.provider'
 import { User } from '../../src/domain/user'
-import { NonTrouveError } from '../../src/result/error'
-import { failure, success } from '../../src/result/result'
+import { NonTrouveError } from '../../src/utils/result/error'
+import { failure, success } from '../../src/utils/result/result'
 import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { TokenService } from '../../src/token/token.service'
-import { unAccount } from '../utils/fixtures'
-import { StubbedClass, stubClass } from '../utils'
-import { testConfig } from '../utils/module-for-testing'
+import { unAccount } from '../test-utils/fixtures'
+import { StubbedClass, stubClass } from '../test-utils'
+import { testConfig } from '../test-utils/module-for-testing'
 
 describe('GetAccessTokenUsecase', () => {
   let getAccessTokenUsecase: GetAccessTokenUsecase

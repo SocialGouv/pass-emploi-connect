@@ -7,7 +7,7 @@ import { RedisProvider } from '../redis/redis.provider'
 import { GetAccessTokenUsecase } from './get-access-token.usecase'
 import { TokenService } from './token.service'
 import { ValidateJWTUsecase } from './verify-jwt.usecase'
-import { DateService } from '../date.service'
+import { DateService } from '../utils/date.service'
 
 @Module({
   imports: [ConfigModule, ContextStorageModule],

@@ -1,10 +1,10 @@
 import { expect } from 'chai'
-import { DateService } from '../../src/date.service'
+import { DateService } from '../../src/utils/date.service'
 import { Account } from '../../src/domain/account'
 import { RedisClient } from '../../src/redis/redis.client'
 import { TokenData, TokenService } from '../../src/token/token.service'
-import { StubbedClass, stubClass } from '../utils'
-import { unAccount, uneDatetime } from '../utils/fixtures'
+import { StubbedClass, stubClass } from '../test-utils'
+import { unAccount, uneDatetime } from '../test-utils/fixtures'
 
 describe('TokenService', () => {
   let tokenService: TokenService

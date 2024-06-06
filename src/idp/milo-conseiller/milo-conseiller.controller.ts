@@ -9,7 +9,7 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { handleResult } from '../../result/result.handler'
+import { handleResult } from '../../utils/result/result.handler'
 import { MiloConseillerService } from './milo-conseiller.service'
 import { User } from '../../domain/user'
 

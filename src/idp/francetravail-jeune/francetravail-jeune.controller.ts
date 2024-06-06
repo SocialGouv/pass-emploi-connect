@@ -10,7 +10,7 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { handleResult } from '../../result/result.handler'
+import { handleResult } from '../../utils/result/result.handler'
 import { FrancetravailAIJService } from './francetravail-aij.service'
 import { FrancetravailBRSAService } from './francetravail-brsa.service'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'

@@ -1,4 +1,4 @@
-import { User } from '../domain/user'
+import { User } from '../../domain/user'
 import { NonTraitable } from './error'
 import { isFailure, Result } from './result'
 

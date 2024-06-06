@@ -2,7 +2,7 @@ import { Controller, All, Req, Res, Logger } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { OidcService } from './oidc.service'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init'
 
 @Controller('auth/realms/pass-emploi')
 export class OidcController {

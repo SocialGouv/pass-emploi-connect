@@ -12,11 +12,16 @@ import { Account } from '../../domain/account'
 import { User, estJeuneFT } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
-import { Result, emptySuccess, isFailure, isSuccess } from '../../result/result'
+import {
+  Result,
+  emptySuccess,
+  isFailure,
+  isSuccess
+} from '../../utils/result/result'
 import { TokenService } from '../../token/token.service'
 import { generateNewGrantId } from './helpers'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../../apm.init'
+import { getAPMInstance } from '../../utils/monitoring/apm.init'
 import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 
 export abstract class IdpService {

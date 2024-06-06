@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { DateService } from '../date.service'
+import { DateService } from '../utils/date.service'
 import { Account } from '../domain/account'
 import { RedisClient } from '../redis/redis.client'
-import { buildError } from '../logger.module'
+import { buildError } from '../utils/monitoring/logger.module'
 import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../apm.init'
+import { getAPMInstance } from '../utils/monitoring/apm.init'
 
 export type TokenData = {
   token: string

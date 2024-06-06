@@ -9,7 +9,7 @@ import * as sinonChai from 'sinon-chai'
 import { StubbedClass, stubClass } from './types'
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import * as apm from 'elastic-apm-node'
-import { setAPMInstance } from '../../src/apm.init'
+import { setAPMInstance } from '../../src/utils/monitoring/apm.init'
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
