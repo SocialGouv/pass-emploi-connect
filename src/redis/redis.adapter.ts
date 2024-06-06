@@ -5,6 +5,9 @@ import Redis from 'ioredis'
 import { Adapter, AdapterPayload } from 'oidc-provider'
 // @ts-expect-error - loadash
 import * as isEmpty from 'lodash.isempty'
+import { getAPMInstance } from '../apm.init'
+import * as APM from 'elastic-apm-node'
+import { buildError } from '../logger.module'
 
 const grantable = new Set([
   'AccessToken',
@@ -35,15 +38,15 @@ function uidKeyFor(uid: string) {
 
 export class RedisAdapter implements Adapter {
   private logger: Logger
+  protected apmService: APM.Agent
 
   constructor(private name: string, private readonly redisClient: Redis) {
     this.logger = new Logger('RedisAdapter')
-    this.logger.debug('Redis adapter created ' + this.name)
+    this.apmService = getAPMInstance()
   }
 
   async upsert(id: string, payload: AdapterPayload, expiresIn: number) {
     try {
-      this.logger.debug('REDIS UPSERT BEGIN %s %s %j', id, this.name, payload)
       const key = this.key(id)
 
       // initialize a new Redis transaction, all commands will be queued for atomic execution
@@ -83,16 +86,14 @@ export class RedisAdapter implements Adapter {
       }
 
       await multi.exec() // execute the transaction, committing the changes
-      this.logger.debug('REDIS UPSERT OK')
     } catch (e) {
-      this.logger.debug('REDIS UPSERT ERROR')
-      this.logger.debug(e)
+      this.logger.error(buildError('REDIS UPSERT ERROR', e))
+      this.apmService.captureError(e)
     }
   }
 
   async find(id: string): Promise<AdapterPayload | undefined | void> {
     try {
-      this.logger.debug('REDIS FIND BEGIN %s %s', id, this.name)
       const data = consumable.has(this.name)
         ? await this.redisClient.hgetall(this.key(id))
         : await this.redisClient.get(this.key(id))
@@ -106,14 +107,13 @@ export class RedisAdapter implements Adapter {
       }
 
       const { payload, ...rest } = data!
-      this.logger.debug('REDIS FIND OK')
       return {
         ...rest,
         ...JSON.parse(payload)
       }
     } catch (e) {
-      this.logger.debug('REDIS FIND ERROR')
-      this.logger.debug(e)
+      this.logger.error(buildError('REDIS FIND ERROR', e))
+      this.apmService.captureError(e)
       throw e
     }
   }
