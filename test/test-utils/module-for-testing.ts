@@ -1,12 +1,26 @@
 /* eslint-disable no-process-env */
 import { HttpModule } from '@nestjs/axios'
-import { INestApplication, Provider, ValidationPipe } from '@nestjs/common'
+import { INestApplication, Provider } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { SinonSandbox, createSandbox } from 'sinon'
-import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
-import { stubClassSandbox } from './types'
+import { TerminusModule } from '@nestjs/terminus'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import * as dotenv from 'dotenv'
+import { SinonSandbox, createSandbox } from 'sinon'
+import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
+import { AppController } from '../../src/app.controller'
+import { FrancetravailConseillerAIJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
+import { FrancetravailConseillerBRSAService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
+import { FrancetravailConseillerCEJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
+import { FrancetravailConseillerController } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.controller'
+import { stubClassSandbox } from './types'
+import { FrancetravailJeuneController } from '../../src/idp/francetravail-jeune/francetravail-jeune.controller'
+import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
+import { MiloConseillerController } from '../../src/idp/milo-conseiller/milo-conseiller.controller'
+import { FrancetravailAIJService } from '../../src/idp/francetravail-jeune/francetravail-aij.service'
+import { FrancetravailBRSAService } from '../../src/idp/francetravail-jeune/francetravail-brsa.service'
+import { FrancetravailJeuneCEJService } from '../../src/idp/francetravail-jeune/francetravail-jeune.service'
+import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-conseiller.service'
+import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1800
@@ -22,9 +36,15 @@ export function buildTestingModuleForHttpTesting(
   sandbox: SinonSandbox = createSandbox()
 ): TestingModuleBuilder {
   return Test.createTestingModule({
-    imports: [HttpModule, ConfigModule.forRoot()],
+    imports: [HttpModule, ConfigModule.forRoot(), TerminusModule],
     providers: stubProviders(sandbox),
-    controllers: []
+    controllers: [
+      AppController,
+      FrancetravailConseillerController,
+      FrancetravailJeuneController,
+      MiloJeuneController,
+      MiloConseillerController
+    ]
   })
 }
 
@@ -40,9 +60,6 @@ export const getApplicationWithStubbedDependencies =
       ).compile()
 
       applicationForHttpTesting = testingModule.createNestApplication()
-      applicationForHttpTesting.useGlobalPipes(
-        new ValidationPipe({ whitelist: true })
-      )
       await applicationForHttpTesting.init()
     }
 
@@ -77,7 +94,7 @@ export const testConfig = (): ConfigService => {
         id: 'web',
         secret: 'web-secret',
         callbacks: [],
-        errorCallback: '',
+        errorCallback: 'https://autherror.com',
         logoutCallbacks: []
       },
       app: {
@@ -179,6 +196,42 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     {
       provide: PassEmploiAPIClient,
       useValue: stubClassSandbox(PassEmploiAPIClient, sandbox)
+    },
+    {
+      provide: PassEmploiAPIClient,
+      useValue: stubClassSandbox(PassEmploiAPIClient, sandbox)
+    },
+    {
+      provide: FrancetravailConseillerCEJService,
+      useValue: stubClassSandbox(FrancetravailConseillerCEJService, sandbox)
+    },
+    {
+      provide: FrancetravailConseillerAIJService,
+      useValue: stubClassSandbox(FrancetravailConseillerAIJService, sandbox)
+    },
+    {
+      provide: FrancetravailConseillerBRSAService,
+      useValue: stubClassSandbox(FrancetravailConseillerBRSAService, sandbox)
+    },
+    {
+      provide: FrancetravailJeuneCEJService,
+      useValue: stubClassSandbox(FrancetravailJeuneCEJService, sandbox)
+    },
+    {
+      provide: FrancetravailAIJService,
+      useValue: stubClassSandbox(FrancetravailAIJService, sandbox)
+    },
+    {
+      provide: FrancetravailBRSAService,
+      useValue: stubClassSandbox(FrancetravailBRSAService, sandbox)
+    },
+    {
+      provide: MiloConseillerService,
+      useValue: stubClassSandbox(MiloConseillerService, sandbox)
+    },
+    {
+      provide: MiloJeuneService,
+      useValue: stubClassSandbox(FrancetravailBRSAService, sandbox)
     }
   ]
   return providers

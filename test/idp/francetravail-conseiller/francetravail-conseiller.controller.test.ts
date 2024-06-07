@@ -1,0 +1,265 @@
+import { HttpStatus, INestApplication } from '@nestjs/common'
+import * as request from 'supertest'
+import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
+import {
+  emptySuccess,
+  failure,
+  success
+} from '../../../src/utils/result/result'
+import { StubbedClass, expect } from '../../test-utils'
+import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
+import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
+import { FrancetravailConseillerAIJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
+import {
+  AuthError,
+  NonTraitable,
+  NonTrouveError
+} from '../../../src/utils/result/error'
+
+describe('FrancetravailConseillerController', () => {
+  let francetravailConseillerCEJService: StubbedClass<FrancetravailConseillerCEJService>
+  let francetravailConseillerAIJService: StubbedClass<FrancetravailConseillerAIJService>
+  let francetravailConseillerBRSAService: StubbedClass<FrancetravailConseillerBRSAService>
+  let app: INestApplication
+  before(async () => {
+    app = await getApplicationWithStubbedDependencies()
+
+    francetravailConseillerCEJService = app.get(
+      FrancetravailConseillerCEJService
+    )
+    francetravailConseillerAIJService = app.get(
+      FrancetravailConseillerAIJService
+    )
+    francetravailConseillerBRSAService = app.get(
+      FrancetravailConseillerBRSAService
+    )
+  })
+
+  describe('GET /francetravail-conseiller/connect/:interactionId', () => {
+    describe('CEJ', () => {
+      it('renvoie une url quand tout va bien', async () => {
+        // Given
+        francetravailConseillerCEJService.getAuthorizationUrl.returns(
+          success('une-url')
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/francetravail-conseiller/connect/interactionId?type=cej')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'une-url')
+
+        expect(
+          francetravailConseillerCEJService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly('interactionId', 'cej')
+      })
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerCEJService.getAuthorizationUrl.returns(
+          failure(new AuthError('NO_REASON'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/francetravail-conseiller/connect/interactionId?type=cej')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI'
+          )
+
+        expect(
+          francetravailConseillerCEJService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly('interactionId', 'cej')
+      })
+    })
+    describe('BRSA', () => {
+      it('renvoie une url quand tout va bien', async () => {
+        // Given
+        francetravailConseillerBRSAService.getAuthorizationUrl.returns(
+          success('une-url')
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/francetravail-conseiller/connect/interactionId?type=brsa')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'une-url')
+
+        expect(
+          francetravailConseillerBRSAService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly('interactionId', 'brsa')
+      })
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerBRSAService.getAuthorizationUrl.returns(
+          failure(new NonTrouveError('User'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/francetravail-conseiller/connect/interactionId?type=brsa')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_BRSA'
+          )
+
+        expect(
+          francetravailConseillerBRSAService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly('interactionId', 'brsa')
+      })
+    })
+    describe('AIJ', () => {
+      it('renvoie une url quand tout va bien', async () => {
+        // Given
+        francetravailConseillerAIJService.getAuthorizationUrl.returns(
+          success('une-url')
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/francetravail-conseiller/connect/interactionId?type=aij')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'une-url')
+
+        expect(
+          francetravailConseillerAIJService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly('interactionId', 'aij')
+      })
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerAIJService.getAuthorizationUrl.returns(
+          failure(new NonTraitable('NO_REASON'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/francetravail-conseiller/connect/interactionId?type=aij')
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TRAITABLE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_AIJ'
+          )
+
+        expect(
+          francetravailConseillerAIJService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly('interactionId', 'aij')
+      })
+    })
+  })
+
+  describe('GET /auth/realms/pass-emploi/broker/pe-conseiller/endpoint', () => {
+    describe('CEJ', () => {
+      it('termine sans erreur quand tout va bien', async () => {
+        // Given
+        francetravailConseillerCEJService.callback.resolves(emptySuccess())
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'cej' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'blank')
+
+        expect(
+          francetravailConseillerCEJService.callback
+        ).to.have.been.calledOnce()
+      })
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerCEJService.callback.resolves(
+          failure(new AuthError('NO_REASON'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'cej' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI'
+          )
+
+        expect(
+          francetravailConseillerCEJService.callback
+        ).to.have.been.calledOnce()
+      })
+    })
+    describe('BRSA', () => {
+      it('termine sans erreur quand tout va bien', async () => {
+        // Given
+        francetravailConseillerBRSAService.callback.resolves(emptySuccess())
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'brsa' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'blank')
+
+        expect(
+          francetravailConseillerBRSAService.callback
+        ).to.have.been.calledOnce()
+      })
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerBRSAService.callback.resolves(
+          failure(new NonTrouveError('User'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'brsa' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_BRSA'
+          )
+
+        expect(
+          francetravailConseillerBRSAService.callback
+        ).to.have.been.calledOnce()
+      })
+    })
+    describe('AIJ', () => {
+      it('termine sans erreur quand tout va bien', async () => {
+        // Given
+        francetravailConseillerAIJService.callback.resolves(emptySuccess())
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'aij' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'blank')
+
+        expect(
+          francetravailConseillerAIJService.callback
+        ).to.have.been.calledOnce()
+      })
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerAIJService.callback.resolves(
+          failure(new NonTraitable('NO_REASON'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'aij' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TRAITABLE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_AIJ'
+          )
+
+        expect(
+          francetravailConseillerAIJService.callback
+        ).to.have.been.calledOnce()
+      })
+    })
+  })
+})

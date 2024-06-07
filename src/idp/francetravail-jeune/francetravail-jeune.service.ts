@@ -5,7 +5,7 @@ import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { TokenService } from '../../token/token.service'
-import { IdpService } from '../common/idp.service'
+import { IdpService } from '../service/idp.service'
 import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 
 @Injectable()

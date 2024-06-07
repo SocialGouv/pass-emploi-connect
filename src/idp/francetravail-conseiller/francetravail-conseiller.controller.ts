@@ -10,11 +10,14 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { handleResult } from '../../utils/result/result.handler'
+import { handleFailure } from '../../utils/result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
 import { User } from '../../domain/user'
+import { isFailure } from '../../utils/result/result'
+
+const userType = User.Type.CONSEILLER
 
 @Controller()
 export class FrancetravailConseillerController {
@@ -34,33 +37,41 @@ export class FrancetravailConseillerController {
     @Param('interactionId') interactionId: string,
     @Query() ftQueryParams: { type: 'cej' | 'brsa' | 'aij' }
   ): Promise<{ url: string }> {
-    let authorizationUrl
+    let authorizationUrlResult
+    let userStructure: User.Structure
 
     switch (ftQueryParams.type) {
       case 'aij':
-        authorizationUrl =
+        userStructure = User.Structure.POLE_EMPLOI_AIJ
+        authorizationUrlResult =
           this.francetravailConseillerAIJService.getAuthorizationUrl(
             interactionId,
             ftQueryParams.type
           )
         break
       case 'brsa':
-        authorizationUrl =
+        userStructure = User.Structure.POLE_EMPLOI_BRSA
+        authorizationUrlResult =
           this.francetravailConseillerBRSAService.getAuthorizationUrl(
             interactionId,
             ftQueryParams.type
           )
         break
       default:
-        authorizationUrl =
+        userStructure = User.Structure.POLE_EMPLOI
+        authorizationUrlResult =
           this.francetravailConseillerCEJService.getAuthorizationUrl(
             interactionId,
             ftQueryParams.type
           )
+        break
     }
 
+    if (isFailure(authorizationUrlResult))
+      return handleFailure(authorizationUrlResult, userType, userStructure)
+
     return {
-      url: authorizationUrl
+      url: authorizationUrlResult.data
     }
   }
 
@@ -69,40 +80,34 @@ export class FrancetravailConseillerController {
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<unknown> {
+  ): Promise<{ url: string } | void> {
     const ftType = request.query.state
     let result
+    let userStructure: User.Structure
+
     switch (ftType) {
       case 'aij':
+        userStructure = User.Structure.POLE_EMPLOI_AIJ
         result = await this.francetravailConseillerAIJService.callback(
           request,
           response
         )
-        return handleResult(
-          result,
-          User.Type.CONSEILLER,
-          User.Structure.POLE_EMPLOI_AIJ
-        )
+        break
       case 'brsa':
+        userStructure = User.Structure.POLE_EMPLOI_BRSA
         result = await this.francetravailConseillerBRSAService.callback(
           request,
           response
         )
-        return handleResult(
-          result,
-          User.Type.CONSEILLER,
-          User.Structure.POLE_EMPLOI_BRSA
-        )
+        break
       default:
+        userStructure = User.Structure.POLE_EMPLOI
         result = await this.francetravailConseillerCEJService.callback(
           request,
           response
         )
-        return handleResult(
-          result,
-          User.Type.CONSEILLER,
-          User.Structure.POLE_EMPLOI
-        )
+        break
     }
+    if (isFailure(result)) return handleFailure(result, userType, userStructure)
   }
 }

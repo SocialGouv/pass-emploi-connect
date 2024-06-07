@@ -4,6 +4,18 @@ export interface DomainError {
   readonly reason?: string
 }
 
+export class AuthError implements DomainError {
+  static CODE = 'AUTH_ERROR'
+  code: string = AuthError.CODE
+  readonly reason: string
+  readonly message: string
+
+  constructor(reason: string) {
+    this.message = `Auth Error`
+    this.reason = reason
+  }
+}
+
 export class JWTError implements DomainError {
   static CODE = 'JWT_ERROR'
   code: string = JWTError.CODE

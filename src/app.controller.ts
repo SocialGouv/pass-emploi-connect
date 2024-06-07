@@ -8,7 +8,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return 'Hello world!'
+    return 'Pass Emploi Connect'
   }
   @Get('health')
   @HealthCheck()

@@ -9,9 +9,13 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { handleResult } from '../../utils/result/result.handler'
+import { handleFailure } from '../../utils/result/result.handler'
 import { MiloConseillerService } from './milo-conseiller.service'
 import { User } from '../../domain/user'
+import { isFailure } from '../../utils/result/result'
+
+const userType = User.Type.CONSEILLER
+const userStructure = User.Structure.MILO
 
 @Controller()
 export class MiloConseillerController {
@@ -26,10 +30,12 @@ export class MiloConseillerController {
   async connect(
     @Param('interactionId') interactionId: string
   ): Promise<{ url: string }> {
-    const authorizationUrl =
+    const authorizationUrlResult =
       this.miloConseillerService.getAuthorizationUrl(interactionId)
+    if (isFailure(authorizationUrlResult))
+      return handleFailure(authorizationUrlResult, userType, userStructure)
     return {
-      url: authorizationUrl
+      url: authorizationUrlResult.data
     }
   }
 
@@ -38,8 +44,8 @@ export class MiloConseillerController {
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<unknown> {
+  ): Promise<{ url: string } | void> {
     const result = await this.miloConseillerService.callback(request, response)
-    return handleResult(result, User.Type.CONSEILLER, User.Structure.MILO)
+    if (isFailure(result)) return handleFailure(result, userType, userStructure)
   }
 }
