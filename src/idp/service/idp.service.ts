@@ -2,14 +2,14 @@ import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
 import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
-import { BaseClient, Issuer } from 'openid-client'
+import { BaseClient, CallbackParamsType, Issuer, TokenSet } from 'openid-client'
 import { IdpConfig, getIdpConfigIdentifier } from '../../config/configuration'
 import {
   ContextKeyType,
   ContextStorage
 } from '../../context-storage/context-storage.provider'
 import { Account } from '../../domain/account'
-import { User, estJeuneFT } from '../../domain/user'
+import { User, estConseillerFT, estJeuneFT } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import {
@@ -20,7 +20,7 @@ import {
   isSuccess,
   success
 } from '../../utils/result/result'
-import { TokenService } from '../../token/token.service'
+import { TokenService, TokenType } from '../../token/token.service'
 import { generateNewGrantId } from './helpers'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../../utils/monitoring/apm.init'
@@ -58,39 +58,7 @@ export abstract class IdpService {
         getIdpConfigIdentifier(userType, userStructure)
       ]!
 
-    const issuerConfig = {
-      issuer: this.idp.issuer,
-      authorization_endpoint: this.idp.authorizationUrl,
-      token_endpoint: this.idp.tokenUrl,
-      jwks_uri: this.idp.jwks,
-      userinfo_endpoint: this.idp.userinfo
-    }
-    const clientConfig = {
-      client_id: this.idp.clientId,
-      client_secret: this.idp.clientSecret,
-      redirect_uris: [this.idp.redirectUri],
-      response_types: ['code'],
-      scope: this.idp.scopes,
-      token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
-    }
-    this.contextStorage.set(
-      {
-        userType,
-        userStructure,
-        key: ContextKeyType.ISSUER
-      },
-      JSON.stringify(issuerConfig)
-    )
-    this.contextStorage.set(
-      {
-        userType,
-        userStructure,
-        key: ContextKeyType.CLIENT
-      },
-      JSON.stringify(clientConfig)
-    )
-    const issuer = new Issuer(issuerConfig)
-    this.client = new issuer.Client(clientConfig)
+    this.client = this.buildClient()
   }
 
   getAuthorizationUrl(interactionId: string, state?: string): Result<string> {
@@ -118,15 +86,11 @@ export abstract class IdpService {
         response
       )
       const params = this.client.callbackParams(request)
-      const tokenSet = await this.client.callback(
-        this.idp.redirectUri,
+
+      const tokenSet = await this.callbackWithRetry(
+        request,
         params,
-        {
-          nonce: interactionDetails.uid,
-          state: request.query.state
-            ? (request.query.state as string)
-            : undefined
-        }
+        interactionDetails.uid
       )
 
       const userInfo = await this.client.userinfo(tokenSet, {
@@ -139,32 +103,6 @@ export abstract class IdpService {
         structure: this.userStructure
       }
       const accountId = Account.fromAccountToAccountId(account)
-
-      await this.tokenService.setToken(account, 'access_token', {
-        token: tokenSet.access_token!,
-        expiresIn: tokenSet.expires_in || this.idp.accessTokenMaxAge,
-        scope: tokenSet.scope
-      })
-      if (tokenSet.refresh_token) {
-        let refreshExpiresIn
-        try {
-          refreshExpiresIn = tokenSet.refresh_expires_in as number
-        } catch (e) {}
-        await this.tokenService.setToken(account, 'refresh_token', {
-          token: tokenSet.refresh_token,
-          expiresIn: refreshExpiresIn || this.idp.refreshTokenMaxAge,
-          scope: tokenSet.scope
-        })
-      }
-
-      const { grantId } = interactionDetails
-      const newGrantId = await generateNewGrantId(
-        this.configService,
-        this.oidcService,
-        accountId,
-        interactionDetails.params.client_id as string,
-        grantId
-      )
 
       let coordonnees
       if (estJeuneFT(this.userType, this.userStructure)) {
@@ -195,6 +133,15 @@ export abstract class IdpService {
         return apiUserResult
       }
 
+      const { grantId } = interactionDetails
+      const newGrantId = await generateNewGrantId(
+        this.configService,
+        this.oidcService,
+        accountId,
+        interactionDetails.params.client_id as string,
+        grantId
+      )
+
       const result: InteractionResults = {
         login: { accountId },
         consent: { grantId: newGrantId },
@@ -208,6 +155,23 @@ export abstract class IdpService {
         preferred_username: userInfo.preferred_username
       }
 
+      await this.tokenService.setToken(account, TokenType.ACCESS, {
+        token: tokenSet.access_token!,
+        expiresIn: tokenSet.expires_in || this.idp.accessTokenMaxAge,
+        scope: tokenSet.scope
+      })
+      if (tokenSet.refresh_token) {
+        let refreshExpiresIn
+        try {
+          refreshExpiresIn = tokenSet.refresh_expires_in as number
+        } catch (e) {}
+        await this.tokenService.setToken(account, TokenType.REFRESH, {
+          token: tokenSet.refresh_token,
+          expiresIn: refreshExpiresIn || this.idp.refreshTokenMaxAge,
+          scope: tokenSet.scope
+        })
+      }
+
       await this.oidcService.interactionFinished(request, response, result)
       return emptySuccess()
     } catch (e) {
@@ -217,5 +181,71 @@ export abstract class IdpService {
       )
       return failure(new AuthError('CALLBACK'))
     }
+  }
+
+  private buildClient(issuerSuffix?: string): BaseClient {
+    const issuerConfig = {
+      issuer: issuerSuffix ? this.idp.issuer + issuerSuffix : this.idp.issuer,
+      authorization_endpoint: this.idp.authorizationUrl,
+      token_endpoint: this.idp.tokenUrl,
+      jwks_uri: this.idp.jwks,
+      userinfo_endpoint: this.idp.userinfo
+    }
+    const clientConfig = {
+      client_id: this.idp.clientId,
+      client_secret: this.idp.clientSecret,
+      redirect_uris: [this.idp.redirectUri],
+      response_types: ['code'],
+      scope: this.idp.scopes,
+      token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
+    }
+    this.contextStorage.set(
+      {
+        userType: this.userType,
+        userStructure: this.userStructure,
+        key: ContextKeyType.ISSUER
+      },
+      JSON.stringify(issuerConfig)
+    )
+    this.contextStorage.set(
+      {
+        userType: this.userType,
+        userStructure: this.userStructure,
+        key: ContextKeyType.CLIENT
+      },
+      JSON.stringify(clientConfig)
+    )
+    const issuer = new Issuer(issuerConfig)
+    const client = new issuer.Client(clientConfig)
+    return client
+  }
+
+  private async callbackWithRetry(
+    request: Request,
+    params: CallbackParamsType,
+    nonce: string
+  ): Promise<TokenSet> {
+    try {
+      const tokenSet = await this.callbackWithoutRetry(request, params, nonce)
+      return tokenSet
+    } catch (e) {
+      if (estConseillerFT(this.userType, this.userStructure)) {
+        this.logger.error(buildError('PB Conseiller FT', e))
+        this.client = this.buildClient('/agent')
+        return this.callbackWithoutRetry(request, params, nonce)
+      }
+      throw e
+    }
+  }
+
+  private async callbackWithoutRetry(
+    request: Request,
+    params: CallbackParamsType,
+    nonce: string
+  ): Promise<TokenSet> {
+    return this.client.callback(this.idp.redirectUri, params, {
+      nonce,
+      state: request.query.state ? (request.query.state as string) : undefined
+    })
   }
 }

@@ -2,7 +2,11 @@ import { expect } from 'chai'
 import { DateService } from '../../src/utils/date.service'
 import { Account } from '../../src/domain/account'
 import { RedisClient } from '../../src/redis/redis.client'
-import { TokenData, TokenService } from '../../src/token/token.service'
+import {
+  TokenData,
+  TokenService,
+  TokenType
+} from '../../src/token/token.service'
 import { StubbedClass, stubClass } from '../test-utils'
 import { unAccount, uneDatetime } from '../test-utils/fixtures'
 
@@ -28,11 +32,11 @@ describe('TokenService', () => {
       dateService.now.returns(maintenant)
 
       // When
-      await tokenService.setToken(unAccount(), 'access_token', tokenData)
+      await tokenService.setToken(unAccount(), TokenType.ACCESS, tokenData)
 
       // Then
       expect(redisClient.setWithExpiry).to.have.been.calledOnceWithExactly(
-        'access_token',
+        TokenType.ACCESS,
         Account.fromAccountToAccountId(unAccount()),
         JSON.stringify({
           token: tokenData.token,
@@ -55,11 +59,14 @@ describe('TokenService', () => {
       dateService.now.returns(maintenant)
 
       // When
-      const tokenData = await tokenService.getToken(unAccount(), 'access_token')
+      const tokenData = await tokenService.getToken(
+        unAccount(),
+        TokenType.ACCESS
+      )
 
       // Then
       expect(redisClient.get).to.have.been.calledOnceWithExactly(
-        'access_token',
+        TokenType.ACCESS,
         Account.fromAccountToAccountId(unAccount())
       )
       expect(tokenData).to.deep.equal({
@@ -75,14 +82,37 @@ describe('TokenService', () => {
       dateService.now.returns(maintenant)
 
       // When
-      const tokenData = await tokenService.getToken(unAccount(), 'access_token')
+      const tokenData = await tokenService.getToken(
+        unAccount(),
+        TokenType.ACCESS
+      )
 
       // Then
       expect(redisClient.get).to.have.been.calledOnceWithExactly(
-        'access_token',
+        TokenType.ACCESS,
         Account.fromAccountToAccountId(unAccount())
       )
       expect(tokenData).to.be.undefined()
+    })
+  })
+  describe('removeTokens', () => {
+    it('remove les 2 tokens', async () => {
+      // Given
+      const account = unAccount()
+
+      // When
+      await tokenService.removeTokens(account)
+
+      // Then
+      expect(redisClient.delete).to.have.been.calledTwice()
+      expect(redisClient.delete).to.have.been.calledWithExactly(
+        TokenType.ACCESS,
+        Account.fromAccountToAccountId(account)
+      )
+      expect(redisClient.delete).to.have.been.calledWithExactly(
+        TokenType.REFRESH,
+        Account.fromAccountToAccountId(account)
+      )
     })
   })
 })

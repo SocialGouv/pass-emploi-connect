@@ -6,6 +6,10 @@ import { buildError } from '../utils/monitoring/logger.module'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 
+export enum TokenType {
+  ACCESS = 'access_token',
+  REFRESH = 'refresh_token'
+}
 export type TokenData = {
   token: string
   expiresIn: number
@@ -32,7 +36,7 @@ export class TokenService {
 
   async getToken(
     account: Account,
-    tokenType: 'access_token' | 'refresh_token'
+    tokenType: TokenType
   ): Promise<TokenData | undefined> {
     const data = await this.redisClient.get(
       tokenType,
@@ -55,7 +59,7 @@ export class TokenService {
 
   async setToken(
     account: Account,
-    tokenType: 'access_token' | 'refresh_token',
+    tokenType: TokenType,
     tokenData: TokenData
   ): Promise<void> {
     const MARGIN_SECONDS = 1
@@ -75,6 +79,19 @@ export class TokenService {
       JSON.stringify(tokenToSave),
       ttl
     )
+  }
+
+  async removeTokens(account: Account): Promise<void[]> {
+    return await Promise.all([
+      this.redisClient.delete(
+        TokenType.ACCESS,
+        Account.fromAccountToAccountId(account)
+      ),
+      this.redisClient.delete(
+        TokenType.REFRESH,
+        Account.fromAccountToAccountId(account)
+      )
+    ])
   }
 
   private fromTokenDataToTokenToSave(tokenData: TokenData): SavedTokenData {

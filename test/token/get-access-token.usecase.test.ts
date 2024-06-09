@@ -11,7 +11,7 @@ import { User } from '../../src/domain/user'
 import { NonTrouveError } from '../../src/utils/result/error'
 import { failure, success } from '../../src/utils/result/result'
 import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
-import { TokenService } from '../../src/token/token.service'
+import { TokenService, TokenType } from '../../src/token/token.service'
 import { unAccount } from '../test-utils/fixtures'
 import { StubbedClass, stubClass } from '../test-utils'
 import { testConfig } from '../test-utils/module-for-testing'
@@ -60,7 +60,7 @@ describe('GetAccessTokenUsecase', () => {
       const query = {
         account: unAccount()
       }
-      tokenService.getToken.withArgs(query.account, 'access_token').resolves({
+      tokenService.getToken.withArgs(query.account, TokenType.ACCESS).resolves({
         token: 'string',
         expiresIn: 100,
         scope: ''
@@ -83,16 +83,18 @@ describe('GetAccessTokenUsecase', () => {
       const query = {
         account: unAccount()
       }
-      tokenService.getToken.withArgs(query.account, 'access_token').resolves({
+      tokenService.getToken.withArgs(query.account, TokenType.ACCESS).resolves({
         token: 'string',
         expiresIn: 10,
         scope: ''
       })
-      tokenService.getToken.withArgs(query.account, 'refresh_token').resolves({
-        token: offlineToken,
-        expiresIn: 100,
-        scope: 'openid profile offline_access email'
-      })
+      tokenService.getToken
+        .withArgs(query.account, TokenType.REFRESH)
+        .resolves({
+          token: offlineToken,
+          expiresIn: 100,
+          scope: 'openid profile offline_access email'
+        })
       context.get
         .withArgs({
           userType: query.account.type,
@@ -140,11 +142,13 @@ describe('GetAccessTokenUsecase', () => {
       const query = {
         account: unAccount()
       }
-      tokenService.getToken.withArgs(query.account, 'refresh_token').resolves({
-        token: offlineToken,
-        expiresIn: 100,
-        scope: 'openid profile offline_access email'
-      })
+      tokenService.getToken
+        .withArgs(query.account, TokenType.REFRESH)
+        .resolves({
+          token: offlineToken,
+          expiresIn: 100,
+          scope: 'openid profile offline_access email'
+        })
 
       // When
       const result = await getAccessTokenUsecase.execute(query)
@@ -172,11 +176,13 @@ describe('GetAccessTokenUsecase', () => {
       const query = {
         account: unAccount()
       }
-      tokenService.getToken.withArgs(query.account, 'refresh_token').resolves({
-        token: 'mauvais-token',
-        expiresIn: 100,
-        scope: 'openid profile offline_access email'
-      })
+      tokenService.getToken
+        .withArgs(query.account, TokenType.REFRESH)
+        .resolves({
+          token: 'mauvais-token',
+          expiresIn: 100,
+          scope: 'openid profile offline_access email'
+        })
       context.get
         .withArgs({
           userType: query.account.type,
@@ -198,6 +204,9 @@ describe('GetAccessTokenUsecase', () => {
       // Then
       expect(result).to.deep.equal(
         failure(new NonTrouveError('Erreur refresh token'))
+      )
+      expect(tokenService.removeTokens).to.have.been.calledOnceWithExactly(
+        query.account
       )
     })
   })

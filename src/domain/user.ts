@@ -25,16 +25,24 @@ export namespace User {
   }
 }
 
+function estFT(userStructure: User.Structure): boolean {
+  return [
+    User.Structure.POLE_EMPLOI,
+    User.Structure.POLE_EMPLOI_AIJ,
+    User.Structure.POLE_EMPLOI_BRSA
+  ].includes(userStructure)
+}
+
 export function estJeuneFT(
   userType: User.Type,
   userStructure: User.Structure
 ): boolean {
-  return (
-    userType === User.Type.JEUNE &&
-    [
-      User.Structure.POLE_EMPLOI,
-      User.Structure.POLE_EMPLOI_AIJ,
-      User.Structure.POLE_EMPLOI_BRSA
-    ].includes(userStructure)
-  )
+  return userType === User.Type.JEUNE && estFT(userStructure)
+}
+
+export function estConseillerFT(
+  userType: User.Type,
+  userStructure: User.Structure
+): boolean {
+  return userType === User.Type.CONSEILLER && estFT(userStructure)
 }

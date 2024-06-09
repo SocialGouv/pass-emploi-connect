@@ -6,7 +6,7 @@ import {
   ContextStorage
 } from '../context-storage/context-storage.provider'
 import { Account } from '../domain/account'
-import { TokenData, TokenService } from './token.service'
+import { TokenData, TokenService, TokenType } from './token.service'
 import { Result, failure, success } from '../utils/result/result'
 import { buildError } from '../utils/monitoring/logger.module'
 import { NonTrouveError } from '../utils/result/error'
@@ -38,7 +38,7 @@ export class GetAccessTokenUsecase {
     try {
       const storedAccessTokenData = await this.tokenService.getToken(
         query.account,
-        'access_token'
+        TokenType.ACCESS
       )
 
       if (
@@ -61,7 +61,7 @@ export class GetAccessTokenUsecase {
   private async refresh(account: Account): Promise<Result<TokenData>> {
     const refreshToken = await this.tokenService.getToken(
       account,
-      'refresh_token'
+      TokenType.REFRESH
     )
 
     if (!refreshToken) {
@@ -113,10 +113,11 @@ export class GetAccessTokenUsecase {
         scope: tokenSet.scope
       }
 
-      await this.tokenService.setToken(account, 'access_token', tokenData)
+      await this.tokenService.setToken(account, TokenType.ACCESS, tokenData)
 
       return success(tokenData)
     } catch (e) {
+      this.tokenService.removeTokens(account)
       this.logger.error(buildError('Erreur refresh token', e))
       this.apmService.captureError(e)
       return failure(new NonTrouveError('Erreur refresh token'))
