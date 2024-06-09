@@ -95,24 +95,4 @@ describe('TokenService', () => {
       expect(tokenData).to.be.undefined()
     })
   })
-  describe('removeTokens', () => {
-    it('remove les 2 tokens', async () => {
-      // Given
-      const account = unAccount()
-
-      // When
-      await tokenService.removeTokens(account)
-
-      // Then
-      expect(redisClient.delete).to.have.been.calledTwice()
-      expect(redisClient.delete).to.have.been.calledWithExactly(
-        TokenType.ACCESS,
-        Account.fromAccountToAccountId(account)
-      )
-      expect(redisClient.delete).to.have.been.calledWithExactly(
-        TokenType.REFRESH,
-        Account.fromAccountToAccountId(account)
-      )
-    })
-  })
 })

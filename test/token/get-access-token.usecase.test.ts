@@ -205,9 +205,6 @@ describe('GetAccessTokenUsecase', () => {
       expect(result).to.deep.equal(
         failure(new NonTrouveError('Erreur refresh token'))
       )
-      expect(tokenService.removeTokens).to.have.been.calledOnceWithExactly(
-        query.account
-      )
     })
   })
 })

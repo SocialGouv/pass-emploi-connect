@@ -24,6 +24,13 @@ export class RedisClient implements OnModuleDestroy {
     await this.redisClient.del(`${prefix}:${key}`)
   }
 
+  async deletePattern(pattern: string): Promise<void> {
+    const keys = await this.redisClient.keys(`*${pattern}*`)
+    for (const key of keys) {
+      await this.redisClient.del(key.replace('oidc:', ''))
+    }
+  }
+
   async setWithExpiry(
     prefix: string,
     key: string,

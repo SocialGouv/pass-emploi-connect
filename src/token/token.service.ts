@@ -81,19 +81,6 @@ export class TokenService {
     )
   }
 
-  async removeTokens(account: Account): Promise<void[]> {
-    return await Promise.all([
-      this.redisClient.delete(
-        TokenType.ACCESS,
-        Account.fromAccountToAccountId(account)
-      ),
-      this.redisClient.delete(
-        TokenType.REFRESH,
-        Account.fromAccountToAccountId(account)
-      )
-    ])
-  }
-
   private fromTokenDataToTokenToSave(tokenData: TokenData): SavedTokenData {
     const expiresAt = this.dateService
       .now()

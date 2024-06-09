@@ -117,7 +117,6 @@ export class GetAccessTokenUsecase {
 
       return success(tokenData)
     } catch (e) {
-      this.tokenService.removeTokens(account)
       this.logger.error(buildError('Erreur refresh token', e))
       this.apmService.captureError(e)
       return failure(new NonTrouveError('Erreur refresh token'))
