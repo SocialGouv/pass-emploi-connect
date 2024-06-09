@@ -213,6 +213,7 @@ export class OidcService {
           const account = Account.fromAccountIdToAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
+            await context.oidc.entities.Session?.destroy()
             this.logger.error('Could not get user from API')
             const error = new Error('Could not get user from API')
             this.apmService.captureError(error)
