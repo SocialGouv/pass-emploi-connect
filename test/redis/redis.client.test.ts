@@ -23,6 +23,9 @@ describe('RedisClient', () => {
       expect(res).to.equal('res')
       expect(redis.get).to.have.been.calledOnceWithExactly('pref:key')
     })
+  })
+
+  describe('set', () => {
     it('set', async () => {
       // Given
       redis.set.resolves()
@@ -33,6 +36,9 @@ describe('RedisClient', () => {
       // Then
       expect(redis.set).to.have.been.calledOnceWithExactly('pref:key', 'value')
     })
+  })
+
+  describe('delete', () => {
     it('delete', async () => {
       // Given
       redis.del.resolves()
@@ -43,6 +49,24 @@ describe('RedisClient', () => {
       // Then
       expect(redis.del).to.have.been.calledOnceWithExactly('pref:key')
     })
+  })
+  describe('deletePattern', () => {
+    it('deletePattern', async () => {
+      // Given
+      redis.keys.resolves(['oidc:ok', 'abc'])
+      redis.del.resolves()
+
+      // When
+      await redisClient.deletePattern('nimp')
+
+      // Then
+      expect(redis.keys).to.have.been.calledOnceWithExactly('*nimp*')
+      expect(redis.del).to.have.been.calledTwice()
+      expect(redis.del).to.have.been.calledWithExactly('ok')
+      expect(redis.del).to.have.been.calledWithExactly('abc')
+    })
+  })
+  describe('setWithExpiry', () => {
     it('setWithExpiry', async () => {
       // Given
       redis.set.resolves()

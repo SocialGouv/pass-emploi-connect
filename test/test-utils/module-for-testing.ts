@@ -6,21 +6,22 @@ import { TerminusModule } from '@nestjs/terminus'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import * as dotenv from 'dotenv'
 import { SinonSandbox, createSandbox } from 'sinon'
+import { DeleteAccountUsecase } from '../../src/account/delete-account.usecase'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { AppController } from '../../src/app.controller'
 import { FrancetravailConseillerAIJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
 import { FrancetravailConseillerBRSAService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
 import { FrancetravailConseillerController } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.controller'
-import { stubClassSandbox } from './types'
-import { FrancetravailJeuneController } from '../../src/idp/francetravail-jeune/francetravail-jeune.controller'
-import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
-import { MiloConseillerController } from '../../src/idp/milo-conseiller/milo-conseiller.controller'
 import { FrancetravailAIJService } from '../../src/idp/francetravail-jeune/francetravail-aij.service'
 import { FrancetravailBRSAService } from '../../src/idp/francetravail-jeune/francetravail-brsa.service'
+import { FrancetravailJeuneController } from '../../src/idp/francetravail-jeune/francetravail-jeune.controller'
 import { FrancetravailJeuneCEJService } from '../../src/idp/francetravail-jeune/francetravail-jeune.service'
+import { MiloConseillerController } from '../../src/idp/milo-conseiller/milo-conseiller.controller'
 import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-conseiller.service'
+import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
 import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
+import { stubClassSandbox } from './types'
 dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1800
@@ -86,6 +87,7 @@ export const testConfig = (): ConfigService => {
         url: 'https://pe.qvr'
       }
     },
+    authorizedApiKeys: ['pass-emploi-back'],
     redis: {
       url: 'redis://localhost:6767'
     },
@@ -232,6 +234,10 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     {
       provide: MiloJeuneService,
       useValue: stubClassSandbox(FrancetravailBRSAService, sandbox)
+    },
+    {
+      provide: DeleteAccountUsecase,
+      useValue: stubClassSandbox(DeleteAccountUsecase, sandbox)
     }
   ]
   return providers

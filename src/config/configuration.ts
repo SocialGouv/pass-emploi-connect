@@ -81,6 +81,9 @@ export default () => {
         url: process.env.FT_JEUNE_API_URL
       }
     },
+    authorizedApiKeys: process.env.AUTHORIZED_API_KEYS
+      ? JSON.parse(process.env.AUTHORIZED_API_KEYS)
+      : [],
     redis: {
       url: process.env.REDIS_URL
     },
@@ -90,7 +93,9 @@ export default () => {
         secret: process.env.CLIENT_WEB_SECRET,
         callbacks: JSON.parse(process.env.CLIENT_WEB_CALLBACKS!),
         errorCallback: process.env.CLIENT_WEB_ERROR_CALLBACK!,
-        logoutCallbacks: JSON.parse(process.env.CLIENT_WEB_LOGOUT_CALLBACKS!)
+        logoutCallbacks: process.env.CLIENT_WEB_LOGOUT_CALLBACKS
+          ? JSON.parse(process.env.CLIENT_WEB_LOGOUT_CALLBACKS)
+          : []
       },
       app: {
         id: process.env.CLIENT_APP_ID,

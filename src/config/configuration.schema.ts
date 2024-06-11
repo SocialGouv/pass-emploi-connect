@@ -13,6 +13,10 @@ export const configurationSchema = Joi.object({
       url: Joi.string().required()
     }).required()
   }).required(),
+  authorizedApiKeys: Joi.array()
+    .items(Joi.string().required())
+    .min(1)
+    .required(),
   cors: Joi.object({
     allowedOrigins: Joi.array().items(Joi.string())
   }),
