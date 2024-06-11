@@ -177,11 +177,8 @@ export class OidcService {
         <body>
           <div class="container">
             <h1>Portail de connexion</h1>
-            <p>Une erreur technique s'est produite</p>
+            <p>Une erreur technique s'est produite, veuillez réessayer ou contacter le support.</p>
             ${this.logErrors(out)}
-            <p class="footer-text"><a
-                href="mailto:support@pass-emploi.beta.gouv.fr?subject=Erreur technique lors de la connexion">Contacter le
-                support</a></p>
           </div>
         </body>
         
@@ -213,7 +210,9 @@ export class OidcService {
           const account = Account.fromAccountIdToAccount(accountId)
           const apiUser = await this.passemploiapiService.getUser(account)
           if (isFailure(apiUser)) {
-            await context.oidc.entities.Session?.destroy()
+            if (context.oidc.entities.Session) {
+              await context.oidc.entities.Session.destroy()
+            }
             this.logger.error('Could not get user from API')
             const error = new Error('Could not get user from API')
             this.apmService.captureError(error)
@@ -373,6 +372,18 @@ export class OidcService {
       this.tokenExchangeGrant.handler,
       tokenExchangeParameters
     )
+    this.oidc.on('grant.revoked', async ctx => {
+      if (ctx.oidc.entities.Session) {
+        await ctx.oidc.entities.Session?.destroy()
+        ctx.oidc.entities.Session?.resetIdentifier()
+      }
+    })
+    this.oidc.on('end_session.success', async ctx => {
+      if (ctx.oidc.entities.Session) {
+        await ctx.oidc.entities.Session?.destroy()
+        ctx.oidc.entities.Session?.resetIdentifier()
+      }
+    })
     this.oidc.proxy = true
   }
 
