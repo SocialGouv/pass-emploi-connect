@@ -10,7 +10,7 @@ import { TokenData, TokenService, TokenType } from './token.service'
 import { Result, failure, success } from '../utils/result/result'
 import { buildError } from '../utils/monitoring/logger.module'
 import { NonTrouveError } from '../utils/result/error'
-import { getIdpConfigIdentifier } from '../config/configuration'
+import { IdpConfig, getIdpConfigIdentifier } from '../config/configuration'
 import * as APM from 'elastic-apm-node'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 
@@ -74,20 +74,13 @@ export class GetAccessTokenUsecase {
       )
     }
 
-    const [issuerConfig, clientConfig] = await Promise.all([
-      this.context.get({
-        userType: account.type,
-        userStructure: account.structure,
-        key: ContextKeyType.ISSUER
-      }),
-      this.context.get({
-        userType: account.type,
-        userStructure: account.structure,
-        key: ContextKeyType.CLIENT
-      })
-    ])
+    const clientConfig = await this.context.get({
+      userType: account.type,
+      userStructure: account.structure,
+      key: ContextKeyType.CLIENT
+    })
 
-    if (!issuerConfig || !clientConfig) {
+    if (!clientConfig) {
       this.logger.error('Config introuvable pour le refresh')
       this.apmService.captureError(
         new Error('Config introuvable pour le refresh')
@@ -96,7 +89,11 @@ export class GetAccessTokenUsecase {
     }
 
     try {
-      const issuer = new Issuer(JSON.parse(issuerConfig))
+      const idp: IdpConfig =
+        this.configService.get('idps')[
+          getIdpConfigIdentifier(account.type, account.structure)
+        ]!
+      const issuer = await Issuer.discover(idp.issuer)
       const client = new issuer.Client(JSON.parse(clientConfig))
 
       const tokenSet = await client.refresh(refreshToken.token)

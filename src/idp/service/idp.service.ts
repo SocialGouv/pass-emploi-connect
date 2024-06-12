@@ -1,8 +1,11 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import * as APM from 'elastic-apm-node'
 import { Request, Response } from 'express'
 import { ClientAuthMethod, InteractionResults } from 'oidc-provider'
 import { BaseClient, CallbackParamsType, Issuer, TokenSet } from 'openid-client'
+import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
+import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { IdpConfig, getIdpConfigIdentifier } from '../../config/configuration'
 import {
   ContextKeyType,
@@ -11,7 +14,10 @@ import {
 import { Account } from '../../domain/account'
 import { User, estConseillerFT, estJeuneFT } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
-import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
+import { TokenService, TokenType } from '../../token/token.service'
+import { getAPMInstance } from '../../utils/monitoring/apm.init'
+import { buildError } from '../../utils/monitoring/logger.module'
+import { AuthError } from '../../utils/result/error'
 import {
   Result,
   emptySuccess,
@@ -20,13 +26,7 @@ import {
   isSuccess,
   success
 } from '../../utils/result/result'
-import { TokenService, TokenType } from '../../token/token.service'
 import { generateNewGrantId } from './helpers'
-import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../../utils/monitoring/apm.init'
-import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
-import { buildError } from '../../utils/monitoring/logger.module'
-import { AuthError } from '../../utils/result/error'
 
 export abstract class IdpService {
   private idpName: string
@@ -35,6 +35,7 @@ export abstract class IdpService {
   private userStructure: User.Structure
   private idp: IdpConfig
   private client: BaseClient
+  private backupClient: BaseClient
   protected apmService: APM.Agent
 
   constructor(
@@ -57,8 +58,38 @@ export abstract class IdpService {
       this.configService.get('idps')[
         getIdpConfigIdentifier(userType, userStructure)
       ]!
+    const clientConfig = {
+      client_id: this.idp.clientId,
+      client_secret: this.idp.clientSecret,
+      redirect_uris: [this.idp.redirectUri],
+      response_types: ['code'],
+      scope: this.idp.scopes,
+      token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
+    }
+    this.contextStorage.set(
+      {
+        userType: this.userType,
+        userStructure: this.userStructure,
+        key: ContextKeyType.CLIENT
+      },
+      JSON.stringify(clientConfig)
+    )
 
-    this.client = this.buildClient()
+    Issuer.discover(this.idp.issuer).then(issuer => {
+      this.client = new issuer.Client(clientConfig)
+    })
+
+    if (estConseillerFT(userType, userStructure)) {
+      const issuerConfig = {
+        issuer: this.idp.backupIssuer!,
+        authorization_endpoint: this.idp.authorizationUrl,
+        token_endpoint: this.idp.tokenUrl,
+        jwks_uri: this.idp.jwks,
+        userinfo_endpoint: this.idp.userinfo
+      }
+      const ftBackupIssuer = new Issuer(issuerConfig)
+      this.backupClient = new ftBackupIssuer.Client(clientConfig)
+    }
   }
 
   getAuthorizationUrl(interactionId: string, state?: string): Result<string> {
@@ -183,42 +214,42 @@ export abstract class IdpService {
     }
   }
 
-  private buildClient(issuerSuffix?: string): BaseClient {
-    const issuerConfig = {
-      issuer: issuerSuffix ? this.idp.issuer + issuerSuffix : this.idp.issuer,
-      authorization_endpoint: this.idp.authorizationUrl,
-      token_endpoint: this.idp.tokenUrl,
-      jwks_uri: this.idp.jwks,
-      userinfo_endpoint: this.idp.userinfo
-    }
-    const clientConfig = {
-      client_id: this.idp.clientId,
-      client_secret: this.idp.clientSecret,
-      redirect_uris: [this.idp.redirectUri],
-      response_types: ['code'],
-      scope: this.idp.scopes,
-      token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
-    }
-    this.contextStorage.set(
-      {
-        userType: this.userType,
-        userStructure: this.userStructure,
-        key: ContextKeyType.ISSUER
-      },
-      JSON.stringify(issuerConfig)
-    )
-    this.contextStorage.set(
-      {
-        userType: this.userType,
-        userStructure: this.userStructure,
-        key: ContextKeyType.CLIENT
-      },
-      JSON.stringify(clientConfig)
-    )
-    const issuer = new Issuer(issuerConfig)
-    const client = new issuer.Client(clientConfig)
-    return client
-  }
+  // private buildClient(issuerSuffix?: string): BaseClient {
+  //   const issuerConfig = {
+  //     issuer: issuerSuffix ? this.idp.issuer + issuerSuffix : this.idp.issuer,
+  //     authorization_endpoint: this.idp.authorizationUrl,
+  //     token_endpoint: this.idp.tokenUrl,
+  //     jwks_uri: this.idp.jwks,
+  //     userinfo_endpoint: this.idp.userinfo
+  //   }
+  //   const clientConfig = {
+  //     client_id: this.idp.clientId,
+  //     client_secret: this.idp.clientSecret,
+  //     redirect_uris: [this.idp.redirectUri],
+  //     response_types: ['code'],
+  //     scope: this.idp.scopes,
+  //     token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
+  //   }
+  //   this.contextStorage.set(
+  //     {
+  //       userType: this.userType,
+  //       userStructure: this.userStructure,
+  //       key: ContextKeyType.ISSUER
+  //     },
+  //     JSON.stringify(issuerConfig)
+  //   )
+  //   this.contextStorage.set(
+  //     {
+  //       userType: this.userType,
+  //       userStructure: this.userStructure,
+  //       key: ContextKeyType.CLIENT
+  //     },
+  //     JSON.stringify(clientConfig)
+  //   )
+  //   const issuer = new Issuer(issuerConfig)
+  //   const client = new issuer.Client(clientConfig)
+  //   return client
+  // }
 
   private async callbackWithRetry(
     request: Request,
@@ -226,14 +257,26 @@ export abstract class IdpService {
     nonce: string
   ): Promise<TokenSet> {
     try {
-      const tokenSet = await this.callbackWithoutRetry(request, params, nonce)
+      const tokenSet = await this.callbackWithoutRetry(
+        request,
+        params,
+        nonce,
+        this.client
+      )
       return tokenSet
     } catch (e) {
       if (estConseillerFT(this.userType, this.userStructure)) {
         this.logger.error(buildError('PB Conseiller FT', e))
-        this.client = this.buildClient('/agent')
-        return this.callbackWithoutRetry(request, params, nonce)
+        this.apmService.captureError(e)
+        return this.callbackWithoutRetry(
+          request,
+          params,
+          nonce,
+          this.backupClient
+        )
       }
+      this.logger.error(buildError('PB callback', e))
+      this.apmService.captureError(e)
       throw e
     }
   }
@@ -241,9 +284,10 @@ export abstract class IdpService {
   private async callbackWithoutRetry(
     request: Request,
     params: CallbackParamsType,
-    nonce: string
+    nonce: string,
+    client: BaseClient
   ): Promise<TokenSet> {
-    return this.client.callback(this.idp.redirectUri, params, {
+    return client.callback(this.idp.redirectUri, params, {
       nonce,
       state: request.query.state ? (request.query.state as string) : undefined
     })

@@ -74,6 +74,7 @@ export const configurationSchema = Joi.object({
     }),
     francetravailConseiller: Joi.object({
       issuer: Joi.string().required(),
+      backupIssuer: Joi.string().required(),
       realm: Joi.string().required(),
       authorizationUrl: Joi.string().required(),
       tokenUrl: Joi.string().required(),
