@@ -149,8 +149,12 @@ export class OidcService {
               font-weight: 1000;
               color: rgb(59, 105, 209);
               text-align: center;
-              font-size: 2.3em;
+              font-size: 2.4em;
               padding: 50px;
+            }
+            
+            p {
+              font-size: 1.5em;
             }
         
             .footer-text {
@@ -177,7 +181,7 @@ export class OidcService {
         <body>
           <div class="container">
             <h1>Portail de connexion</h1>
-            <p>Une erreur technique s'est produite, veuillez réessayer ou contacter le support.</p>
+            <p>Une erreur technique s'est produite, veuillez <b>recharger la page</b> ou contacter le support.</p>
             ${this.logErrors(out)}
           </div>
         </body>
@@ -374,14 +378,17 @@ export class OidcService {
     )
     this.oidc.on('grant.revoked', async ctx => {
       if (ctx.oidc.entities.Session) {
-        await ctx.oidc.entities.Session?.destroy()
-        ctx.oidc.entities.Session?.resetIdentifier()
+        await ctx.oidc.entities.Session.destroy()
       }
     })
     this.oidc.on('end_session.success', async ctx => {
       if (ctx.oidc.entities.Session) {
-        await ctx.oidc.entities.Session?.destroy()
-        ctx.oidc.entities.Session?.resetIdentifier()
+        await ctx.oidc.entities.Session.destroy()
+      }
+    })
+    this.oidc.on('end_session.error', async ctx => {
+      if (ctx.oidc.entities.Session) {
+        await ctx.oidc.entities.Session.destroy()
       }
     })
     this.oidc.proxy = true

@@ -214,43 +214,6 @@ export abstract class IdpService {
     }
   }
 
-  // private buildClient(issuerSuffix?: string): BaseClient {
-  //   const issuerConfig = {
-  //     issuer: issuerSuffix ? this.idp.issuer + issuerSuffix : this.idp.issuer,
-  //     authorization_endpoint: this.idp.authorizationUrl,
-  //     token_endpoint: this.idp.tokenUrl,
-  //     jwks_uri: this.idp.jwks,
-  //     userinfo_endpoint: this.idp.userinfo
-  //   }
-  //   const clientConfig = {
-  //     client_id: this.idp.clientId,
-  //     client_secret: this.idp.clientSecret,
-  //     redirect_uris: [this.idp.redirectUri],
-  //     response_types: ['code'],
-  //     scope: this.idp.scopes,
-  //     token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
-  //   }
-  //   this.contextStorage.set(
-  //     {
-  //       userType: this.userType,
-  //       userStructure: this.userStructure,
-  //       key: ContextKeyType.ISSUER
-  //     },
-  //     JSON.stringify(issuerConfig)
-  //   )
-  //   this.contextStorage.set(
-  //     {
-  //       userType: this.userType,
-  //       userStructure: this.userStructure,
-  //       key: ContextKeyType.CLIENT
-  //     },
-  //     JSON.stringify(clientConfig)
-  //   )
-  //   const issuer = new Issuer(issuerConfig)
-  //   const client = new issuer.Client(clientConfig)
-  //   return client
-  // }
-
   private async callbackWithRetry(
     request: Request,
     params: CallbackParamsType,
