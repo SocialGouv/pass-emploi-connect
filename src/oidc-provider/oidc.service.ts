@@ -329,6 +329,7 @@ export class OidcService {
               </div>
               <script type="text/javascript">
                 document.querySelector('form[id="op.logoutForm"]').submit();
+                document.querySelector('button[name="logout"]').disabled=disabled;
               </script>
             </body>
             

@@ -149,8 +149,7 @@ describe('FrancetravailJeuneController', () => {
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
           .query({ state: 'cej' })
-          .expect(HttpStatus.TEMPORARY_REDIRECT)
-          .expect('Location', 'blank')
+          .expect(HttpStatus.OK)
 
         expect(francetravailJeuneCEJService.callback).to.have.been.calledOnce()
       })
@@ -182,8 +181,7 @@ describe('FrancetravailJeuneController', () => {
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
           .query({ state: 'brsa' })
-          .expect(HttpStatus.TEMPORARY_REDIRECT)
-          .expect('Location', 'blank')
+          .expect(HttpStatus.OK)
 
         expect(francetravailBRSAService.callback).to.have.been.calledOnce()
       })
@@ -215,8 +213,7 @@ describe('FrancetravailJeuneController', () => {
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/pe-jeune/endpoint')
           .query({ state: 'aij' })
-          .expect(HttpStatus.TEMPORARY_REDIRECT)
-          .expect('Location', 'blank')
+          .expect(HttpStatus.OK)
 
         expect(francetravailAIJService.callback).to.have.been.calledOnce()
       })

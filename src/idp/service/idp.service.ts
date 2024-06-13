@@ -66,6 +66,13 @@ export abstract class IdpService {
       scope: this.idp.scopes,
       token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
     }
+    const issuerConfig = {
+      issuer: this.idp.issuer,
+      authorization_endpoint: this.idp.authorizationUrl,
+      token_endpoint: this.idp.tokenUrl,
+      jwks_uri: this.idp.jwks,
+      userinfo_endpoint: this.idp.userinfo
+    }
     this.contextStorage.set(
       {
         userType: this.userType,
@@ -74,20 +81,27 @@ export abstract class IdpService {
       },
       JSON.stringify(clientConfig)
     )
+    this.contextStorage.set(
+      {
+        userType: this.userType,
+        userStructure: this.userStructure,
+        key: ContextKeyType.ISSUER
+      },
+      JSON.stringify(issuerConfig)
+    )
 
-    Issuer.discover(this.idp.issuer).then(issuer => {
-      this.client = new issuer.Client(clientConfig)
-    })
+    const issuer = new Issuer(issuerConfig)
+    this.client = new issuer.Client(clientConfig)
 
     if (estConseillerFT(userType, userStructure)) {
-      const issuerConfig = {
+      const backupIssuerConfig = {
         issuer: this.idp.backupIssuer!,
         authorization_endpoint: this.idp.authorizationUrl,
         token_endpoint: this.idp.tokenUrl,
         jwks_uri: this.idp.jwks,
         userinfo_endpoint: this.idp.userinfo
       }
-      const ftBackupIssuer = new Issuer(issuerConfig)
+      const ftBackupIssuer = new Issuer(backupIssuerConfig)
       this.backupClient = new ftBackupIssuer.Client(clientConfig)
     }
   }

@@ -66,8 +66,7 @@ describe('MiloJeuneController', () => {
         // When - Then
         await request(app.getHttpServer())
           .get('/auth/realms/pass-emploi/broker/similo-jeune/endpoint')
-          .expect(HttpStatus.TEMPORARY_REDIRECT)
-          .expect('Location', 'blank')
+          .expect(HttpStatus.OK)
 
         expect(miloJeuneService.callback).to.have.been.calledOnce()
       })

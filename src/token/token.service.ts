@@ -89,13 +89,13 @@ export class TokenService {
     return {
       token: tokenData.token,
       scope: tokenData.scope,
-      expiresAt
+      expiresAt: Math.floor(expiresAt)
     }
   }
 
   private fromSavedTokenToTokenData(savedTokenData: SavedTokenData): TokenData {
     const currentTimestamp = this.dateService.now().toSeconds()
-    const expiresIn = savedTokenData.expiresAt - currentTimestamp
+    const expiresIn = Math.floor(savedTokenData.expiresAt - currentTimestamp)
     return {
       token: savedTokenData.token,
       scope: savedTokenData.scope,

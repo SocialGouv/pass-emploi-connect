@@ -9,7 +9,7 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { handleFailure } from '../../utils/result/result.handler'
+import { redirectFailure } from '../../utils/result/result.handler'
 import { MiloJeuneService } from './milo-jeune.service'
 import { User } from '../../domain/user'
 import { isFailure } from '../../utils/result/result'
@@ -28,24 +28,30 @@ export class MiloJeuneController {
   @Get('milo-jeune/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async connect(
+    @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string
-  ): Promise<{ url: string }> {
+  ): Promise<{ url: string } | void> {
     const authorizationUrlResult =
       this.miloJeuneService.getAuthorizationUrl(interactionId)
     if (isFailure(authorizationUrlResult))
-      return handleFailure(authorizationUrlResult, userType, userStructure)
+      return redirectFailure(
+        response,
+        authorizationUrlResult,
+        userType,
+        userStructure
+      )
     return {
       url: authorizationUrlResult.data
     }
   }
 
   @Get('auth/realms/pass-emploi/broker/similo-jeune/endpoint')
-  @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ url: string } | void> {
     const result = await this.miloJeuneService.callback(request, response)
-    if (isFailure(result)) return handleFailure(result, userType, userStructure)
+    if (isFailure(result))
+      return redirectFailure(response, result, userType, userStructure)
   }
 }

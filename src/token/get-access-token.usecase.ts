@@ -1,18 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import * as APM from 'elastic-apm-node'
 import { Issuer } from 'openid-client'
+import { getIdpConfigIdentifier } from '../config/configuration'
 import {
   ContextKeyType,
   ContextStorage
 } from '../context-storage/context-storage.provider'
 import { Account } from '../domain/account'
-import { TokenData, TokenService, TokenType } from './token.service'
-import { Result, failure, success } from '../utils/result/result'
+import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { buildError } from '../utils/monitoring/logger.module'
 import { NonTrouveError } from '../utils/result/error'
-import { IdpConfig, getIdpConfigIdentifier } from '../config/configuration'
-import * as APM from 'elastic-apm-node'
-import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { Result, failure, success } from '../utils/result/result'
+import { TokenData, TokenService, TokenType } from './token.service'
 
 const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 
@@ -74,13 +74,20 @@ export class GetAccessTokenUsecase {
       )
     }
 
-    const clientConfig = await this.context.get({
-      userType: account.type,
-      userStructure: account.structure,
-      key: ContextKeyType.CLIENT
-    })
+    const [issuerConfig, clientConfig] = await Promise.all([
+      this.context.get({
+        userType: account.type,
+        userStructure: account.structure,
+        key: ContextKeyType.ISSUER
+      }),
+      this.context.get({
+        userType: account.type,
+        userStructure: account.structure,
+        key: ContextKeyType.CLIENT
+      })
+    ])
 
-    if (!clientConfig) {
+    if (!issuerConfig || !clientConfig) {
       this.logger.error('Config introuvable pour le refresh')
       this.apmService.captureError(
         new Error('Config introuvable pour le refresh')
@@ -89,11 +96,7 @@ export class GetAccessTokenUsecase {
     }
 
     try {
-      const idp: IdpConfig =
-        this.configService.get('idps')[
-          getIdpConfigIdentifier(account.type, account.structure)
-        ]!
-      const issuer = await Issuer.discover(idp.issuer)
+      const issuer = new Issuer(JSON.parse(issuerConfig))
       const client = new issuer.Client(JSON.parse(clientConfig))
 
       const tokenSet = await client.refresh(refreshToken.token)

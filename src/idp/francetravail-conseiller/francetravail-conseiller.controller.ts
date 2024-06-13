@@ -10,7 +10,7 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { handleFailure } from '../../utils/result/result.handler'
+import { redirectFailure } from '../../utils/result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
@@ -34,9 +34,10 @@ export class FrancetravailConseillerController {
   @Get('francetravail-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async connect(
+    @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string,
     @Query() ftQueryParams: { type: 'cej' | 'brsa' | 'aij' }
-  ): Promise<{ url: string }> {
+  ): Promise<{ url: string } | void> {
     let authorizationUrlResult
     let userStructure: User.Structure
 
@@ -68,7 +69,12 @@ export class FrancetravailConseillerController {
     }
 
     if (isFailure(authorizationUrlResult))
-      return handleFailure(authorizationUrlResult, userType, userStructure)
+      return redirectFailure(
+        response,
+        authorizationUrlResult,
+        userType,
+        userStructure
+      )
 
     return {
       url: authorizationUrlResult.data
@@ -76,7 +82,6 @@ export class FrancetravailConseillerController {
   }
 
   @Get('auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
-  @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
@@ -108,6 +113,7 @@ export class FrancetravailConseillerController {
         )
         break
     }
-    if (isFailure(result)) return handleFailure(result, userType, userStructure)
+    if (isFailure(result))
+      return redirectFailure(response, result, userType, userStructure)
   }
 }
