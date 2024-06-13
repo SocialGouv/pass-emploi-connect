@@ -10,7 +10,7 @@ fi
 
 git fetch
 yarn lint
-yarn version $level
+yarn --new-version $level
 git add package.json
 new_version=v$(node -p "require('./package.json').version")
 git commit -m $new_version
