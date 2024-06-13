@@ -63,6 +63,7 @@ export class OidcService {
         Grant: 3600 * 24 * 42,
         Session: 3600 * 24 * 42,
         AccessToken: 1800,
+        IdToken: 1800,
         // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
         Interaction: 60 * 15
       },
@@ -255,7 +256,8 @@ export class OidcService {
           email: context.oidc.account?.email,
           family_name: context.oidc.account?.family_name,
           given_name: context.oidc.account?.given_name,
-          preferred_username: context.oidc.account?.preferred_username
+          preferred_username: context.oidc.account?.preferred_username,
+          azp: context.oidc.client?.clientId
         }
       },
       features: {
