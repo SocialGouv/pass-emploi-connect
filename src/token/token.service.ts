@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { DateService } from '../utils/date.service'
+import * as APM from 'elastic-apm-node'
 import { Account } from '../domain/account'
 import { RedisClient } from '../redis/redis.client'
-import { buildError } from '../utils/monitoring/logger.module'
-import * as APM from 'elastic-apm-node'
+import { DateService } from '../utils/date.service'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { buildError } from '../utils/monitoring/logger.module'
 
 export enum TokenType {
   ACCESS = 'access_token',
@@ -14,6 +14,7 @@ export type TokenData = {
   token: string
   expiresIn: number
   scope?: string
+  expiresAt?: number
 }
 type SavedTokenData = {
   token: string
@@ -62,11 +63,13 @@ export class TokenService {
     tokenType: TokenType,
     tokenData: TokenData
   ): Promise<void> {
-    const MARGIN_SECONDS = 1
-    const ttl =
-      tokenData.expiresIn > MARGIN_SECONDS
-        ? tokenData.expiresIn - MARGIN_SECONDS
-        : tokenData.expiresIn
+    let ttl: number
+
+    if (tokenData.expiresAt) {
+      ttl = Math.floor(tokenData.expiresAt - this.dateService.now().toSeconds())
+    } else {
+      ttl = tokenData.expiresIn
+    }
 
     const tokenToSave = this.fromTokenDataToTokenToSave({
       ...tokenData,
@@ -82,24 +85,27 @@ export class TokenService {
   }
 
   private fromTokenDataToTokenToSave(tokenData: TokenData): SavedTokenData {
-    const expiresAt = this.dateService
-      .now()
-      .plus({ seconds: tokenData.expiresIn })
-      .toSeconds()
     return {
       token: tokenData.token,
       scope: tokenData.scope,
-      expiresAt: Math.floor(expiresAt)
+      expiresAt:
+        tokenData.expiresAt ||
+        Math.floor(
+          this.dateService
+            .now()
+            .plus({ seconds: tokenData.expiresIn })
+            .toSeconds()
+        )
     }
   }
 
   private fromSavedTokenToTokenData(savedTokenData: SavedTokenData): TokenData {
-    const currentTimestamp = this.dateService.now().toSeconds()
-    const expiresIn = Math.floor(savedTokenData.expiresAt - currentTimestamp)
     return {
       token: savedTokenData.token,
       scope: savedTokenData.scope,
-      expiresIn
+      expiresIn: Math.floor(
+        savedTokenData.expiresAt - this.dateService.now().toSeconds()
+      )
     }
   }
 }

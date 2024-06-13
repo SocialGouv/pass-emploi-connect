@@ -10,11 +10,9 @@ import {
 import { Account } from '../domain/account'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
 import { buildError } from '../utils/monitoring/logger.module'
-import { NonTrouveError } from '../utils/result/error'
+import { AuthError, NonTrouveError } from '../utils/result/error'
 import { Result, failure, success } from '../utils/result/result'
 import { TokenData, TokenService, TokenType } from './token.service'
-
-const MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 10
 
 interface Inputs {
   account: Account
@@ -41,11 +39,7 @@ export class GetAccessTokenUsecase {
         TokenType.ACCESS
       )
 
-      if (
-        storedAccessTokenData &&
-        storedAccessTokenData.expiresIn >
-          MINIMUM_ACCESS_TOKEN_EXPIRES_IN_SECONDS
-      ) {
+      if (storedAccessTokenData) {
         return success(storedAccessTokenData)
       }
 
@@ -69,9 +63,7 @@ export class GetAccessTokenUsecase {
       this.apmService.captureError(
         new Error("L'utilisateur n'a pas de refresh token")
       )
-      return failure(
-        new NonTrouveError("L'utilisateur n'a pas de refresh token")
-      )
+      return failure(new NonTrouveError('Refresh token'))
     }
 
     const [issuerConfig, clientConfig] = await Promise.all([
@@ -92,7 +84,7 @@ export class GetAccessTokenUsecase {
       this.apmService.captureError(
         new Error('Config introuvable pour le refresh')
       )
-      return failure(new NonTrouveError('Config introuvable pour le refresh'))
+      return failure(new NonTrouveError('Config pour le refresh'))
     }
 
     try {
@@ -100,26 +92,45 @@ export class GetAccessTokenUsecase {
       const client = new issuer.Client(JSON.parse(clientConfig))
 
       const tokenSet = await client.refresh(refreshToken.token)
+
       const tokenData: TokenData = {
         token: tokenSet.access_token!,
         expiresIn:
-          tokenSet.expires_in ??
-          this.configService.get<number>(
-            `${getIdpConfigIdentifier(
-              account.type,
-              account.structure
-            )}.accessTokenMaxAge`
-          )!,
+          tokenSet.expires_in ||
+          (this.configService.get('idps')[
+            getIdpConfigIdentifier(account.type, account.structure)
+          ].accessTokenMaxAge! as number),
+        expiresAt: tokenSet.expires_at,
         scope: tokenSet.scope
       }
 
       await this.tokenService.setToken(account, TokenType.ACCESS, tokenData)
-
+      if (tokenSet.refresh_token) {
+        await this.tokenService.setToken(account, TokenType.REFRESH, {
+          token: tokenSet.refresh_token,
+          expiresIn: this.configService.get('idps')[
+            getIdpConfigIdentifier(account.type, account.structure)
+          ].refreshTokenMaxAge! as number,
+          scope: tokenSet.scope
+        })
+      }
       return success(tokenData)
     } catch (e) {
-      this.logger.error(buildError('Erreur refresh token', e))
+      this.logger.error(
+        `Erreur refresh token ${account.type} ${account.structure}`
+      )
+      this.logger.error(
+        buildError(
+          `Erreur refresh token ${account.type} ${account.structure}`,
+          e
+        )
+      )
       this.apmService.captureError(e)
-      return failure(new NonTrouveError('Erreur refresh token'))
+      return failure(
+        new AuthError(
+          `ERROR_REFRESH_TOKEN_IDP_${account.type}_${account.structure}`
+        )
+      )
     }
   }
 }

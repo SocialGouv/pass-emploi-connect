@@ -62,8 +62,8 @@ export class OidcService {
         // Les autorisations accordés dans le Grant sont valables pour tout les access obtenus à partir d'une même refresh, sans limite de temps supplémentaire (donc ISO refresh)
         Grant: 3600 * 24 * 42,
         Session: 3600 * 24 * 42,
-        AccessToken: 1800,
-        IdToken: 1800,
+        AccessToken: 60 * 60 * 24 * 5,
+        IdToken: 60 * 60 * 24 * 5,
         // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
         Interaction: 60 * 15
       },
@@ -155,7 +155,7 @@ export class OidcService {
             }
             
             p {
-              font-size: 1.5em;
+              font-size: 1.3em;
             }
         
             .footer-text {
@@ -329,7 +329,6 @@ export class OidcService {
               </div>
               <script type="text/javascript">
                 document.querySelector('form[id="op.logoutForm"]').submit();
-                document.querySelector('button[name="logout"]').disabled=disabled;
               </script>
             </body>
             
@@ -379,21 +378,21 @@ export class OidcService {
       this.tokenExchangeGrant.handler,
       tokenExchangeParameters
     )
-    this.oidc.on('grant.revoked', async ctx => {
-      if (ctx.oidc.entities.Session) {
-        await ctx.oidc.entities.Session.destroy()
-      }
-    })
-    this.oidc.on('end_session.success', async ctx => {
-      if (ctx.oidc.entities.Session) {
-        await ctx.oidc.entities.Session.destroy()
-      }
-    })
-    this.oidc.on('end_session.error', async ctx => {
-      if (ctx.oidc.entities.Session) {
-        await ctx.oidc.entities.Session.destroy()
-      }
-    })
+    // this.oidc.on('grant.revoked', async ctx => {
+    //   if (ctx.oidc.entities.Session) {
+    //     await ctx.oidc.entities.Session.destroy()
+    //   }
+    // })
+    // this.oidc.on('end_session.success', async ctx => {
+    //   if (ctx.oidc.entities.Session) {
+    //     await ctx.oidc.entities.Session.destroy()
+    //   }
+    // })
+    // this.oidc.on('end_session.error', async ctx => {
+    //   if (ctx.oidc.entities.Session) {
+    //     await ctx.oidc.entities.Session.destroy()
+    //   }
+    // })
     this.oidc.proxy = true
   }
 

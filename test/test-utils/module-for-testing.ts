@@ -24,13 +24,13 @@ import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 import { stubClassSandbox } from './types'
 dotenv.config({ path: '.environment' })
 
-const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1800
+const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1170
 const IDP_FT_CONSEILLER_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 42
-const IDP_FT_JEUNE_ACCESS_TOKEN_MAX_AGE = 1800
+const IDP_FT_JEUNE_ACCESS_TOKEN_MAX_AGE = 1170
 const IDP_FT_JEUNE_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 42
-const IDP_MILO_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 300
+const IDP_MILO_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 299
 const IDP_MILO_CONSEILLER_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
-const IDP_MILO_JEUNE_ACCESS_TOKEN_MAX_AGE = 300
+const IDP_MILO_JEUNE_ACCESS_TOKEN_MAX_AGE = 299
 const IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
 
 export function buildTestingModuleForHttpTesting(

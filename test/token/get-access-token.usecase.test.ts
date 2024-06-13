@@ -8,7 +8,7 @@ import {
   ContextStorage
 } from '../../src/context-storage/context-storage.provider'
 import { User } from '../../src/domain/user'
-import { NonTrouveError } from '../../src/utils/result/error'
+import { AuthError, NonTrouveError } from '../../src/utils/result/error'
 import { failure, success } from '../../src/utils/result/result'
 import { GetAccessTokenUsecase } from '../../src/token/get-access-token.usecase'
 import { TokenService, TokenType } from '../../src/token/token.service'
@@ -86,14 +86,14 @@ describe('GetAccessTokenUsecase', () => {
       tokenService.getToken.withArgs(query.account, TokenType.ACCESS).resolves({
         token: 'string',
         expiresIn: 10,
-        scope: ''
+        scope: 'openid profile offline_access email'
       })
       tokenService.getToken
         .withArgs(query.account, TokenType.REFRESH)
         .resolves({
           token: offlineToken,
           expiresIn: 100,
-          scope: 'openid profile offline_access email'
+          scope: ''
         })
       context.get
         .withArgs({
@@ -117,7 +117,7 @@ describe('GetAccessTokenUsecase', () => {
       // Then
       expect(result._isSuccess).to.equal(true)
       if (result._isSuccess) {
-        expect(result.data.expiresIn).to.be.lessThanOrEqual(300)
+        expect(result.data.expiresIn).to.be.lessThanOrEqual(10)
         expect(result.data.scope).to.equal(
           'openid profile offline_access email'
         )
@@ -133,9 +133,7 @@ describe('GetAccessTokenUsecase', () => {
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
-      expect(result).to.deep.equal(
-        failure(new NonTrouveError("L'utilisateur n'a pas de refresh token"))
-      )
+      expect(result).to.deep.equal(failure(new NonTrouveError('Refresh token')))
     })
     it('erreur quand config inexistante', async () => {
       // Given
@@ -155,7 +153,7 @@ describe('GetAccessTokenUsecase', () => {
 
       // Then
       expect(result).to.deep.equal(
-        failure(new NonTrouveError('Config introuvable pour le refresh'))
+        failure(new NonTrouveError('Config pour le refresh'))
       )
     })
     it('erreur quand getToken echoue', async () => {
@@ -203,7 +201,7 @@ describe('GetAccessTokenUsecase', () => {
 
       // Then
       expect(result).to.deep.equal(
-        failure(new NonTrouveError('Erreur refresh token'))
+        failure(new AuthError(`ERROR_REFRESH_TOKEN_IDP_CONSEILLER_MILO`))
       )
     })
   })

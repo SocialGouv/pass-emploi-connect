@@ -41,9 +41,9 @@ describe('TokenService', () => {
         JSON.stringify({
           token: tokenData.token,
           scope: tokenData.scope,
-          expiresAt: 1717243499
+          expiresAt: 1717243500
         }),
-        299
+        300
       )
     })
   })

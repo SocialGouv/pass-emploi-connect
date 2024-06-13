@@ -63,6 +63,7 @@ export abstract class IdpService {
       client_secret: this.idp.clientSecret,
       redirect_uris: [this.idp.redirectUri],
       response_types: ['code'],
+      grant_types: ['authorization_code', 'refresh_token'],
       scope: this.idp.scopes,
       token_endpoint_auth_method: 'client_secret_post' as ClientAuthMethod
     }
@@ -203,16 +204,13 @@ export abstract class IdpService {
       await this.tokenService.setToken(account, TokenType.ACCESS, {
         token: tokenSet.access_token!,
         expiresIn: tokenSet.expires_in || this.idp.accessTokenMaxAge,
-        scope: tokenSet.scope
+        scope: tokenSet.scope,
+        expiresAt: tokenSet.expires_at
       })
       if (tokenSet.refresh_token) {
-        let refreshExpiresIn
-        try {
-          refreshExpiresIn = tokenSet.refresh_expires_in as number
-        } catch (e) {}
         await this.tokenService.setToken(account, TokenType.REFRESH, {
           token: tokenSet.refresh_token,
-          expiresIn: refreshExpiresIn || this.idp.refreshTokenMaxAge,
+          expiresIn: this.idp.refreshTokenMaxAge,
           scope: tokenSet.scope
         })
       }
@@ -224,7 +222,7 @@ export abstract class IdpService {
       this.logger.error(
         buildError(`Callback error ${this.userType} ${this.userStructure}`, e)
       )
-      return failure(new AuthError('CALLBACK'))
+      return failure(new AuthError('Retour Pass Emploi'))
     }
   }
 

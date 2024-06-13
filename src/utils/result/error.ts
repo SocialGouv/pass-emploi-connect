@@ -11,7 +11,7 @@ export class AuthError implements DomainError {
   readonly message: string
 
   constructor(reason: string) {
-    this.message = `Auth Error`
+    this.message = reason
     this.reason = reason
   }
 }
