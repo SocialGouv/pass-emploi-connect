@@ -63,24 +63,22 @@ export class TokenService {
     tokenType: TokenType,
     tokenData: TokenData
   ): Promise<void> {
-    let ttl: number
-
-    if (tokenData.expiresAt) {
-      ttl = Math.floor(tokenData.expiresAt - this.dateService.now().toSeconds())
-    } else {
-      ttl = tokenData.expiresIn
-    }
+    const expiresIn = tokenData.expiresAt
+      ? Math.floor(tokenData.expiresAt - this.dateService.now().toSeconds())
+      : tokenData.expiresIn
 
     const tokenToSave = this.fromTokenDataToTokenToSave({
       ...tokenData,
-      expiresIn: ttl
+      expiresIn
     })
+
+    const redisTTL = tokenData.expiresIn
 
     await this.redisClient.setWithExpiry(
       tokenType,
       Account.fromAccountToAccountId(account),
       JSON.stringify(tokenToSave),
-      ttl
+      redisTTL
     )
   }
 
