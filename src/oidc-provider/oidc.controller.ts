@@ -21,11 +21,20 @@ export class OidcController {
     'protocol/openid-connect/*',
     'clients-registrations/*'
   ])
-  public mountedOidc(@Req() req: Request, @Res() res: Response): Promise<void> {
+  public async mountedOidc(
+    @Req() req: Request,
+    @Res() res: Response
+  ): Promise<void> {
+    req.url = req.originalUrl.replace('/auth/realms/pass-emploi', '')
+
+    const span =
+      this.apmService.currentTransaction?.startSpan('node-oidc-provider')
     try {
-      req.url = req.originalUrl.replace('/auth/realms/pass-emploi', '')
-      return this.callback(req, res)
+      const result = await this.callback(req, res)
+      span?.end()
+      return result
     } catch (e) {
+      span?.end()
       this.logger.error(e)
       this.apmService.captureError(e)
       throw e
