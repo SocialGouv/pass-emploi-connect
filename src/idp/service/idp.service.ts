@@ -159,8 +159,8 @@ export abstract class IdpService {
           coordonnees = coordonneesResult.data
         }
       }
-      const nom = coordonnees?.nom ?? userInfo.given_name
-      const prenom = coordonnees?.prenom ?? userInfo.family_name
+      const nom = coordonnees?.nom ?? userInfo.family_name
+      const prenom = coordonnees?.prenom ?? userInfo.given_name
       const email = coordonnees?.email ?? userInfo.email
 
       // besoin de persister le preferred_username parce que le get token n'a pas cette info dans le context
