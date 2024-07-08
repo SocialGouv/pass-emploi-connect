@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "license": "CEJ",
+  "engines": {
+    "node": "20.14.0"
+  },
   "scripts": {
     "build": "nest build",
     "prepare": "husky install",
