@@ -16,7 +16,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     strategy:
       matrix:
-        node-version: [20.11.0]
+        node-version: [20.14.0]
     services:
       redis:
         image: redis:7-alpine
