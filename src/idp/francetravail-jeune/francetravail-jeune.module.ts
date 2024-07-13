@@ -1,27 +1,22 @@
 import { Module } from '@nestjs/common'
 
 import { ConfigModule } from '@nestjs/config'
-import { ContextStorageModule } from '../../context-storage/context-storage.module'
+import { APIModule } from '../../api/api.module'
 import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
+import { FrancetravailAIJService } from './francetravail-aij.service'
+import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
+import { FrancetravailBRSAService } from './francetravail-brsa.service'
 import { FrancetravailJeuneController } from './francetravail-jeune.controller'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
-import { APIModule } from '../../api/api.module'
-import { FrancetravailAIJService } from './francetravail-aij.service'
-import { FrancetravailBRSAService } from './francetravail-brsa.service'
 
 @Module({
-  imports: [
-    ConfigModule,
-    ContextStorageModule,
-    OidcModule,
-    TokenModule,
-    APIModule
-  ],
+  imports: [ConfigModule, OidcModule, TokenModule, APIModule],
   providers: [
     FrancetravailJeuneCEJService,
     FrancetravailAIJService,
-    FrancetravailBRSAService
+    FrancetravailBRSAService,
+    FrancetravailBeneficiaireService
   ],
   exports: [],
   controllers: [FrancetravailJeuneController]

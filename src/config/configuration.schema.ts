@@ -57,7 +57,7 @@ export const configurationSchema = Joi.object({
     scopes: Joi.string().required()
   }),
   idps: Joi.object({
-    francetravailJeune: Joi.object({
+    francetravailBeneficiaire: Joi.object({
       issuer: Joi.string().required(),
       realm: Joi.string().required(),
       authorizationUrl: Joi.string().required(),

@@ -16,7 +16,8 @@ import { FrancetravailBRSAService } from './francetravail-brsa.service'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
 import { User } from '../../domain/user'
 import { isFailure } from '../../utils/result/result'
-const userType = User.Type.JEUNE
+import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
+const userType = User.Type.BENEFICIAIRE
 
 @Controller()
 export class FrancetravailJeuneController {
@@ -25,7 +26,8 @@ export class FrancetravailJeuneController {
   constructor(
     private readonly francetravailJeuneCEJService: FrancetravailJeuneCEJService,
     private readonly francetravailAIJService: FrancetravailAIJService,
-    private readonly francetravailBRSAService: FrancetravailBRSAService
+    private readonly francetravailBRSAService: FrancetravailBRSAService,
+    private readonly francetravailBeneficiaireService: FrancetravailBeneficiaireService
   ) {
     this.logger = new Logger('FrancetravailJeuneController')
   }
@@ -57,10 +59,18 @@ export class FrancetravailJeuneController {
             ftQueryParams.type
           )
         break
-      default:
+      case 'cej':
         userStructure = User.Structure.POLE_EMPLOI
         authorizationUrlResult =
           this.francetravailJeuneCEJService.getAuthorizationUrl(
+            interactionId,
+            ftQueryParams.type
+          )
+        break
+      default:
+        userStructure = User.Structure.FRANCE_TRAVAIL
+        authorizationUrlResult =
+          this.francetravailBeneficiaireService.getAuthorizationUrl(
             interactionId,
             ftQueryParams.type
           )
@@ -97,9 +107,16 @@ export class FrancetravailJeuneController {
         userStructure = User.Structure.POLE_EMPLOI_BRSA
         result = await this.francetravailBRSAService.callback(request, response)
         break
-      default:
+      case 'cej':
         userStructure = User.Structure.POLE_EMPLOI
         result = await this.francetravailJeuneCEJService.callback(
+          request,
+          response
+        )
+        break
+      default:
+        userStructure = User.Structure.FRANCE_TRAVAIL
+        result = await this.francetravailBeneficiaireService.callback(
           request,
           response
         )

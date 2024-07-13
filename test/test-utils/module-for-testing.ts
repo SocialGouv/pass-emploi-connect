@@ -22,6 +22,7 @@ import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-consei
 import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
 import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 import { stubClassSandbox } from './types'
+import { FrancetravailBeneficiaireService } from '../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
 dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1170
@@ -120,10 +121,10 @@ export const testConfig = (): ConfigService => {
     },
     jwks: JSON.parse(process.env.JWKS!),
     idps: {
-      francetravailJeune: {
+      francetravailBeneficiaire: {
         issuer: 'ft-jeune.com',
         realm: 'individu',
-        authorizationUrl: 'ft-jeune.com/authorize',
+        authorizationUrl: 'https://ft-jeune.com/authorize',
         tokenUrl: 'ft-jeune.com/token',
         jwks: 'ft-jeune.com/jwks',
         userinfo: 'ft-jeune.com/userinfo',
@@ -138,7 +139,7 @@ export const testConfig = (): ConfigService => {
       francetravailConseiller: {
         issuer: 'ft-conseiller.com',
         realm: 'agent',
-        authorizationUrl: 'ft-conseiller.com/authorize',
+        authorizationUrl: 'https://ft-conseiller.com/authorize',
         tokenUrl: 'ft-conseiller.com/token',
         jwks: 'ft-conseiller.com/jwks',
         userinfo: 'ft-conseiller.com/userinfo',
@@ -166,7 +167,7 @@ export const testConfig = (): ConfigService => {
       },
       miloJeune: {
         issuer: 'milo-jeune.com',
-        authorizationUrl: 'milo-jeune.com/authorize',
+        authorizationUrl: 'https://milo-jeune.com/authorize',
         tokenUrl: 'milo-jeune.com/token',
         jwks: 'milo-jeune.com/jwks',
         userinfo: 'milo-jeune.com/userinfo',
@@ -218,6 +219,10 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     {
       provide: FrancetravailJeuneCEJService,
       useValue: stubClassSandbox(FrancetravailJeuneCEJService, sandbox)
+    },
+    {
+      provide: FrancetravailBeneficiaireService,
+      useValue: stubClassSandbox(FrancetravailBeneficiaireService, sandbox)
     },
     {
       provide: FrancetravailAIJService,
