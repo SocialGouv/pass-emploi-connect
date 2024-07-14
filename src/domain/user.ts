@@ -20,7 +20,7 @@ export namespace User {
 
   export enum Structure {
     MILO = 'MILO',
-    POLE_EMPLOI = 'POLE_EMPLOI',
+    POLE_EMPLOI_CEJ = 'POLE_EMPLOI',
     POLE_EMPLOI_BRSA = 'POLE_EMPLOI_BRSA',
     POLE_EMPLOI_AIJ = 'POLE_EMPLOI_AIJ',
     FRANCE_TRAVAIL = 'FRANCE_TRAVAIL'
@@ -29,7 +29,7 @@ export namespace User {
 
 function estFT(userStructure: User.Structure): boolean {
   return [
-    User.Structure.POLE_EMPLOI,
+    User.Structure.POLE_EMPLOI_CEJ,
     User.Structure.POLE_EMPLOI_AIJ,
     User.Structure.POLE_EMPLOI_BRSA,
     User.Structure.FRANCE_TRAVAIL

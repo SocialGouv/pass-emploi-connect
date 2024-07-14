@@ -135,10 +135,12 @@ export abstract class IdpService {
         return apiUserResult
       }
 
+      const typeUtilisateurFinal = apiUserResult.data.userType
+      const structureUtilisateurFinal = apiUserResult.data.userStructure
       const account = {
         sub: userInfo.sub,
-        type: apiUserResult.data.userType,
-        structure: apiUserResult.data.userStructure
+        type: typeUtilisateurFinal,
+        structure: structureUtilisateurFinal
       }
       const accountId = Account.fromAccountToAccountId(account)
       const { grantId } = interactionDetails
@@ -153,8 +155,8 @@ export abstract class IdpService {
       const result: InteractionResults = {
         login: { accountId },
         consent: { grantId: newGrantId },
-        userType: apiUserResult.data.userType,
-        userStructure: apiUserResult.data.userStructure,
+        userType: typeUtilisateurFinal,
+        userStructure: structureUtilisateurFinal,
         email: email,
         family_name: nom,
         given_name: prenom,

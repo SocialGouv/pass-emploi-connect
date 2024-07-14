@@ -47,7 +47,7 @@ describe('MiloConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=MILO'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON'
           )
 
         expect(
@@ -82,7 +82,7 @@ describe('MiloConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=MILO'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON'
           )
 
         expect(miloConseillerService.callback).to.have.been.calledOnce()

@@ -2,7 +2,10 @@ import { HttpService } from '@nestjs/axios'
 import { expect } from 'chai'
 import * as nock from 'nock'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
-import { NonTraitable, NonTrouveError } from '../../src/utils/result/error'
+import {
+  UtilisateurNonTraitable,
+  NonTrouveError
+} from '../../src/utils/result/error'
 import { failure, success } from '../../src/utils/result/result'
 import { unAccount, unPassEmploiUser, unUser } from '../test-utils/fixtures'
 import { testConfig } from '../test-utils/module-for-testing'
@@ -53,7 +56,7 @@ describe('PassEmploiAPIClient', () => {
           '/auth/users/un-sub',
           unPassEmploiUser() as unknown as nock.RequestBodyMatcher
         )
-        .reply(422, { code: 'UTILISATEUR_INEXISTANT' })
+        .reply(422, { reason: 'UTILISATEUR_INEXISTANT' })
         .isDone()
 
       // When
@@ -64,7 +67,7 @@ describe('PassEmploiAPIClient', () => {
 
       // Then
       expect(response).to.deep.equal(
-        failure(new NonTraitable('UTILISATEUR_INEXISTANT'))
+        failure(new UtilisateurNonTraitable('UTILISATEUR_INEXISTANT'))
       )
     })
     it("retourne une failure quand l'appel d'API échoue avec un code NonTraitable inconnu", async () => {
@@ -84,7 +87,9 @@ describe('PassEmploiAPIClient', () => {
       )
 
       // Then
-      expect(response).to.deep.equal(failure(new NonTraitable()))
+      expect(response).to.deep.equal(
+        failure(new UtilisateurNonTraitable('INCONNU'))
+      )
     })
   })
   describe('getUser', () => {
@@ -133,7 +138,7 @@ describe('PassEmploiAPIClient', () => {
 
       // Then
       expect(response).to.deep.equal(
-        failure(new NonTrouveError('User', account.sub))
+        failure(new NonTrouveError('Utilisateur', account.sub))
       )
     })
   })

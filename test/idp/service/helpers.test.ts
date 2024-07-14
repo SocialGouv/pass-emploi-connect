@@ -42,7 +42,7 @@ describe('Helpers', () => {
         getIdpConfig(
           configService,
           User.Type.CONSEILLER,
-          User.Structure.POLE_EMPLOI
+          User.Structure.POLE_EMPLOI_CEJ
         ).issuer
       ).to.equal('ft-conseiller.com')
     })
@@ -69,14 +69,17 @@ describe('Helpers', () => {
         getIdpConfig(
           configService,
           User.Type.BENEFICIAIRE,
-          User.Structure.POLE_EMPLOI
+          User.Structure.POLE_EMPLOI_CEJ
         ).issuer
       ).to.equal('ft-jeune.com')
     })
     it('renvoie francetravailBeneficiaire', () => {
       expect(
-        getIdpConfig(configService, User.Type.JEUNE, User.Structure.POLE_EMPLOI)
-          .issuer
+        getIdpConfig(
+          configService,
+          User.Type.JEUNE,
+          User.Structure.POLE_EMPLOI_CEJ
+        ).issuer
       ).to.equal('ft-jeune.com')
     })
     it('renvoie francetravailBeneficiaire', () => {

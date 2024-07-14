@@ -44,7 +44,7 @@ function getIdpConfigIdentifier(
         case User.Structure.MILO:
           return IdpConfigIdentifier.MILO_JEUNE
         case User.Structure.FRANCE_TRAVAIL:
-        case User.Structure.POLE_EMPLOI:
+        case User.Structure.POLE_EMPLOI_CEJ:
         case User.Structure.POLE_EMPLOI_BRSA:
         case User.Structure.POLE_EMPLOI_AIJ:
           return IdpConfigIdentifier.FT_BENEFICIAIRE
@@ -54,7 +54,7 @@ function getIdpConfigIdentifier(
         case User.Structure.MILO:
           return IdpConfigIdentifier.MILO_CONSEILLER
         case User.Structure.FRANCE_TRAVAIL:
-        case User.Structure.POLE_EMPLOI:
+        case User.Structure.POLE_EMPLOI_CEJ:
         case User.Structure.POLE_EMPLOI_BRSA:
         case User.Structure.POLE_EMPLOI_AIJ:
           return IdpConfigIdentifier.FT_CONSEILLER

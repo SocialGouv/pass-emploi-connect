@@ -19,7 +19,7 @@ export class FrancetravailConseillerCEJService extends IdpService {
     super(
       'FrancetravailConseillerCEJService',
       User.Type.CONSEILLER,
-      User.Structure.POLE_EMPLOI,
+      User.Structure.POLE_EMPLOI_CEJ,
       configService,
       oidcService,
       tokenService,
