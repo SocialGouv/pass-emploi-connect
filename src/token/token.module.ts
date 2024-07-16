@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common'
 
 import { ConfigModule } from '@nestjs/config'
-import { ContextStorageModule } from '../context-storage/context-storage.module'
 import { RedisClient } from '../redis/redis.client'
 import { RedisProvider } from '../redis/redis.provider'
+import { DateService } from '../utils/date.service'
 import { GetAccessTokenUsecase } from './get-access-token.usecase'
 import { TokenService } from './token.service'
 import { ValidateJWTUsecase } from './verify-jwt.usecase'
-import { DateService } from '../utils/date.service'
 
 @Module({
-  imports: [ConfigModule, ContextStorageModule],
+  imports: [ConfigModule],
   providers: [
     RedisProvider,
     RedisClient,

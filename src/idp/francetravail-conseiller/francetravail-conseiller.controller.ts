@@ -10,14 +10,11 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
+import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
-import { User } from '../../domain/user'
-import { isFailure } from '../../utils/result/result'
-
-const userType = User.Type.CONSEILLER
 
 @Controller()
 export class FrancetravailConseillerController {
@@ -36,14 +33,12 @@ export class FrancetravailConseillerController {
   async connect(
     @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string,
-    @Query() ftQueryParams: { type: 'cej' | 'brsa' | 'aij' }
+    @Query() ftQueryParams: { type: string }
   ): Promise<{ url: string } | void> {
     let authorizationUrlResult
-    let userStructure: User.Structure
 
     switch (ftQueryParams.type) {
       case 'aij':
-        userStructure = User.Structure.POLE_EMPLOI_AIJ
         authorizationUrlResult =
           this.francetravailConseillerAIJService.getAuthorizationUrl(
             interactionId,
@@ -51,15 +46,14 @@ export class FrancetravailConseillerController {
           )
         break
       case 'brsa':
-        userStructure = User.Structure.POLE_EMPLOI_BRSA
         authorizationUrlResult =
           this.francetravailConseillerBRSAService.getAuthorizationUrl(
             interactionId,
             ftQueryParams.type
           )
         break
+      case 'cej':
       default:
-        userStructure = User.Structure.POLE_EMPLOI
         authorizationUrlResult =
           this.francetravailConseillerCEJService.getAuthorizationUrl(
             interactionId,
@@ -69,12 +63,7 @@ export class FrancetravailConseillerController {
     }
 
     if (isFailure(authorizationUrlResult))
-      return redirectFailure(
-        response,
-        authorizationUrlResult,
-        userType,
-        userStructure
-      )
+      return redirectFailure(response, authorizationUrlResult)
 
     return {
       url: authorizationUrlResult.data
@@ -88,32 +77,28 @@ export class FrancetravailConseillerController {
   ): Promise<{ url: string } | void> {
     const ftType = request.query.state
     let result
-    let userStructure: User.Structure
 
     switch (ftType) {
       case 'aij':
-        userStructure = User.Structure.POLE_EMPLOI_AIJ
         result = await this.francetravailConseillerAIJService.callback(
           request,
           response
         )
         break
       case 'brsa':
-        userStructure = User.Structure.POLE_EMPLOI_BRSA
         result = await this.francetravailConseillerBRSAService.callback(
           request,
           response
         )
         break
+      case 'cej':
       default:
-        userStructure = User.Structure.POLE_EMPLOI
         result = await this.francetravailConseillerCEJService.callback(
           request,
           response
         )
         break
     }
-    if (isFailure(result))
-      return redirectFailure(response, result, userType, userStructure)
+    if (isFailure(result)) return redirectFailure(response, result)
   }
 }

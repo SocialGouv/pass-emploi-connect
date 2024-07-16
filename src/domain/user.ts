@@ -14,35 +14,43 @@ export interface User {
 export namespace User {
   export enum Type {
     JEUNE = 'JEUNE',
+    BENEFICIAIRE = 'BENEFICIAIRE',
     CONSEILLER = 'CONSEILLER'
   }
 
   export enum Structure {
     MILO = 'MILO',
-    POLE_EMPLOI = 'POLE_EMPLOI',
+    POLE_EMPLOI_CEJ = 'POLE_EMPLOI',
     POLE_EMPLOI_BRSA = 'POLE_EMPLOI_BRSA',
-    POLE_EMPLOI_AIJ = 'POLE_EMPLOI_AIJ'
+    POLE_EMPLOI_AIJ = 'POLE_EMPLOI_AIJ',
+    FRANCE_TRAVAIL = 'FRANCE_TRAVAIL'
   }
 }
 
 function estFT(userStructure: User.Structure): boolean {
   return [
-    User.Structure.POLE_EMPLOI,
+    User.Structure.POLE_EMPLOI_CEJ,
     User.Structure.POLE_EMPLOI_AIJ,
-    User.Structure.POLE_EMPLOI_BRSA
+    User.Structure.POLE_EMPLOI_BRSA,
+    User.Structure.FRANCE_TRAVAIL
   ].includes(userStructure)
 }
+function estConseiller(userType: User.Type): boolean {
+  return userType === User.Type.CONSEILLER
+}
+function estBeneficiaire(userType: User.Type): boolean {
+  return [User.Type.JEUNE, User.Type.BENEFICIAIRE].includes(userType)
+}
 
-export function estJeuneFT(
+export function estBeneficiaireFT(
   userType: User.Type,
   userStructure: User.Structure
 ): boolean {
-  return userType === User.Type.JEUNE && estFT(userStructure)
+  return estBeneficiaire(userType) && estFT(userStructure)
 }
-
 export function estConseillerFT(
   userType: User.Type,
   userStructure: User.Structure
 ): boolean {
-  return userType === User.Type.CONSEILLER && estFT(userStructure)
+  return estConseiller(userType) && estFT(userStructure)
 }

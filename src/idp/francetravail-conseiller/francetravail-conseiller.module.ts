@@ -1,23 +1,16 @@
 import { Module } from '@nestjs/common'
 
 import { ConfigModule } from '@nestjs/config'
-import { ContextStorageModule } from '../../context-storage/context-storage.module'
-import { OidcModule } from '../../oidc-provider/oidc.module'
 import { APIModule } from '../../api/api.module'
+import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
-import { FrancetravailConseillerController } from './francetravail-conseiller.controller'
-import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
-import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
+import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
+import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
+import { FrancetravailConseillerController } from './francetravail-conseiller.controller'
 
 @Module({
-  imports: [
-    ConfigModule,
-    ContextStorageModule,
-    OidcModule,
-    TokenModule,
-    APIModule
-  ],
+  imports: [ConfigModule, OidcModule, TokenModule, APIModule],
   providers: [
     FrancetravailConseillerCEJService,
     FrancetravailConseillerAIJService,

@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ContextStorage } from '../../context-storage/context-storage.provider'
+import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
+import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
-import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { TokenService } from '../../token/token.service'
 import { IdpService } from '../service/idp.service'
-import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 
 @Injectable()
 export class FrancetravailBRSAService extends IdpService {
   constructor(
-    context: ContextStorage,
     configService: ConfigService,
     oidcService: OidcService,
     tokenService: TokenService,
@@ -22,7 +20,6 @@ export class FrancetravailBRSAService extends IdpService {
       'FrancetravailBRSAService',
       User.Type.JEUNE,
       User.Structure.POLE_EMPLOI_BRSA,
-      context,
       configService,
       oidcService,
       tokenService,

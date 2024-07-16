@@ -12,7 +12,7 @@ import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetrava
 import { FrancetravailConseillerAIJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
 import {
   AuthError,
-  NonTraitable,
+  UtilisateurNonTraitable,
   NonTrouveError
 } from '../../../src/utils/result/error'
 
@@ -65,7 +65,7 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON'
           )
 
         expect(
@@ -102,7 +102,7 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_BRSA'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE'
           )
 
         expect(
@@ -130,7 +130,7 @@ describe('FrancetravailConseillerController', () => {
       it('redirige vers le web en cas de failure', async () => {
         // Given
         francetravailConseillerAIJService.getAuthorizationUrl.returns(
-          failure(new NonTraitable('NO_REASON'))
+          failure(new UtilisateurNonTraitable('NO_REASON'))
         )
 
         // When - Then
@@ -139,7 +139,7 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TRAITABLE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_AIJ'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON'
           )
 
         expect(
@@ -178,7 +178,7 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON'
           )
 
         expect(
@@ -214,7 +214,7 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_BRSA'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE'
           )
 
         expect(
@@ -240,7 +240,7 @@ describe('FrancetravailConseillerController', () => {
       it('redirige vers le web en cas de failure', async () => {
         // Given
         francetravailConseillerAIJService.callback.resolves(
-          failure(new NonTraitable('NO_REASON'))
+          failure(new UtilisateurNonTraitable('UTILISATEUR_INEXISTANT'))
         )
 
         // When - Then
@@ -250,7 +250,7 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TRAITABLE&typeUtilisateur=CONSEILLER&structureUtilisateur=POLE_EMPLOI_AIJ'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT'
           )
 
         expect(

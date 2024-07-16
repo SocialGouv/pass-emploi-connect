@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { firstValueFrom } from 'rxjs'
 import { User } from '../domain/user'
-import { NonTraitable, NonTrouveError } from '../utils/result/error'
+import { UtilisateurNonTraitable, NonTrouveError } from '../utils/result/error'
 import { Result, failure, success } from '../utils/result/result'
 import { Account } from '../domain/account'
 import { buildError } from '../utils/monitoring/logger.module'
@@ -67,7 +67,11 @@ export class PassEmploiAPIClient {
     } catch (e) {
       this.logger.error(buildError('Erreur PUT User', e))
       this.apmService.captureError(e)
-      return failure(new NonTraitable(e.response?.data?.code))
+      return failure(
+        new UtilisateurNonTraitable(
+          e.response?.data?.reason ?? e.response?.data?.code
+        )
+      )
     }
   }
 
@@ -99,7 +103,7 @@ export class PassEmploiAPIClient {
     } catch (e) {
       this.logger.error(buildError('Erreur GET User', e))
       this.apmService.captureError(e)
-      return failure(new NonTrouveError('User', account.sub))
+      return failure(new NonTrouveError('Utilisateur', account.sub))
     }
   }
 }
