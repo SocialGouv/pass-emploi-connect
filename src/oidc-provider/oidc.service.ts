@@ -427,11 +427,10 @@ export class OidcService {
   }
 
   createGrant(accountId: string, clientId: string) {
-    const grant = new this.oidc.Grant({
+    return new this.oidc.Grant({
       accountId,
       clientId
     })
-    return grant
   }
 
   findGrant(grantId: string) {

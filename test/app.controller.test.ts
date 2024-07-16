@@ -44,6 +44,8 @@ describe('AppController', () => {
         .delete('/accounts/acc')
         .set({ 'X-API-KEY': 'pass-emploi-bafck' })
         .expect(HttpStatus.UNAUTHORIZED)
+
+      expect(deleteAccountUsecase.execute).not.to.have.been.called()
     })
   })
 })

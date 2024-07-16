@@ -37,6 +37,9 @@ Mettre en PROD un **HOTFIX** : faire une nouvelle version (`yarn release`) et un
 ### IDPs et Discover
 - [Pass Emploi Connect](https://id.pass-emploi.incubateur.net/auth/realms/pass-emploi/.well-known/openid-configuration) 
 - [FT Conseiller](https://authentification-agent-va.pe-qvr.net/connexion/oauth2/.well-known/openid-configuration?realm=/agent) 
-- [FT Jeune/BRSA/AIJ](https://authentification-candidat-r.ft-qvr.fr/connexion/oauth2/realms/root/realms/individu/.well-known/openid-configuration) 
+- [FT Bénéficiaire](https://authentification-candidat-r.ft-qvr.fr/connexion/oauth2/realms/root/realms/individu/.well-known/openid-configuration) 
 - [MILO Conseiller](https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif/.well-known/openid-configuration) 
 - [MILO Jeune](https://sso-qlf.i-milo.fr/auth/realms/sue-jeunes-qualif/.well-known/openid-configuration) 
+
+### Schéma du flow d'authorization utilisé
+![Authorization Code](https://i.imgur.com/xn6HjU0.png)

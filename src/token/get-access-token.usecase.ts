@@ -43,8 +43,7 @@ export class GetAccessTokenUsecase {
         return success(storedAccessTokenData)
       }
 
-      const newTokenDataResult = await this.refresh(query.account)
-      return newTokenDataResult
+      return this.refresh(query.account)
     } catch (e) {
       this.logger.error(buildError('Erreur inconnue GET AccessTokenUsecase', e))
       this.apmService.captureError(e)

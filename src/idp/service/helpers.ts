@@ -16,19 +16,20 @@ export async function generateNewGrantId(
   if (grantId) {
     // modification du grant existant dans la session
     grant = await oidcService.findGrant(grantId)
-  } else {
+  }
+  if (!grantId || !grant) {
     grant = oidcService.createGrant(accountId, clientId)
   }
 
-  grant!.addOIDCScope('openid')
-  grant!.addOIDCScope('profile')
-  grant!.addOIDCScope('email')
-  grant!.addResourceScope(
+  grant.addOIDCScope('openid')
+  grant.addOIDCScope('profile')
+  grant.addOIDCScope('email')
+  grant.addResourceScope(
     configService.get('ressourceServer.url')!,
     configService.get('ressourceServer.scopes')!
   )
 
-  const newGrantId = await grant!.save()
+  const newGrantId = await grant.save()
 
   return newGrantId
 }

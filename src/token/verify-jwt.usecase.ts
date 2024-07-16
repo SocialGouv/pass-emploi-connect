@@ -26,12 +26,12 @@ export class ValidateJWTUsecase {
   }
 
   async execute(inputs: Inputs): Promise<Result<JWTPayload>> {
-    const JWKS = this.configService.get<JWKS>('jwks')!
+    const JWKSfromConfig = this.configService.get<JWKS>('jwks')!
     const error: JWTError = new JWTError(errors.JWKSNoMatchingKey.code)
 
-    for (const JWK of JWKS.keys) {
+    for (const JWKfromConfig of JWKSfromConfig.keys) {
       try {
-        const importedJWK = await importJWK(JWK as JWK)
+        const importedJWK = await importJWK(JWKfromConfig as JWK)
         const { payload } = await jwtVerify(inputs.token, importedJWK)
 
         if (this.isExpired(payload.exp)) {
