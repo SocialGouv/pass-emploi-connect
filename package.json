@@ -109,5 +109,6 @@
       "ts-node/register",
       "tsconfig-paths/register"
     ]
-  }
+  },
+  "packageManager": "yarn@4.3.1"
 }

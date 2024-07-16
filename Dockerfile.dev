@@ -5,7 +5,10 @@ FROM docker.io/library/node:20.15.0
 
 # Set the working directory
 WORKDIR /usr/src/app
+ENV YARN_VERSION 4.3.1
 ENV YARN_CACHE_FOLDER=/cache/yarn
+
+RUN yarn policies set-version $YARN_VERSION
 
 # Copy yarn.lock and package.json to the working directory, with cache
 COPY yarn.lock package.json ./

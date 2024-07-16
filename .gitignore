@@ -409,6 +409,9 @@ dist
 .webpack
 .serverless/**/*.zip
 
+.pnp.*
+.yarn/*
+scripts/.yarn/*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
