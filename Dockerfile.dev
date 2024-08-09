@@ -5,19 +5,30 @@ FROM docker.io/library/node:20.15.0
 
 # Set the working directory
 WORKDIR /usr/src/app
-ENV YARN_VERSION 4.3.1
+
+# Define environment variables
+ENV YARN_VERSION 4.4.0
 ENV YARN_CACHE_FOLDER=/cache/yarn
 
-RUN yarn policies set-version $YARN_VERSION
+# Install Yarn
+RUN corepack enable && \
+    yarn set version $YARN_VERSION
 
-# Copy yarn.lock and package.json to the working directory, with cache
-COPY yarn.lock package.json ./
+# Create cache directory
+RUN mkdir -p /cache/yarn
+
+# Copy yarn.lock, package.json, .yarnrc.yml, and .yarn directory
+COPY .yarn/releases ./.yarn/releases 
+COPY yarn.lock package.json .yarnrc.yml ./ 
+
+# Use buildkit to mount cache for faster builds
 RUN --mount=type=cache,target=/cache/yarn \
     yarn install
 
-RUN npm i -g pino-pretty
+# Install pino-pretty globally
+RUN npm install -g pino-pretty
 
-# Copy the current directory contents into the container at /usr/src/app
+# Copy the current directory contents into the container
 COPY . .
 
 # Run the command inside your image filesystem
