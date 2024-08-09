@@ -7,7 +7,7 @@ import { TokenService } from '../../token/token.service'
 import { IdpService } from '../service/idp.service'
 
 @Injectable()
-export class MiloJeuneService extends IdpService {
+export class ConseillerDeptService extends IdpService {
   constructor(
     configService: ConfigService,
     oidcService: OidcService,
@@ -15,9 +15,9 @@ export class MiloJeuneService extends IdpService {
     passemploiapi: PassEmploiAPIClient
   ) {
     super(
-      'MiloJeuneService',
-      User.Type.JEUNE,
-      User.Structure.MILO,
+      'ConseillerDeptService',
+      User.Type.CONSEILLER,
+      User.Structure.CONSEIL_DEPT,
       configService,
       oidcService,
       tokenService,

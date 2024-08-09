@@ -8,7 +8,8 @@ export enum IdpConfigIdentifier {
   MILO_CONSEILLER = 'miloConseiller',
   MILO_JEUNE = 'miloJeune',
   FT_CONSEILLER = 'francetravailConseiller',
-  FT_BENEFICIAIRE = 'francetravailBeneficiaire'
+  FT_BENEFICIAIRE = 'francetravailBeneficiaire',
+  CONSEILLER_DEPT = 'conseillerDept'
 }
 
 export interface IdpConfig {
@@ -29,7 +30,7 @@ export interface IdpConfig {
 }
 type Idp = Record<IdpConfigIdentifier, IdpConfig>
 
-interface Configuration {
+export interface Configuration {
   clients: Client
   idps: Idp
   [key: string]: unknown
@@ -41,6 +42,8 @@ const IDP_FT_JEUNE_ACCESS_TOKEN_MAX_AGE = 1170
 const IDP_FT_JEUNE_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 42
 const IDP_MILO_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 299
 const IDP_MILO_CONSEILLER_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
+const IDP_CONSEILLER_DEPT_ACCESS_TOKEN_MAX_AGE = 299
+const IDP_CONSEILLER_DEPT_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
 const IDP_MILO_JEUNE_ACCESS_TOKEN_MAX_AGE = 299
 const IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE = 3600 * 24 * 30
 
@@ -178,6 +181,24 @@ export default () => {
         refreshTokenMaxAge:
           Number(process.env.IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE) ||
           IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE
+      },
+      conseillerDept: {
+        issuer: process.env.IDP_CONSEILLER_DEPT_ISSUER!,
+        authorizationUrl: process.env.IDP_CONSEILLER_DEPT_AUTHORIZATION_URL!,
+        tokenUrl: process.env.IDP_CONSEILLER_DEPT_TOKEN_URL!,
+        jwks: process.env.IDP_CONSEILLER_DEPT_JWKS!,
+        userinfo: process.env.IDP_CONSEILLER_DEPT_USERINFO!,
+        clientId: process.env.IDP_CONSEILLER_DEPT_CLIENT_ID!,
+        clientSecret: process.env.IDP_CONSEILLER_DEPT_CLIENT_SECRET!,
+        scopes: process.env.IDP_CONSEILLER_DEPT_SCOPES!,
+        redirectUri: process.env.IDP_CONSEILLER_DEPT_REDIRECT_URI!,
+        logout: process.env.IDP_CONSEILLER_DEPT_LOGOUT!,
+        accessTokenMaxAge:
+          Number(process.env.IDP_CONSEILLER_DEPT_ACCESS_TOKEN_MAX_AGE) ||
+          IDP_CONSEILLER_DEPT_ACCESS_TOKEN_MAX_AGE,
+        refreshTokenMaxAge:
+          Number(process.env.IDP_CONSEILLER_DEPT_REFRESH_TOKEN_MAX_AGE) ||
+          IDP_CONSEILLER_DEPT_REFRESH_TOKEN_MAX_AGE
       }
     }
   }

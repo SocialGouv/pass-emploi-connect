@@ -48,12 +48,15 @@ function getIdpConfigIdentifier(
         case User.Structure.POLE_EMPLOI_CEJ:
         case User.Structure.POLE_EMPLOI_BRSA:
         case User.Structure.POLE_EMPLOI_AIJ:
+        case User.Structure.CONSEIL_DEPT:
           return IdpConfigIdentifier.FT_BENEFICIAIRE
       }
     case User.Type.CONSEILLER:
       switch (structure) {
         case User.Structure.MILO:
           return IdpConfigIdentifier.MILO_CONSEILLER
+        case User.Structure.CONSEIL_DEPT:
+          return IdpConfigIdentifier.CONSEILLER_DEPT
         case User.Structure.FRANCE_TRAVAIL:
         case User.Structure.POLE_EMPLOI_CEJ:
         case User.Structure.POLE_EMPLOI_BRSA:

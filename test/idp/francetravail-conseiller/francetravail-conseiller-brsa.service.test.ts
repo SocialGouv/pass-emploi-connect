@@ -1,7 +1,7 @@
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import { Request, Response } from 'express'
-import { FrancetravailAPIClient } from '../../../src/api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
+import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
 import { OidcService } from '../../../src/oidc-provider/oidc.service'
 import { TokenService } from '../../../src/token/token.service'
 import { AuthError } from '../../../src/utils/result/error'
@@ -13,27 +13,23 @@ import {
   stubClass
 } from '../../test-utils'
 import { testConfig } from '../../test-utils/module-for-testing'
-import { FrancetravailConseillerBRSAService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
 
 describe('FrancetravailConseillerBRSAService', () => {
   let francetravailConseillerBRSAService: FrancetravailConseillerBRSAService
   const configService = testConfig()
   let tokenService: StubbedClass<TokenService>
   let passEmploiAPIClient: StubbedClass<PassEmploiAPIClient>
-  let francetravailAPIClient: StubbedClass<FrancetravailAPIClient>
   let oidcService: StubbedClass<OidcService>
 
   beforeEach(() => {
     oidcService = stubClass(OidcService)
     tokenService = stubClass(TokenService)
     passEmploiAPIClient = stubClass(PassEmploiAPIClient)
-    francetravailAPIClient = stubClass(FrancetravailAPIClient)
     francetravailConseillerBRSAService = new FrancetravailConseillerBRSAService(
       configService,
       oidcService,
       tokenService,
-      passEmploiAPIClient,
-      francetravailAPIClient
+      passEmploiAPIClient
     )
   })
 

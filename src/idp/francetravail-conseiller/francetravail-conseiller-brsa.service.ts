@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { User } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
@@ -13,8 +12,7 @@ export class FrancetravailConseillerBRSAService extends IdpService {
     configService: ConfigService,
     oidcService: OidcService,
     tokenService: TokenService,
-    passemploiapi: PassEmploiAPIClient,
-    francetravailAPIClient: FrancetravailAPIClient
+    passemploiapi: PassEmploiAPIClient
   ) {
     super(
       'FrancetravailConseillerBRSAService',
@@ -23,8 +21,7 @@ export class FrancetravailConseillerBRSAService extends IdpService {
       configService,
       oidcService,
       tokenService,
-      passemploiapi,
-      francetravailAPIClient
+      passemploiapi
     )
   }
 }

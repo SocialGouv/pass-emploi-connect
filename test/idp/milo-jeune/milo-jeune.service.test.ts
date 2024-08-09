@@ -1,6 +1,5 @@
 import { StubbedType, stubInterface } from '@salesforce/ts-sinon'
 import { Request, Response } from 'express'
-import { FrancetravailAPIClient } from '../../../src/api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../../src/api/pass-emploi-api.client'
 import { MiloJeuneService } from '../../../src/idp/milo-jeune/milo-jeune.service'
 import { OidcService } from '../../../src/oidc-provider/oidc.service'
@@ -20,20 +19,17 @@ describe('MiloJeuneService', () => {
   const configService = testConfig()
   let tokenService: StubbedClass<TokenService>
   let passEmploiAPIClient: StubbedClass<PassEmploiAPIClient>
-  let francetravailAPIClient: StubbedClass<FrancetravailAPIClient>
   let oidcService: StubbedClass<OidcService>
 
   beforeEach(() => {
     oidcService = stubClass(OidcService)
     tokenService = stubClass(TokenService)
     passEmploiAPIClient = stubClass(PassEmploiAPIClient)
-    francetravailAPIClient = stubClass(FrancetravailAPIClient)
     miloJeuneService = new MiloJeuneService(
       configService,
       oidcService,
       tokenService,
-      passEmploiAPIClient,
-      francetravailAPIClient
+      passEmploiAPIClient
     )
   })
 

@@ -28,6 +28,15 @@ describe('Helpers', () => {
           .issuer
       ).to.equal('https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif')
     })
+    it('renvoie conseillerDept', () => {
+      expect(
+        getIdpConfig(
+          configService,
+          User.Type.CONSEILLER,
+          User.Structure.CONSEIL_DEPT
+        ).issuer
+      ).to.equal('https://keycloak-cej.com')
+    })
     it('renvoie francetravailConseiller', () => {
       expect(
         getIdpConfig(
@@ -61,6 +70,15 @@ describe('Helpers', () => {
           configService,
           User.Type.BENEFICIAIRE,
           User.Structure.FRANCE_TRAVAIL
+        ).issuer
+      ).to.equal('ft-jeune.com')
+    })
+    it('renvoie francetravailBeneficiaire', () => {
+      expect(
+        getIdpConfig(
+          configService,
+          User.Type.BENEFICIAIRE,
+          User.Structure.CONSEIL_DEPT
         ).issuer
       ).to.equal('ft-jeune.com')
     })

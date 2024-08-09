@@ -9,6 +9,7 @@ import { MiloJeuneModule } from './idp/milo-jeune/milo-jeune.module'
 import { configureLoggerModule } from './utils/monitoring/logger.module'
 import { TerminusModule } from '@nestjs/terminus'
 import { AccountModule } from './account/account.module'
+import { ConseillerDeptModule } from './idp/conseiller-dept/conseiller-dept.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AccountModule } from './account/account.module'
     FrancetravailConseillerModule,
     MiloConseillerModule,
     MiloJeuneModule,
+    ConseillerDeptModule,
     AccountModule
   ],
   controllers: [AppController]

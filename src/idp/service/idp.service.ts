@@ -53,7 +53,7 @@ export abstract class IdpService {
     private readonly oidcService: OidcService,
     private readonly tokenService: TokenService,
     private readonly passemploiapi: PassEmploiAPIClient,
-    private readonly francetravailapi: FrancetravailAPIClient
+    private readonly francetravailapi?: FrancetravailAPIClient
   ) {
     this.logger = new Logger(idpName)
     this.apmService = getAPMInstance()
@@ -267,7 +267,7 @@ export abstract class IdpService {
   }> {
     let coordonnees
     if (estBeneficiaireFT(this.userType, this.userStructure)) {
-      const coordonneesResult = await this.francetravailapi.getCoordonness(
+      const coordonneesResult = await this.francetravailapi!.getCoordonness(
         accessToken
       )
       if (isSuccess(coordonneesResult)) {

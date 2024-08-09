@@ -23,6 +23,9 @@ import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.control
 import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 import { stubClassSandbox } from './types'
 import { FrancetravailBeneficiaireService } from '../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
+import { Configuration } from '../../src/config/configuration'
+import { ConseillerDeptService } from '../../src/idp/conseiller-dept/conseiller-dept.service'
+import { ConseillerDeptController } from '../../src/idp/conseiller-dept/conseiller-dept.controller'
 dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1170
@@ -45,7 +48,8 @@ export function buildTestingModuleForHttpTesting(
       FrancetravailConseillerController,
       FrancetravailJeuneController,
       MiloJeuneController,
-      MiloConseillerController
+      MiloConseillerController,
+      ConseillerDeptController
     ]
   })
 }
@@ -72,7 +76,7 @@ export const getApplicationWithStubbedDependencies =
   }
 
 export const testConfig = (): ConfigService => {
-  return new ConfigService({
+  const config: Configuration = {
     environment: 'staging',
     port: 5050,
     publicAddress: `http://localhost:5050`,
@@ -152,15 +156,15 @@ export const testConfig = (): ConfigService => {
         refreshTokenMaxAge: IDP_FT_CONSEILLER_REFRESH_TOKEN_MAX_AGE
       },
       miloConseiller: {
-        issuer: process.env.IDP_MILO_CONSEILLER_ISSUER,
-        authorizationUrl: process.env.IDP_MILO_CONSEILLER_AUTHORIZATION_URL,
-        tokenUrl: process.env.IDP_MILO_CONSEILLER_TOKEN_URL,
-        jwks: process.env.IDP_MILO_CONSEILLER_JWKS,
-        userinfo: process.env.IDP_MILO_CONSEILLER_USERINFO,
-        clientId: process.env.IDP_MILO_CONSEILLER_CLIENT_ID,
-        clientSecret: process.env.IDP_MILO_CONSEILLER_CLIENT_SECRET,
-        scopes: process.env.IDP_MILO_CONSEILLER_SCOPES,
-        redirectUri: process.env.IDP_MILO_CONSEILLER_REDIRECT_URI,
+        issuer: process.env.IDP_MILO_CONSEILLER_ISSUER!,
+        authorizationUrl: process.env.IDP_MILO_CONSEILLER_AUTHORIZATION_URL!,
+        tokenUrl: process.env.IDP_MILO_CONSEILLER_TOKEN_URL!,
+        jwks: process.env.IDP_MILO_CONSEILLER_JWKS!,
+        userinfo: process.env.IDP_MILO_CONSEILLER_USERINFO!,
+        clientId: process.env.IDP_MILO_CONSEILLER_CLIENT_ID!,
+        clientSecret: process.env.IDP_MILO_CONSEILLER_CLIENT_SECRET!,
+        scopes: process.env.IDP_MILO_CONSEILLER_SCOPES!,
+        redirectUri: process.env.IDP_MILO_CONSEILLER_REDIRECT_URI!,
         logout: '',
         accessTokenMaxAge: IDP_MILO_CONSEILLER_ACCESS_TOKEN_MAX_AGE,
         refreshTokenMaxAge: IDP_MILO_CONSEILLER_REFRESH_TOKEN_MAX_AGE
@@ -178,6 +182,20 @@ export const testConfig = (): ConfigService => {
         logout: '',
         accessTokenMaxAge: IDP_MILO_JEUNE_ACCESS_TOKEN_MAX_AGE,
         refreshTokenMaxAge: IDP_MILO_JEUNE_REFRESH_TOKEN_MAX_AGE
+      },
+      conseillerDept: {
+        issuer: 'https://keycloak-cej.com',
+        authorizationUrl: 'https://keycloak-cej.com/authorize',
+        tokenUrl: 'keycloak-cej',
+        jwks: 'keycloak-cej',
+        userinfo: 'keycloak-cej',
+        clientId: 'keycloak-cej',
+        clientSecret: 'keycloak-cej',
+        scopes: 'keycloak-cej',
+        redirectUri: 'keycloak-cej',
+        logout: '',
+        accessTokenMaxAge: IDP_MILO_CONSEILLER_ACCESS_TOKEN_MAX_AGE,
+        refreshTokenMaxAge: IDP_MILO_CONSEILLER_REFRESH_TOKEN_MAX_AGE
       }
     },
     test: {
@@ -187,7 +205,8 @@ export const testConfig = (): ConfigService => {
       miloConseillerCEJJWTExpired:
         process.env.TEST_MILO_CONSEILLER_CEJ_JWT_EXPIRED
     }
-  })
+  }
+  return new ConfigService(config)
 }
 
 const stubProviders = (sandbox: SinonSandbox): Provider[] => {
@@ -238,7 +257,11 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     },
     {
       provide: MiloJeuneService,
-      useValue: stubClassSandbox(FrancetravailBRSAService, sandbox)
+      useValue: stubClassSandbox(MiloJeuneService, sandbox)
+    },
+    {
+      provide: ConseillerDeptService,
+      useValue: stubClassSandbox(ConseillerDeptService, sandbox)
     },
     {
       provide: DeleteAccountUsecase,
