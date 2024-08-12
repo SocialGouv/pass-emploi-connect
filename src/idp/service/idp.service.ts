@@ -97,28 +97,37 @@ export abstract class IdpService {
   }
 
   async callback(request: Request, response: Response): Promise<Result> {
+    let action = 'none'
+    let sub = 'unknown'
     try {
+      action = 'interactionDetails'
       const interactionDetails = await this.oidcService.interactionDetails(
         request,
         response
       )
+
+      action = 'callbackParams'
       const params = this.client.callbackParams(request)
 
+      action = 'callbackWithRetry'
       const tokenSet = await this.callbackWithRetry(
         request,
         params,
         interactionDetails.uid
       )
 
+      action = 'userinfo'
       const userInfo = await this.client.userinfo(tokenSet, {
         params: { realm: this.idp.realm }
       })
 
+      action = 'getCoordonnees'
       const { nom, prenom, email } = await this.getCoordonnees(
         userInfo,
         tokenSet.access_token!
       )
 
+      action = 'putUser'
       // besoin de persister le preferred_username parce que le get token n'a pas cette info dans le context
       const apiUserResult = await this.passemploiapi.putUser(userInfo.sub, {
         nom,
@@ -135,6 +144,7 @@ export abstract class IdpService {
         return apiUserResult
       }
 
+      action = 'mappingApiUserResult'
       const typeUtilisateurFinal = apiUserResult.data.userType
       const structureUtilisateurFinal = apiUserResult.data.userStructure
       const account = {
@@ -142,7 +152,12 @@ export abstract class IdpService {
         type: typeUtilisateurFinal,
         structure: structureUtilisateurFinal
       }
+      sub = userInfo.sub
+
+      action = 'fromAccountToAccountId'
       const accountId = Account.fromAccountToAccountId(account)
+
+      action = 'generateNewGrantId'
       const { grantId } = interactionDetails
       const newGrantId = await generateNewGrantId(
         this.configService,
@@ -152,6 +167,7 @@ export abstract class IdpService {
         grantId
       )
 
+      action = 'InteractionResults'
       const result: InteractionResults = {
         login: { accountId },
         consent: { grantId: newGrantId },
@@ -165,12 +181,15 @@ export abstract class IdpService {
         preferred_username: userInfo.preferred_username
       }
 
+      action = 'setAccessToken'
       await this.tokenService.setToken(account, TokenType.ACCESS, {
         token: tokenSet.access_token!,
         expiresIn: tokenSet.expires_in || this.idp.accessTokenMaxAge,
         scope: tokenSet.scope,
         expiresAt: tokenSet.expires_at
       })
+
+      action = 'setRefreshToken'
       if (tokenSet.refresh_token) {
         await this.tokenService.setToken(account, TokenType.REFRESH, {
           token: tokenSet.refresh_token,
@@ -179,13 +198,19 @@ export abstract class IdpService {
         })
       }
 
+      action = 'interactionFinished'
       await this.oidcService.interactionFinished(request, response, result)
       return emptySuccess()
     } catch (e) {
       this.apmService.captureError(e)
-      this.logger.error(
-        buildError(`Callback error ${this.userType} ${this.userStructure}`, e)
-      )
+      this.logger.error({
+        message: 'Callback error',
+        err: e,
+        userType: this.userType,
+        userStructure: this.userStructure,
+        action,
+        sub
+      })
       return failure(new AuthError('Retour Pass Emploi'))
     }
   }
