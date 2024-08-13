@@ -16,6 +16,7 @@ import { FrancetravailAIJService } from './francetravail-aij.service'
 import { FrancetravailBeneficiaireService } from './francetravail-beneficiaire.service'
 import { FrancetravailBRSAService } from './francetravail-brsa.service'
 import { FrancetravailJeuneCEJService } from './francetravail-jeune.service'
+import { User } from '../../domain/user'
 
 @Controller()
 export class FrancetravailJeuneController {
@@ -71,7 +72,7 @@ export class FrancetravailJeuneController {
     }
 
     if (isFailure(authorizationUrlResult))
-      return redirectFailure(response, authorizationUrlResult)
+      return redirectFailure(response, authorizationUrlResult, User.Type.JEUNE)
 
     return {
       url: authorizationUrlResult.data
@@ -107,6 +108,7 @@ export class FrancetravailJeuneController {
         )
         break
     }
-    if (isFailure(result)) return redirectFailure(response, result)
+    if (isFailure(result))
+      return redirectFailure(response, result, User.Type.JEUNE)
   }
 }

@@ -63,7 +63,9 @@ describe('FrancetravailJeuneCEJService', () => {
       )
 
       // Then
-      expect(result).to.deep.equal(failure(new AuthError('Retour Pass Emploi')))
+      expect(result).to.deep.equal(
+        failure(new AuthError('Cookie/SessionNotFound'))
+      )
     })
   })
 })

@@ -15,6 +15,7 @@ import { redirectFailure } from '../../utils/result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
+import { User } from '../../domain/user'
 
 @Controller()
 export class FrancetravailConseillerController {
@@ -36,9 +37,11 @@ export class FrancetravailConseillerController {
     @Query() ftQueryParams: { type: string }
   ): Promise<{ url: string } | void> {
     let authorizationUrlResult
+    let structure: User.Structure
 
     switch (ftQueryParams.type) {
       case 'aij':
+        structure = User.Structure.POLE_EMPLOI_AIJ
         authorizationUrlResult =
           this.francetravailConseillerAIJService.getAuthorizationUrl(
             interactionId,
@@ -46,6 +49,7 @@ export class FrancetravailConseillerController {
           )
         break
       case 'brsa':
+        structure = User.Structure.POLE_EMPLOI_BRSA
         authorizationUrlResult =
           this.francetravailConseillerBRSAService.getAuthorizationUrl(
             interactionId,
@@ -54,6 +58,7 @@ export class FrancetravailConseillerController {
         break
       case 'cej':
       default:
+        structure = User.Structure.POLE_EMPLOI_CEJ
         authorizationUrlResult =
           this.francetravailConseillerCEJService.getAuthorizationUrl(
             interactionId,
@@ -63,7 +68,12 @@ export class FrancetravailConseillerController {
     }
 
     if (isFailure(authorizationUrlResult))
-      return redirectFailure(response, authorizationUrlResult)
+      return redirectFailure(
+        response,
+        authorizationUrlResult,
+        User.Type.CONSEILLER,
+        structure
+      )
 
     return {
       url: authorizationUrlResult.data
@@ -77,15 +87,18 @@ export class FrancetravailConseillerController {
   ): Promise<{ url: string } | void> {
     const ftType = request.query.state
     let result
+    let structure: User.Structure
 
     switch (ftType) {
       case 'aij':
+        structure = User.Structure.POLE_EMPLOI_AIJ
         result = await this.francetravailConseillerAIJService.callback(
           request,
           response
         )
         break
       case 'brsa':
+        structure = User.Structure.POLE_EMPLOI_BRSA
         result = await this.francetravailConseillerBRSAService.callback(
           request,
           response
@@ -93,12 +106,14 @@ export class FrancetravailConseillerController {
         break
       case 'cej':
       default:
+        structure = User.Structure.POLE_EMPLOI_CEJ
         result = await this.francetravailConseillerCEJService.callback(
           request,
           response
         )
         break
     }
-    if (isFailure(result)) return redirectFailure(response, result)
+    if (isFailure(result))
+      return redirectFailure(response, result, User.Type.CONSEILLER, structure)
   }
 }

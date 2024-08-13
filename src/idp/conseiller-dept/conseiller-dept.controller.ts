@@ -12,6 +12,7 @@ import { Request, Response } from 'express'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { ConseillerDeptService } from './conseiller-dept.service'
+import { User } from '../../domain/user'
 
 @Controller()
 export class ConseillerDeptController {
@@ -30,7 +31,12 @@ export class ConseillerDeptController {
     const authorizationUrlResult =
       this.conseillerDeptService.getAuthorizationUrl(interactionId)
     if (isFailure(authorizationUrlResult))
-      return redirectFailure(response, authorizationUrlResult)
+      return redirectFailure(
+        response,
+        authorizationUrlResult,
+        User.Type.CONSEILLER,
+        User.Structure.CONSEIL_DEPT
+      )
     return {
       url: authorizationUrlResult.data
     }
@@ -42,6 +48,12 @@ export class ConseillerDeptController {
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
     const result = await this.conseillerDeptService.callback(request, response)
-    if (isFailure(result)) return redirectFailure(response, result)
+    if (isFailure(result))
+      return redirectFailure(
+        response,
+        result,
+        User.Type.CONSEILLER,
+        User.Structure.CONSEIL_DEPT
+      )
   }
 }

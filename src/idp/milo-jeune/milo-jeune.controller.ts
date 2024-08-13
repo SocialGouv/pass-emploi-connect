@@ -12,6 +12,7 @@ import { Request, Response } from 'express'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { MiloJeuneService } from './milo-jeune.service'
+import { User } from '../../domain/user'
 
 @Controller()
 export class MiloJeuneController {
@@ -30,7 +31,7 @@ export class MiloJeuneController {
     const authorizationUrlResult =
       this.miloJeuneService.getAuthorizationUrl(interactionId)
     if (isFailure(authorizationUrlResult))
-      return redirectFailure(response, authorizationUrlResult)
+      return redirectFailure(response, authorizationUrlResult, User.Type.JEUNE)
     return {
       url: authorizationUrlResult.data
     }
@@ -42,6 +43,7 @@ export class MiloJeuneController {
     @Res({ passthrough: true }) response: Response
   ): Promise<{ url: string } | void> {
     const result = await this.miloJeuneService.callback(request, response)
-    if (isFailure(result)) return redirectFailure(response, result)
+    if (isFailure(result))
+      return redirectFailure(response, result, User.Type.JEUNE)
   }
 }

@@ -54,7 +54,9 @@ describe('ConseillerDeptService', () => {
       const result = await conseillerDeptService.callback(request, response)
 
       // Then
-      expect(result).to.deep.equal(failure(new AuthError('Retour Pass Emploi')))
+      expect(result).to.deep.equal(
+        failure(new AuthError('Cookie/SessionNotFound'))
+      )
     })
   })
 })
