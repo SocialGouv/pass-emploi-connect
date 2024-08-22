@@ -1,7 +1,7 @@
 # Dockerfile for development of yarn-based application
 
 # Use the official image as a parent image
-FROM docker.io/library/node:20.15.0
+FROM docker.io/library/node:20.17.0
 
 # Set the working directory
 WORKDIR /usr/src/app
