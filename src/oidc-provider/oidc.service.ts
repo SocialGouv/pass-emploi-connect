@@ -383,17 +383,22 @@ export class OidcService {
       tokenExchangeParameters
     )
     // this.oidc.on('grant.revoked', async ctx => {
-    //   if (ctx.oidc.entities.Session) {
+    //   if (ctx?.oidc?.entities?.Session) {
     //     await ctx.oidc.entities.Session.destroy()
     //   }
     // })
     // this.oidc.on('end_session.success', async ctx => {
-    //   if (ctx.oidc.entities.Session) {
+    //   if (ctx?.oidc?.entities?.Session) {
     //     await ctx.oidc.entities.Session.destroy()
     //   }
     // })
     // this.oidc.on('end_session.error', async ctx => {
-    //   if (ctx.oidc.entities.Session) {
+    //   if (ctx?.oidc?.entities?.Session) {
+    //     await ctx.oidc.entities.Session.destroy()
+    //   }
+    // })
+    // this.oidc.on('authorization.error', async ctx => {
+    //   if (ctx?.oidc?.entities?.Session) {
     //     await ctx.oidc.entities.Session.destroy()
     //   }
     // })

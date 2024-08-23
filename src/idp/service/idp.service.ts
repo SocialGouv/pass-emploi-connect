@@ -211,6 +211,22 @@ export abstract class IdpService {
         codeErreur,
         sub
       })
+      try {
+        if (codeErreur === 'Cookie/SessionNotFound') {
+          const sessionId = request.cookies['_session']
+          const session = await this.oidcService
+            .getProvider()
+            .Session.find(sessionId)
+          if (session) await session.destroy()
+          response.clearCookie('_session', { httpOnly: true, secure: true })
+          response.clearCookie('.session.legacy', {
+            httpOnly: true,
+            secure: true
+          })
+        }
+      } catch (e) {
+        this.logger.error(buildError('Fail to clear session from cookies', e))
+      }
       return failure(new AuthError(codeErreur))
     }
   }
