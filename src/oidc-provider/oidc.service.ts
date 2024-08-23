@@ -62,8 +62,8 @@ export class OidcService {
         // Les autorisations accordés dans le Grant sont valables pour tout les access obtenus à partir d'une même refresh, sans limite de temps supplémentaire (donc ISO refresh)
         Grant: 3600 * 24 * 42,
         Session: 3600 * 24 * 42,
-        AccessToken: 60 * 60 * 24 * 5,
-        IdToken: 60 * 60 * 24 * 5,
+        AccessToken: 60,
+        IdToken: 60,
         // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
         Interaction: 60 * 15
       },
@@ -195,6 +195,8 @@ export class OidcService {
       },
       adapter: (name: string) => new RedisAdapter(name, this.redisClient),
       findAccount: async (context, accountId: string) => {
+        this.apmService.setCustomContext({ oidc: context })
+
         let user: User
 
         // présent uniquement dans le cas d'un authorize
@@ -225,6 +227,12 @@ export class OidcService {
           }
           user = apiUser.data
         }
+
+        this.apmService.setUserContext({
+          id: user.userId,
+          email: user.email
+        })
+
         return {
           ...user,
           accountId,
@@ -402,6 +410,16 @@ export class OidcService {
     //     await ctx.oidc.entities.Session.destroy()
     //   }
     // })
+
+    this.oidc.on('grant.error', this.handleClientAuthErrors)
+    this.oidc.on('introspection.error', this.handleClientAuthErrors)
+    this.oidc.on('revocation.error', this.handleClientAuthErrors)
+    this.oidc.on('refresh_token.destroyed', refreshToken => {
+      this.logger.debug('REFRESH DESTROYED %j', refreshToken)
+    })
+    this.oidc.on('*', event =>
+      this.apmService.addLabels({ [event]: Date.now() })
+    )
     this.oidc.proxy = true
   }
 
@@ -455,5 +473,24 @@ export class OidcService {
         .join('')
     }
     return '<p>Veuillez réessayer plus tard</p>'
+  }
+
+  private handleClientAuthErrors(
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    // @ts-ignore
+    { headers: { authorization }, oidc: { body, client } },
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    // @ts-ignore
+    err
+  ) {
+    this.logger.error('Client Auth Errors')
+    this.logger.error(authorization)
+    this.logger.error(body)
+    this.logger.error(client)
+    try {
+      this.apmService.captureError(err)
+    } catch (e) {
+      this.logger.error(`APM has crashed: ${e.message}`, e.stack)
+    }
   }
 }
