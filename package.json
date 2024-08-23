@@ -1,7 +1,7 @@
 {
   "name": "pass-emploi-connect",
   "private": true,
-  "version": "1.2.2",
+  "version": "1.2.3",
   "license": "CEJ",
   "engines": {
     "node": "20.15.0"
