@@ -225,8 +225,8 @@ export abstract class IdpService {
             httpOnly: true,
             secure: true
           })
+          this.logger.log('Success clearing session from cookies')
         }
-        this.logger.log('Success clearing session from cookies')
       } catch (e) {
         this.logger.error(buildError('Fail clearing session from cookies', e))
       }
