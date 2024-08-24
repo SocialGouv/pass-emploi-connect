@@ -54,9 +54,7 @@ describe('MiloJeuneService', () => {
       const result = await miloJeuneService.callback(request, response)
 
       // Then
-      expect(result).to.deep.equal(
-        failure(new AuthError('Cookie/SessionNotFound'))
-      )
+      expect(result).to.deep.equal(failure(new AuthError('CallbackParams')))
     })
   })
 })

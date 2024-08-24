@@ -34,6 +34,7 @@ import {
   generateNewGrantId,
   getIdpConfig
 } from './helpers'
+import { decodeJwt } from 'jose'
 
 export abstract class IdpService {
   private idpName: string
@@ -100,14 +101,15 @@ export abstract class IdpService {
     let codeErreur = 'none'
     let sub = 'unknown'
     try {
+      codeErreur = 'CallbackParams'
+      const params = this.client.callbackParams(request)
+      sub = this.logTokenInfo(params)
+
       codeErreur = 'Cookie/SessionNotFound'
       const interactionDetails = await this.oidcService.interactionDetails(
         request,
         response
       )
-
-      codeErreur = 'CallbackParams'
-      const params = this.client.callbackParams(request)
 
       codeErreur = 'Callback'
       const tokenSet = await this.callbackWithRetry(
@@ -224,8 +226,9 @@ export abstract class IdpService {
             secure: true
           })
         }
+        this.logger.log('Success clearing session from cookies')
       } catch (e) {
-        this.logger.error(buildError('Fail to clear session from cookies', e))
+        this.logger.error(buildError('Fail clearing session from cookies', e))
       }
       return failure(new AuthError(codeErreur))
     }
@@ -295,5 +298,24 @@ export abstract class IdpService {
     const email = coordonnees?.email ?? userInfoFromIdToken.email
 
     return { nom, prenom, email }
+  }
+
+  private logTokenInfo(params?: CallbackParamsType): string {
+    let sub = 'unknown'
+    try {
+      if (params?.access_token) {
+        const decoded = decodeJwt(params?.access_token)
+        if (decoded) this.logger.log({ access_token: decoded })
+        if (decoded.sub) sub = decoded.sub
+      }
+      if (params?.id_token) {
+        const decoded = decodeJwt(params?.id_token)
+        if (decoded) this.logger.log({ id_token: decoded })
+        if (decoded.sub) sub = decoded.sub
+      }
+    } catch (e) {
+      this.logger.log(buildError('Error decoding token from params', e))
+    }
+    return sub
   }
 }

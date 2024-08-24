@@ -59,9 +59,7 @@ describe('FrancetravailConseillerBRSAService', () => {
       )
 
       // Then
-      expect(result).to.deep.equal(
-        failure(new AuthError('Cookie/SessionNotFound'))
-      )
+      expect(result).to.deep.equal(failure(new AuthError('CallbackParams')))
     })
   })
 })

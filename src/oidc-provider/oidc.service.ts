@@ -382,26 +382,30 @@ export class OidcService {
       this.tokenExchangeGrant.handler,
       tokenExchangeParameters
     )
-    // this.oidc.on('grant.revoked', async ctx => {
-    //   if (ctx?.oidc?.entities?.Session) {
-    //     await ctx.oidc.entities.Session.destroy()
-    //   }
-    // })
-    // this.oidc.on('end_session.success', async ctx => {
-    //   if (ctx?.oidc?.entities?.Session) {
-    //     await ctx.oidc.entities.Session.destroy()
-    //   }
-    // })
-    // this.oidc.on('end_session.error', async ctx => {
-    //   if (ctx?.oidc?.entities?.Session) {
-    //     await ctx.oidc.entities.Session.destroy()
-    //   }
-    // })
-    // this.oidc.on('authorization.error', async ctx => {
-    //   if (ctx?.oidc?.entities?.Session) {
-    //     await ctx.oidc.entities.Session.destroy()
-    //   }
-    // })
+    this.oidc.on('grant.revoked', async _ctx => {
+      this.logger.warn('grant.revoked event')
+      // if (ctx?.oidc?.entities?.Session) {
+      //   await ctx.oidc.entities.Session.destroy()
+      // }
+    })
+    this.oidc.on('end_session.success', async _ctx => {
+      this.logger.warn('end_session.success event')
+      // if (ctx?.oidc?.entities?.Session) {
+      //   await ctx.oidc.entities.Session.destroy()
+      // }
+    })
+    this.oidc.on('end_session.error', async _ctx => {
+      this.logger.warn('end_session.error event')
+      // if (ctx?.oidc?.entities?.Session) {
+      //   await ctx.oidc.entities.Session.destroy()
+      // }
+    })
+    this.oidc.on('authorization.error', async _ctx => {
+      this.logger.warn('authorization.error event')
+      // if (ctx?.oidc?.entities?.Session) {
+      //   await ctx.oidc.entities.Session.destroy()
+      // }
+    })
     this.oidc.proxy = true
   }
 
