@@ -66,7 +66,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=FRANCE_TRAVAIL'
           )
 
         expect(
@@ -103,7 +103,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI'
           )
 
         expect(
@@ -138,7 +138,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_BRSA'
           )
 
         expect(
@@ -173,7 +173,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_AIJ'
           )
 
         expect(
@@ -212,7 +212,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=FRANCE_TRAVAIL'
           )
 
         expect(
@@ -246,7 +246,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI'
           )
 
         expect(francetravailJeuneCEJService.callback).to.have.been.calledOnce()
@@ -278,7 +278,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NON_TROUVE&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_BRSA'
           )
 
         expect(francetravailBRSAService.callback).to.have.been.calledOnce()
@@ -310,7 +310,7 @@ describe('FrancetravailJeuneController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=JEUNE&structureUtilisateur=POLE_EMPLOI_AIJ'
           )
 
         expect(francetravailAIJService.callback).to.have.been.calledOnce()

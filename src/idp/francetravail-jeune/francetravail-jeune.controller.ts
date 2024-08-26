@@ -39,9 +39,11 @@ export class FrancetravailJeuneController {
     @Query() ftQueryParams: { type: string }
   ): Promise<{ url: string } | void> {
     let authorizationUrlResult
+    let structure: User.Structure
 
     switch (ftQueryParams.type) {
       case 'aij':
+        structure = User.Structure.POLE_EMPLOI_AIJ
         authorizationUrlResult =
           this.francetravailAIJService.getAuthorizationUrl(
             interactionId,
@@ -49,6 +51,7 @@ export class FrancetravailJeuneController {
           )
         break
       case 'brsa':
+        structure = User.Structure.POLE_EMPLOI_BRSA
         authorizationUrlResult =
           this.francetravailBRSAService.getAuthorizationUrl(
             interactionId,
@@ -56,6 +59,7 @@ export class FrancetravailJeuneController {
           )
         break
       case 'cej':
+        structure = User.Structure.POLE_EMPLOI_CEJ
         authorizationUrlResult =
           this.francetravailJeuneCEJService.getAuthorizationUrl(
             interactionId,
@@ -64,6 +68,7 @@ export class FrancetravailJeuneController {
         break
       case 'ft-beneficiaire':
       default:
+        structure = User.Structure.FRANCE_TRAVAIL
         authorizationUrlResult =
           this.francetravailBeneficiaireService.getAuthorizationUrl(
             interactionId,
@@ -72,7 +77,12 @@ export class FrancetravailJeuneController {
     }
 
     if (isFailure(authorizationUrlResult))
-      return redirectFailure(response, authorizationUrlResult, User.Type.JEUNE)
+      return redirectFailure(
+        response,
+        authorizationUrlResult,
+        User.Type.JEUNE,
+        structure
+      )
 
     return {
       url: authorizationUrlResult.data
@@ -86,15 +96,19 @@ export class FrancetravailJeuneController {
   ): Promise<{ url: string } | void> {
     const ftType = request.query.state
     let result
+    let structure: User.Structure
 
     switch (ftType) {
       case 'aij':
+        structure = User.Structure.POLE_EMPLOI_AIJ
         result = await this.francetravailAIJService.callback(request, response)
         break
       case 'brsa':
+        structure = User.Structure.POLE_EMPLOI_BRSA
         result = await this.francetravailBRSAService.callback(request, response)
         break
       case 'cej':
+        structure = User.Structure.POLE_EMPLOI_CEJ
         result = await this.francetravailJeuneCEJService.callback(
           request,
           response
@@ -102,6 +116,7 @@ export class FrancetravailJeuneController {
         break
       case 'ft-beneficiaire':
       default:
+        structure = User.Structure.FRANCE_TRAVAIL
         result = await this.francetravailBeneficiaireService.callback(
           request,
           response
@@ -109,6 +124,6 @@ export class FrancetravailJeuneController {
         break
     }
     if (isFailure(result))
-      return redirectFailure(response, result, User.Type.JEUNE)
+      return redirectFailure(response, result, User.Type.JEUNE, structure)
   }
 }

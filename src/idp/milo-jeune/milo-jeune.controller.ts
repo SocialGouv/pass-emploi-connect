@@ -31,7 +31,12 @@ export class MiloJeuneController {
     const authorizationUrlResult =
       this.miloJeuneService.getAuthorizationUrl(interactionId)
     if (isFailure(authorizationUrlResult))
-      return redirectFailure(response, authorizationUrlResult, User.Type.JEUNE)
+      return redirectFailure(
+        response,
+        authorizationUrlResult,
+        User.Type.JEUNE,
+        User.Structure.MILO
+      )
     return {
       url: authorizationUrlResult.data
     }
@@ -44,6 +49,11 @@ export class MiloJeuneController {
   ): Promise<{ url: string } | void> {
     const result = await this.miloJeuneService.callback(request, response)
     if (isFailure(result))
-      return redirectFailure(response, result, User.Type.JEUNE)
+      return redirectFailure(
+        response,
+        result,
+        User.Type.JEUNE,
+        User.Structure.MILO
+      )
   }
 }
