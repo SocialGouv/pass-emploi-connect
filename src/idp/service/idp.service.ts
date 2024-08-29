@@ -2,19 +2,20 @@ import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { Request, Response } from 'express'
+import { decodeJwt } from 'jose'
 import { InteractionResults } from 'oidc-provider'
 import {
+  AuthorizationParameters,
   BaseClient,
   CallbackParamsType,
   Issuer,
-  TokenSet,
   UserinfoResponse
 } from 'openid-client'
 import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { IdpConfig } from '../../config/configuration'
 import { Account } from '../../domain/account'
-import { User, estBeneficiaireFT, estConseillerFT } from '../../domain/user'
+import { User, estBeneficiaireFT } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService, TokenType } from '../../token/token.service'
 import { getAPMInstance } from '../../utils/monitoring/apm.init'
@@ -34,7 +35,6 @@ import {
   generateNewGrantId,
   getIdpConfig
 } from './helpers'
-import { decodeJwt } from 'jose'
 
 export abstract class IdpService {
   private idpName: string
@@ -43,7 +43,6 @@ export abstract class IdpService {
   private userStructure: User.Structure
   private idp: IdpConfig
   private client: BaseClient
-  private backupClient: BaseClient
   protected apmService: APM.Agent
 
   constructor(
@@ -68,25 +67,19 @@ export abstract class IdpService {
 
     const issuer = new Issuer(issuerConfig)
     this.client = new issuer.Client(clientConfig)
-
-    if (estConseillerFT(userType, userStructure)) {
-      const backupIssuerConfig = createIdpIssuerConfig({
-        ...this.idp,
-        issuer: this.idp.backupIssuer!
-      })
-      const ftBackupIssuer = new Issuer(backupIssuerConfig)
-      this.backupClient = new ftBackupIssuer.Client(clientConfig)
-    }
   }
 
   getAuthorizationUrl(interactionId: string, state?: string): Result<string> {
     try {
-      const url = this.client.authorizationUrl({
+      const params: AuthorizationParameters = {
         nonce: interactionId,
-        realm: this.idp.realm,
         scope: this.idp.scopes,
         state
-      })
+      }
+      if (this.idp.realm) {
+        params.realm = this.idp.realm
+      }
+      const url = this.client.authorizationUrl(params)
       return success(url)
     } catch (e) {
       this.apmService.captureError(e)
@@ -112,16 +105,23 @@ export abstract class IdpService {
       )
 
       codeErreur = 'Callback'
-      const tokenSet = await this.callbackWithRetry(
-        request,
+      const tokenSet = await this.client.callback(
+        this.idp.redirectUri,
         params,
-        interactionDetails.uid
+        {
+          nonce: interactionDetails.uid,
+          state: request.query.state
+            ? (request.query.state as string)
+            : undefined
+        }
       )
 
       codeErreur = 'UserInfo'
-      const userInfo = await this.client.userinfo(tokenSet, {
-        params: { realm: this.idp.realm }
-      })
+      let userInfoOptions
+      if (this.idp.realm) {
+        userInfoOptions = { params: { realm: this.idp.realm } }
+      }
+      const userInfo = await this.client.userinfo(tokenSet, userInfoOptions)
 
       codeErreur = 'Coordonnees'
       const { nom, prenom, email } = await this.getCoordonnees(
@@ -232,48 +232,6 @@ export abstract class IdpService {
       }
       return failure(new AuthError(codeErreur))
     }
-  }
-
-  private async callbackWithRetry(
-    request: Request,
-    params: CallbackParamsType,
-    nonce: string
-  ): Promise<TokenSet> {
-    try {
-      const tokenSet = await this.callbackWithoutRetry(
-        request,
-        params,
-        nonce,
-        this.client
-      )
-      return tokenSet
-    } catch (e) {
-      if (estConseillerFT(this.userType, this.userStructure)) {
-        this.logger.error(buildError('PB Conseiller FT', e))
-        this.apmService.captureError(e)
-        return this.callbackWithoutRetry(
-          request,
-          params,
-          nonce,
-          this.backupClient
-        )
-      }
-      this.logger.error(buildError('PB callback', e))
-      this.apmService.captureError(e)
-      throw e
-    }
-  }
-
-  private async callbackWithoutRetry(
-    request: Request,
-    params: CallbackParamsType,
-    nonce: string,
-    client: BaseClient
-  ): Promise<TokenSet> {
-    return client.callback(this.idp.redirectUri, params, {
-      nonce,
-      state: request.query.state ? (request.query.state as string) : undefined
-    })
   }
 
   private async getCoordonnees(

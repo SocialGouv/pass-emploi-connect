@@ -14,7 +14,6 @@ export enum IdpConfigIdentifier {
 
 export interface IdpConfig {
   issuer: string
-  backupIssuer?: string
   realm?: string
   authorizationUrl: string
   tokenUrl: string
@@ -109,7 +108,7 @@ export default () => {
     idps: {
       francetravailBeneficiaire: {
         issuer: process.env.IDP_FT_JEUNE_ISSUER!,
-        realm: process.env.IDP_FT_JEUNE_REALM!,
+        realm: process.env.IDP_FT_JEUNE_REALM,
         authorizationUrl: process.env.IDP_FT_JEUNE_AUTHORIZATION_URL!,
         tokenUrl: process.env.IDP_FT_JEUNE_TOKEN_URL!,
         jwks: process.env.IDP_FT_JEUNE_JWKS!,
@@ -128,8 +127,6 @@ export default () => {
       },
       francetravailConseiller: {
         issuer: process.env.IDP_FT_CONSEILLER_ISSUER!,
-        backupIssuer: process.env.IDP_FT_CONSEILLER_BACKUP_ISSUER!,
-        realm: process.env.IDP_FT_CONSEILLER_REALM!,
         authorizationUrl: process.env.IDP_FT_CONSEILLER_AUTHORIZATION_URL!,
         tokenUrl: process.env.IDP_FT_CONSEILLER_TOKEN_URL!,
         jwks: process.env.IDP_FT_CONSEILLER_JWKS!,
