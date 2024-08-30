@@ -98,7 +98,7 @@ export abstract class IdpService {
       const params = this.client.callbackParams(request)
       sub = this.logTokenInfo(params)
 
-      codeErreur = 'Cookie/SessionNotFound'
+      codeErreur = 'SessionNotFound'
       const interactionDetails = await this.oidcService.interactionDetails(
         request,
         response
@@ -214,7 +214,7 @@ export abstract class IdpService {
         sub
       })
       try {
-        if (codeErreur === 'Cookie/SessionNotFound') {
+        if (codeErreur === 'SessionNotFound') {
           const sessionId = request.cookies['_session']
           const session = await this.oidcService
             .getProvider()
