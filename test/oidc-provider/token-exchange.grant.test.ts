@@ -9,6 +9,7 @@ import { ValidateJWTUsecase } from '../../src/token/verify-jwt.usecase'
 import { StubbedClass, createSandbox, stubClass } from '../test-utils'
 import { unAccount, unTokenData } from '../test-utils/fixtures'
 import { JWTError, NonTrouveError } from '../../src/utils/result/error'
+import { User } from '../../src/domain/user'
 
 describe('TokenExchangeGrant', () => {
   let tokenExchangeGrant: TokenExchangeGrant
@@ -58,6 +59,47 @@ describe('TokenExchangeGrant', () => {
       })
       expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
         account: unAccount({ sub: 'id-auth' })
+      })
+      expect(context.body).to.deep.equal({
+        issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+        access_token: tokenData.token,
+        token_type: 'bearer',
+        expires_in: tokenData.expiresIn,
+        scope: tokenData.scope
+      })
+    })
+    it('exchange le token pour un sub different', async () => {
+      // Given
+      const context = {
+        oidc: {
+          params: { subject_token: 'tok', requested_token_sub: 'sub_jeune' }
+        },
+        body: {}
+      }
+      validateJWTUsecase.execute.resolves(
+        success({
+          sub: 'CONSEILLER|MILO|id-auth',
+          userType: 'CONSEILLER',
+          userStructure: 'MILO'
+        })
+      )
+      const tokenData = unTokenData()
+      getAccessTokenUsecase.execute.resolves(success(tokenData))
+
+      // When
+      await tokenExchangeGrant.handler(
+        context as unknown as KoaContextWithOIDC,
+        () => {
+          return Promise.resolve()
+        }
+      )
+
+      // Then
+      expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+        token: 'tok'
+      })
+      expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
+        account: unAccount({ sub: 'sub_jeune', type: User.Type.JEUNE })
       })
       expect(context.body).to.deep.equal({
         issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
