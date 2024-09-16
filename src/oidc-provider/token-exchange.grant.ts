@@ -21,7 +21,8 @@ export const parameters = new Set([
   'audience', // optional
   'scope', // optional :
   'actor_token', // optional : probablement inutile
-  'actor_token_type' // optional : probablement inutile
+  'actor_token_type', // optional : probablement inutile
+  'requested_token_sub' // si on veut récupérer un token pour un autre utilisateur, préciser son sub
 ])
 
 @Injectable()
@@ -69,6 +70,17 @@ export class TokenExchangeGrant {
       type: tokenPayloadResult.data.userType! as User.Type,
       structure: tokenPayloadResult.data.userStructure! as User.Structure
     }
+
+    const requestedTokenSub = context.oidc?.params
+      ?.requested_token_sub as string
+    const isConseiller = account.type === User.Type.CONSEILLER
+
+    // Getting access token for a specific sub
+    if (requestedTokenSub && isConseiller) {
+      account.sub = requestedTokenSub
+      account.type = User.Type.JEUNE
+    }
+
     const resultTokenData = await this.getAccessTokenUsecase.execute({
       account
     })
