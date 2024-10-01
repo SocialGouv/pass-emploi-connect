@@ -1,49 +1,49 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
-import { ConseillerDeptService } from '../../../src/idp/conseiller-dept/conseiller-dept.service'
-import { AuthError } from '../../../src/utils/result/error'
-import {
-  emptySuccess,
-  failure,
-  success
-} from '../../../src/utils/result/result'
-import { StubbedClass, expect } from '../../test-utils'
-import { getApplicationWithStubbedDependencies } from '../../test-utils/module-for-testing'
+import { ConseilDepartementalConseillerService } from 'src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
+import { AuthError } from 'src/utils/result/error'
+import { emptySuccess, failure, success } from 'src/utils/result/result'
+import { expect, StubbedClass } from 'test/test-utils'
+import { getApplicationWithStubbedDependencies } from 'test/test-utils/module-for-testing'
 
 describe('MiloConseillerController', () => {
-  let conseillerDeptService: StubbedClass<ConseillerDeptService>
+  let conseilDepartementalConseillerService: StubbedClass<ConseilDepartementalConseillerService>
   let app: INestApplication
   before(async () => {
     app = await getApplicationWithStubbedDependencies()
 
-    conseillerDeptService = app.get(ConseillerDeptService)
+    conseilDepartementalConseillerService = app.get(
+      ConseilDepartementalConseillerService
+    )
   })
 
-  describe('GET /conseiller-dept/connect/:interactionId', () => {
+  describe('GET /conseildepartemental-conseiller/connect/:interactionId', () => {
     describe('CEJ', () => {
       it('renvoie une url quand tout va bien', async () => {
         // Given
-        conseillerDeptService.getAuthorizationUrl.returns(success('une-url'))
+        conseilDepartementalConseillerService.getAuthorizationUrl.returns(
+          success('une-url')
+        )
 
         // When - Then
         await request(app.getHttpServer())
-          .get('/conseiller-dept/connect/interactionId')
+          .get('/conseildepartemental-conseiller/connect/interactionId')
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect('Location', 'une-url')
 
         expect(
-          conseillerDeptService.getAuthorizationUrl
+          conseilDepartementalConseillerService.getAuthorizationUrl
         ).to.have.been.calledOnceWithExactly('interactionId')
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
-        conseillerDeptService.getAuthorizationUrl.returns(
+        conseilDepartementalConseillerService.getAuthorizationUrl.returns(
           failure(new AuthError('NO_REASON'))
         )
 
         // When - Then
         await request(app.getHttpServer())
-          .get('/conseiller-dept/connect/interactionId')
+          .get('/conseildepartemental-conseiller/connect/interactionId')
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
@@ -51,41 +51,49 @@ describe('MiloConseillerController', () => {
           )
 
         expect(
-          conseillerDeptService.getAuthorizationUrl
+          conseilDepartementalConseillerService.getAuthorizationUrl
         ).to.have.been.calledOnceWithExactly('interactionId')
       })
     })
   })
 
-  describe('GET /auth/realms/pass-emploi/broker/conseiller-dept/endpoint', () => {
+  describe('GET /auth/realms/pass-emploi/broker/conseildepartemental-conseiller/endpoint', () => {
     describe('CEJ', () => {
       it('termine sans erreur quand tout va bien', async () => {
         // Given
-        conseillerDeptService.callback.resolves(emptySuccess())
+        conseilDepartementalConseillerService.callback.resolves(emptySuccess())
 
         // When - Then
         await request(app.getHttpServer())
-          .get('/auth/realms/pass-emploi/broker/conseiller-dept/endpoint')
+          .get(
+            '/auth/realms/pass-emploi/broker/conseildepartemental-conseiller/endpoint'
+          )
           .expect(HttpStatus.OK)
 
-        expect(conseillerDeptService.callback).to.have.been.calledOnce()
+        expect(
+          conseilDepartementalConseillerService.callback
+        ).to.have.been.calledOnce()
       })
       it('redirige vers le web en cas de failure', async () => {
         // Given
-        conseillerDeptService.callback.resolves(
+        conseilDepartementalConseillerService.callback.resolves(
           failure(new AuthError('NO_REASON'))
         )
 
         // When - Then
         await request(app.getHttpServer())
-          .get('/auth/realms/pass-emploi/broker/conseiller-dept/endpoint')
+          .get(
+            '/auth/realms/pass-emploi/broker/conseildepartemental-conseiller/endpoint'
+          )
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
             'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=CONSEIL_DEPT'
           )
 
-        expect(conseillerDeptService.callback).to.have.been.calledOnce()
+        expect(
+          conseilDepartementalConseillerService.callback
+        ).to.have.been.calledOnce()
       })
     })
   })

@@ -24,8 +24,8 @@ import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 import { stubClassSandbox } from './types'
 import { FrancetravailBeneficiaireService } from '../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
 import { Configuration } from '../../src/config/configuration'
-import { ConseillerDeptService } from '../../src/idp/conseiller-dept/conseiller-dept.service'
-import { ConseillerDeptController } from '../../src/idp/conseiller-dept/conseiller-dept.controller'
+import { ConseilDepartementalConseillerService } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
+import { ConseilDepartementalConseillerController } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.controller'
 dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1170
@@ -49,7 +49,7 @@ export function buildTestingModuleForHttpTesting(
       FrancetravailJeuneController,
       MiloJeuneController,
       MiloConseillerController,
-      ConseillerDeptController
+      ConseilDepartementalConseillerController
     ]
   })
 }
@@ -260,8 +260,8 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       useValue: stubClassSandbox(MiloJeuneService, sandbox)
     },
     {
-      provide: ConseillerDeptService,
-      useValue: stubClassSandbox(ConseillerDeptService, sandbox)
+      provide: ConseilDepartementalConseillerService,
+      useValue: stubClassSandbox(ConseilDepartementalConseillerService, sandbox)
     },
     {
       provide: DeleteAccountUsecase,

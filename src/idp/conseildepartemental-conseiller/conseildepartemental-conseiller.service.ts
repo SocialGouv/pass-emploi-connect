@@ -7,7 +7,7 @@ import { TokenService } from '../../token/token.service'
 import { IdpService } from '../service/idp.service'
 
 @Injectable()
-export class ConseillerDeptService extends IdpService {
+export class ConseilDepartementalConseillerService extends IdpService {
   constructor(
     configService: ConfigService,
     oidcService: OidcService,

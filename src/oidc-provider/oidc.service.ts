@@ -368,8 +368,8 @@ export class OidcService {
               return `/francetravail-conseiller/connect/${interaction.uid}?type=brsa`
             case 'pe-aij-conseiller':
               return `/francetravail-conseiller/connect/${interaction.uid}?type=aij`
-            case 'conseiller-dept':
-              return `/conseiller-dept/connect/${interaction.uid}`
+            case 'conseildepartemental-conseiller':
+              return `/conseildepartemental-conseiller/connect/${interaction.uid}`
             default:
               return `/choice/${interaction.uid}`
           }
