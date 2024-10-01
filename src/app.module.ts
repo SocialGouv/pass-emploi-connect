@@ -9,7 +9,7 @@ import { MiloJeuneModule } from './idp/milo-jeune/milo-jeune.module'
 import { configureLoggerModule } from './utils/monitoring/logger.module'
 import { TerminusModule } from '@nestjs/terminus'
 import { AccountModule } from './account/account.module'
-import { ConseillerDeptModule } from './idp/conseiller-dept/conseiller-dept.module'
+import { ConseilDepartementalConseillerModule } from './idp/conseildepartemental-conseiller/conseildepartemental-conseiller.module'
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { ConseillerDeptModule } from './idp/conseiller-dept/conseiller-dept.modu
     FrancetravailConseillerModule,
     MiloConseillerModule,
     MiloJeuneModule,
-    ConseillerDeptModule,
+    ConseilDepartementalConseillerModule,
     AccountModule
   ],
   controllers: [AppController]

@@ -11,25 +11,29 @@ import {
 import { Request, Response } from 'express'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
-import { ConseillerDeptService } from './conseiller-dept.service'
+import { ConseilDepartementalConseillerService } from './conseildepartemental-conseiller.service'
 import { User } from '../../domain/user'
 
 @Controller()
-export class ConseillerDeptController {
+export class ConseilDepartementalConseillerController {
   private readonly logger: Logger
 
-  constructor(private readonly conseillerDeptService: ConseillerDeptService) {
-    this.logger = new Logger('ConseillerDeptController')
+  constructor(
+    private readonly conseilDepartementalConseillerService: ConseilDepartementalConseillerService
+  ) {
+    this.logger = new Logger('ConseilDepartementalConseiller')
   }
 
-  @Get('conseiller-dept/connect/:interactionId')
+  @Get('conseildepartemental-conseiller/connect/:interactionId')
   @Redirect('blank', HttpStatus.TEMPORARY_REDIRECT)
   async connect(
     @Res({ passthrough: true }) response: Response,
     @Param('interactionId') interactionId: string
   ): Promise<{ url: string } | void> {
     const authorizationUrlResult =
-      this.conseillerDeptService.getAuthorizationUrl(interactionId)
+      this.conseilDepartementalConseillerService.getAuthorizationUrl(
+        interactionId
+      )
     if (isFailure(authorizationUrlResult))
       return redirectFailure(
         response,
@@ -42,12 +46,17 @@ export class ConseillerDeptController {
     }
   }
 
-  @Get('auth/realms/pass-emploi/broker/conseiller-dept/endpoint')
+  @Get(
+    'auth/realms/pass-emploi/broker/conseildepartemental-conseiller/endpoint'
+  )
   async callback(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
-    const result = await this.conseillerDeptService.callback(request, response)
+    const result = await this.conseilDepartementalConseillerService.callback(
+      request,
+      response
+    )
     if (isFailure(result))
       return redirectFailure(
         response,
