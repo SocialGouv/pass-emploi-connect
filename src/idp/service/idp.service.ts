@@ -2,12 +2,10 @@ import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as APM from 'elastic-apm-node'
 import { Request, Response } from 'express'
-import { decodeJwt } from 'jose'
 import { InteractionResults } from 'oidc-provider'
 import {
   AuthorizationParameters,
   BaseClient,
-  CallbackParamsType,
   Issuer,
   UserinfoResponse
 } from 'openid-client'
@@ -96,9 +94,9 @@ export abstract class IdpService {
     try {
       codeErreur = 'CallbackParams'
       const params = this.client.callbackParams(request)
-      sub = this.logTokenInfo(params)
 
       codeErreur = 'SessionNotFound'
+
       const interactionDetails = await this.oidcService.interactionDetails(
         request,
         response
@@ -213,22 +211,33 @@ export abstract class IdpService {
         codeErreur,
         sub
       })
-      try {
-        if (codeErreur === 'SessionNotFound') {
-          const sessionId = request.cookies['_session']
-          const session = await this.oidcService
-            .getProvider()
-            .Session.find(sessionId)
-          if (session) await session.destroy()
-          response.clearCookie('_session', { httpOnly: true, secure: true })
-          response.clearCookie('.session.legacy', {
-            httpOnly: true,
-            secure: true
-          })
-          this.logger.log('Success clearing session from cookies')
-        }
-      } catch (e) {
-        this.logger.error(buildError('Fail clearing session from cookies', e))
+
+      if (codeErreur === 'SessionNotFound') {
+        response.clearCookie('_session', { httpOnly: true, secure: true })
+        response.clearCookie('_session.legacy', {
+          httpOnly: true,
+          secure: true
+        })
+        response.clearCookie('_interaction', { httpOnly: true, secure: true })
+        response.clearCookie('_interaction.legacy', {
+          httpOnly: true,
+          secure: true
+        })
+        this.logger.warn('SessionNotFound: cookies cleared')
+
+        // const sessionId = request.headers.cookie
+        //   ? parse(request.headers.cookie)['_session']
+        //   : undefined
+
+        // if (sessionId) {
+        //   const session = await this.oidcService
+        //     .getProvider()
+        //     .Session.find(sessionId)
+        //   if (session) {
+        //     await session.destroy()
+        //     this.logger.warn('SessionNotFound: session found and destroyed')
+        //   }
+        // }
       }
       return failure(new AuthError(codeErreur))
     }
@@ -256,24 +265,5 @@ export abstract class IdpService {
     const email = coordonnees?.email ?? userInfoFromIdToken.email
 
     return { nom, prenom, email }
-  }
-
-  private logTokenInfo(params?: CallbackParamsType): string {
-    let sub = 'unknown'
-    try {
-      if (params?.access_token) {
-        const decoded = decodeJwt(params?.access_token)
-        if (decoded) this.logger.log({ access_token: decoded })
-        if (decoded.sub) sub = decoded.sub
-      }
-      if (params?.id_token) {
-        const decoded = decodeJwt(params?.id_token)
-        if (decoded) this.logger.log({ id_token: decoded })
-        if (decoded.sub) sub = decoded.sub
-      }
-    } catch (e) {
-      this.logger.log(buildError('Error decoding token from params', e))
-    }
-    return sub
   }
 }

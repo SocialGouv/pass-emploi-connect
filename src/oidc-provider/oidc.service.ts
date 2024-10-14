@@ -62,10 +62,10 @@ export class OidcService {
         // Les autorisations accordés dans le Grant sont valables pour tout les access obtenus à partir d'une même refresh, sans limite de temps supplémentaire (donc ISO refresh)
         Grant: 3600 * 24 * 42,
         Session: 3600 * 24 * 42,
-        AccessToken: 60 * 60 * 24 * 5,
-        IdToken: 60 * 60 * 24 * 5,
+        AccessToken: 60 * 60 * 24,
+        IdToken: 60 * 60 * 24,
         // Quand un IDP fait du 2FA avec SMS, on considère qu'un SMS peut mettre jusqu'à 10min pour arriver, on rajoute donc une marge dessus parce qu'il y a des écrans et actions à faire avant et après, ça donne 12 à 15 min
-        Interaction: 60 * 15
+        Interaction: 60 * 60
       },
       issueRefreshToken: async function issueRefreshToken(_ctx, client, _code) {
         return client.grantTypeAllowed('refresh_token')
@@ -382,30 +382,7 @@ export class OidcService {
       this.tokenExchangeGrant.handler,
       tokenExchangeParameters
     )
-    this.oidc.on('grant.revoked', async _ctx => {
-      this.logger.warn('grant.revoked event')
-      // if (ctx?.oidc?.entities?.Session) {
-      //   await ctx.oidc.entities.Session.destroy()
-      // }
-    })
-    this.oidc.on('end_session.success', async _ctx => {
-      this.logger.warn('end_session.success event')
-      // if (ctx?.oidc?.entities?.Session) {
-      //   await ctx.oidc.entities.Session.destroy()
-      // }
-    })
-    this.oidc.on('end_session.error', async _ctx => {
-      this.logger.warn('end_session.error event')
-      // if (ctx?.oidc?.entities?.Session) {
-      //   await ctx.oidc.entities.Session.destroy()
-      // }
-    })
-    this.oidc.on('authorization.error', async _ctx => {
-      this.logger.warn('authorization.error event')
-      // if (ctx?.oidc?.entities?.Session) {
-      //   await ctx.oidc.entities.Session.destroy()
-      // }
-    })
+
     this.oidc.proxy = true
   }
 
