@@ -3327,13 +3327,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "cookie@npm:1.0.1"
-  checksum: 10/4b24d4fad5ba94ab76d74a8fc33ae1dcdb5dc02013e03e9577b26f019d9dfe396ffb9b3711ba1726bcfa1b93c33d117db0f31e187838aed7753dee1abc691688
-  languageName: node
-  linkType: hard
-
 "cookiejar@npm:^2.1.4":
   version: 2.1.4
   resolution: "cookiejar@npm:2.1.4"
@@ -7463,7 +7456,6 @@ __metadata:
     chai: "npm:^4.4.1"
     chai-as-promised: "npm:^7.1.2"
     chai-exclude: "npm:^2.1.0"
-    cookie: "npm:^1.0.1"
     dirty-chai: "npm:^2.0.1"
     dotvault: "npm:^0.0.9"
     elastic-apm-node: "npm:3.51.0"
