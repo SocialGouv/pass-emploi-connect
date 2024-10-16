@@ -5841,17 +5841,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^4.15.9":
-  version: 4.15.9
-  resolution: "jose@npm:4.15.9"
-  checksum: 10/256234b6f85cdc080b1331f2d475bd58c8ccf459cb20f70ac5e4200b271bce10002b1c2f8e5b96dd975d83065ae5a586d52cdf89d28471d56de5d297992f9905
-  languageName: node
-  linkType: hard
-
-"jose@npm:^5.2.4, jose@npm:^5.6.2":
-  version: 5.9.3
-  resolution: "jose@npm:5.9.3"
-  checksum: 10/9daf5511b8bfa184f1d6c265cdaf0a2b19e46f251d90703c6a5229ba76e5ac5fbd34626f263819569eb69a3f2cd2c37dab3b4fab9604258f468d343a784a9385
+"jose@npm:^5.2.4, jose@npm:^5.6.2, jose@npm:^5.9.4":
+  version: 5.9.4
+  resolution: "jose@npm:5.9.4"
+  checksum: 10/f7e7738b5714d85052622dcdda0f3e904bdb322ad766064fd492ed1ff94e29456728193dcc75286df99c4a0c62e694d64d4712ec0ea0eb5019c0a3638ad694a2
   languageName: node
   linkType: hard
 
@@ -7060,6 +7053,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"oauth4webapi@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "oauth4webapi@npm:3.1.1"
+  checksum: 10/3c62ed38bb5ea14761fc5f03031819417f8dce6743068ca308cd000316f23eb24decc2cfd8c49d9da5c253be500b46fe27460b1b8fe5fe14a96cb24b4cdfc77e
+  languageName: node
+  linkType: hard
+
 "object-assign@npm:^4, object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
@@ -7071,13 +7071,6 @@ __metadata:
   version: 1.0.0
   resolution: "object-filter-sequence@npm:1.0.0"
   checksum: 10/a5b8a5ca1bc1d89c20c9f2959073aeaac21d3981880306bab3e352e915f6aba26a03f08cf987306d6dd50cf21bb53af16eb8f1ef93a5cb9c2c32f92e13d6907b
-  languageName: node
-  linkType: hard
-
-"object-hash@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "object-hash@npm:2.2.0"
-  checksum: 10/dee06b6271bf5769ae5f1a7386fdd52c1f18aae9fcb0b8d4bb1232f2d743d06cb5b662be42378b60a1c11829f96f3f86834a16bbaa57a085763295fff8b93e27
   languageName: node
   linkType: hard
 
@@ -7209,15 +7202,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openid-client@npm:^5.6.5":
-  version: 5.7.0
-  resolution: "openid-client@npm:5.7.0"
+"openid-client@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "openid-client@npm:6.0.0"
   dependencies:
-    jose: "npm:^4.15.9"
-    lru-cache: "npm:^6.0.0"
-    object-hash: "npm:^2.2.0"
-    oidc-token-hash: "npm:^5.0.3"
-  checksum: 10/d30e70082e8ae5222b29977cd944c3aa6ebaa159bf294348b6ae5cbcc8c5db9e731f21815ce41a6ebe2ebf4c6a697e26cad0ea0fc22d59ee922d3f7d3cd4aa43
+    jose: "npm:^5.9.4"
+    oauth4webapi: "npm:^3.1.1"
+  checksum: 10/a30e852ebf611be634effc801acdd0197c7228583b7aec093b3dc9ec708e50968aa5d0aa783e1868999c12f94082323e376241d6d4d7ee2f300346a5c0ffbeef
   languageName: node
   linkType: hard
 
@@ -7477,7 +7468,7 @@ __metadata:
     nock: "npm:^13.5.4"
     nyc: "npm:^17.0.0"
     oidc-provider: "npm:^8.5.1"
-    openid-client: "npm:^5.6.5"
+    openid-client: "npm:^6.0.0"
     pino-http: "npm:^9.0.0"
     prettier: "npm:^2.8.0"
     reflect-metadata: "npm:^0.2.1"
