@@ -17,6 +17,7 @@ export const configurationSchema = Joi.object({
     .items(Joi.string().required())
     .min(1)
     .required(),
+  authorizedConseillersDept: Joi.array().items(Joi.string()).required(),
   cors: Joi.object({
     allowedOrigins: Joi.array().items(Joi.string())
   }),

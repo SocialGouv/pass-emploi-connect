@@ -55,3 +55,11 @@ export function estConseillerFT(
 ): boolean {
   return estConseiller(userType) && estFT(userStructure)
 }
+export function estConseillerDept(
+  userType: User.Type,
+  userStructure: User.Structure
+): boolean {
+  return (
+    estConseiller(userType) && userStructure === User.Structure.CONSEIL_DEPT
+  )
+}

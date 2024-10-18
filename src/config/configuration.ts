@@ -72,6 +72,9 @@ export default () => {
     authorizedApiKeys: process.env.AUTHORIZED_API_KEYS
       ? JSON.parse(process.env.AUTHORIZED_API_KEYS)
       : [],
+    authorizedConseillersDept: process.env.AUTHORIZED_CONSEILLERS_DEPT
+      ? JSON.parse(process.env.AUTHORIZED_CONSEILLERS_DEPT)
+      : [],
     redis: {
       url: process.env.REDIS_URL
     },

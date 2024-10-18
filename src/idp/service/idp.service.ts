@@ -13,7 +13,7 @@ import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { IdpConfig } from '../../config/configuration'
 import { Account } from '../../domain/account'
-import { User, estBeneficiaireFT } from '../../domain/user'
+import { User, estBeneficiaireFT, estConseillerDept } from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService, TokenType } from '../../token/token.service'
 import { getAPMInstance } from '../../utils/monitoring/apm.init'
@@ -125,6 +125,14 @@ export abstract class IdpService {
       const { nom, prenom, email } = await this.getCoordonnees(
         userInfo,
         tokenSet.access_token!
+      )
+
+      codeErreur = 'VerificationConseillerDepartemental'
+      verifierQueLUtilisateurEstUnConseillerDepartementalLegitime(
+        this.userType,
+        this.userStructure,
+        this.configService.get('authorizedConseillersDept')!,
+        email
       )
 
       codeErreur = 'ApiPassEmploi'
@@ -265,5 +273,18 @@ export abstract class IdpService {
     const email = coordonnees?.email ?? userInfoFromIdToken.email
 
     return { nom, prenom, email }
+  }
+}
+
+function verifierQueLUtilisateurEstUnConseillerDepartementalLegitime(
+  userType: User.Type,
+  userStructure: User.Structure,
+  authorizedList: string[],
+  email?: string
+): void {
+  if (estConseillerDept(userType, userStructure)) {
+    if (!email || !authorizedList.includes(email)) {
+      throw new Error('Conseiller Départemental non autorisé')
+    }
   }
 }
