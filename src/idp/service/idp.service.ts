@@ -231,21 +231,6 @@ export abstract class IdpService {
           httpOnly: true,
           secure: true
         })
-        this.logger.warn('SessionNotFound: cookies cleared')
-
-        // const sessionId = request.headers.cookie
-        //   ? parse(request.headers.cookie)['_session']
-        //   : undefined
-
-        // if (sessionId) {
-        //   const session = await this.oidcService
-        //     .getProvider()
-        //     .Session.find(sessionId)
-        //   if (session) {
-        //     await session.destroy()
-        //     this.logger.warn('SessionNotFound: session found and destroyed')
-        //   }
-        // }
       }
       return failure(new AuthError(codeErreur))
     }

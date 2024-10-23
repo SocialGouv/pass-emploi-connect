@@ -190,8 +190,7 @@ export class OidcService {
         </html>`
       },
       cookies: {
-        keys: ['my-secret-key'],
-        short: { path: '/' }
+        short: { path: '/', sameSite: 'none' }
       },
       adapter: (name: string) => new RedisAdapter(name, this.redisClient),
       findAccount: async (context, accountId: string) => {
