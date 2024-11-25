@@ -264,11 +264,12 @@ export abstract class IdpService {
 function verifierQueLUtilisateurEstUnConseillerDepartementalLegitime(
   userType: User.Type,
   userStructure: User.Structure,
-  authorizedList: string[],
+  _authorizedList: string[],
   email?: string
 ): void {
   if (estConseillerDept(userType, userStructure)) {
-    if (!email || !authorizedList.includes(email)) {
+    // TODO mettre en place vérification pattern
+    if (!email) {
       throw new Error('Conseiller Départemental non autorisé')
     }
   }
