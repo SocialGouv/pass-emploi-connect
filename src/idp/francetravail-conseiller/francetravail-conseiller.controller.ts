@@ -16,6 +16,7 @@ import { FrancetravailConseillerAIJService } from './francetravail-conseiller-ai
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
 import { User } from '../../domain/user'
+import { FrancetravailConseillerAvenirProService } from './francetravail-conseiller-avenirpro.service'
 
 @Controller()
 export class FrancetravailConseillerController {
@@ -24,7 +25,8 @@ export class FrancetravailConseillerController {
   constructor(
     private readonly francetravailConseillerCEJService: FrancetravailConseillerCEJService,
     private readonly francetravailConseillerAIJService: FrancetravailConseillerAIJService,
-    private readonly francetravailConseillerBRSAService: FrancetravailConseillerBRSAService
+    private readonly francetravailConseillerBRSAService: FrancetravailConseillerBRSAService,
+    private readonly francetravailConseillerAvenirProService: FrancetravailConseillerAvenirProService
   ) {
     this.logger = new Logger('FrancetravailConseillerController')
   }
@@ -40,6 +42,14 @@ export class FrancetravailConseillerController {
     let structure: User.Structure
 
     switch (ftQueryParams.type) {
+      case 'avenirpro':
+        structure = User.Structure.AVENIR_PRO
+        authorizationUrlResult =
+          this.francetravailConseillerAvenirProService.getAuthorizationUrl(
+            interactionId,
+            ftQueryParams.type
+          )
+        break
       case 'aij':
         structure = User.Structure.POLE_EMPLOI_AIJ
         authorizationUrlResult =
@@ -93,6 +103,13 @@ export class FrancetravailConseillerController {
       case 'aij':
         structure = User.Structure.POLE_EMPLOI_AIJ
         result = await this.francetravailConseillerAIJService.callback(
+          request,
+          response
+        )
+        break
+      case 'avenirpro':
+        structure = User.Structure.AVENIR_PRO
+        result = await this.francetravailConseillerAvenirProService.callback(
           request,
           response
         )

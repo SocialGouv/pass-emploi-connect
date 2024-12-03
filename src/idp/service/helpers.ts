@@ -49,6 +49,7 @@ function getIdpConfigIdentifier(
         case User.Structure.POLE_EMPLOI_BRSA:
         case User.Structure.POLE_EMPLOI_AIJ:
         case User.Structure.CONSEIL_DEPT:
+        case User.Structure.AVENIR_PRO:
           return IdpConfigIdentifier.FT_BENEFICIAIRE
       }
     case User.Type.CONSEILLER:
@@ -61,6 +62,7 @@ function getIdpConfigIdentifier(
         case User.Structure.POLE_EMPLOI_CEJ:
         case User.Structure.POLE_EMPLOI_BRSA:
         case User.Structure.POLE_EMPLOI_AIJ:
+        case User.Structure.AVENIR_PRO:
           return IdpConfigIdentifier.FT_CONSEILLER
       }
   }
