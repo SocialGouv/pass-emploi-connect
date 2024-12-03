@@ -8,13 +8,15 @@ import { FrancetravailConseillerAIJService } from './francetravail-conseiller-ai
 import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
 import { FrancetravailConseillerController } from './francetravail-conseiller.controller'
+import { FrancetravailConseillerAvenirProService } from './francetravail-conseiller-avenirpro.service'
 
 @Module({
   imports: [ConfigModule, OidcModule, TokenModule, APIModule],
   providers: [
     FrancetravailConseillerCEJService,
     FrancetravailConseillerAIJService,
-    FrancetravailConseillerBRSAService
+    FrancetravailConseillerBRSAService,
+    FrancetravailConseillerAvenirProService
   ],
   exports: [],
   controllers: [FrancetravailConseillerController]
