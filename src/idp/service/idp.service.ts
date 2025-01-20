@@ -114,6 +114,8 @@ export abstract class IdpService {
         }
       )
 
+      this.logger.log(JSON.stringify(tokenSet))
+
       codeErreur = 'UserInfo'
       let userInfoOptions
       if (this.idp.realm) {
