@@ -361,6 +361,8 @@ export class OidcService {
               return `/francetravail-jeune/connect/${interaction.uid}?type=aij`
             case 'ft-beneficiaire':
               return `/francetravail-jeune/connect/${interaction.uid}?type=ft-beneficiaire`
+            case 'ft-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=ft-conseiller`
             case 'pe-conseiller':
               return `/francetravail-conseiller/connect/${interaction.uid}?type=cej`
             case 'pe-brsa-conseiller':
