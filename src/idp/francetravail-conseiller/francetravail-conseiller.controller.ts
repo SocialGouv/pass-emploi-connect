@@ -76,14 +76,10 @@ export class FrancetravailConseillerController {
             ftQueryParams.type
           )
         break
-      case 'ft-conseiller':
       default:
         structure = User.Structure.FRANCE_TRAVAIL
         authorizationUrlResult =
-          this.francetravailConseillerService.getAuthorizationUrl(
-            interactionId,
-            ftQueryParams.type
-          )
+          this.francetravailConseillerService.getAuthorizationUrl(interactionId)
     }
 
     if (isFailure(authorizationUrlResult))
@@ -137,7 +133,6 @@ export class FrancetravailConseillerController {
           response
         )
         break
-      case 'ft-conseiller':
       default:
         structure = User.Structure.FRANCE_TRAVAIL
         result = await this.francetravailConseillerService.callback(
