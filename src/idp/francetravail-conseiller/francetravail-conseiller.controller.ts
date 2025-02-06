@@ -17,6 +17,7 @@ import { FrancetravailConseillerBRSAService } from './francetravail-conseiller-b
 import { FrancetravailConseillerCEJService } from './francetravail-conseiller-cej.service'
 import { User } from '../../domain/user'
 import { FrancetravailConseillerAvenirProService } from './francetravail-conseiller-avenirpro.service'
+import { FrancetravailConseillerService } from './francetravail-conseiller.service'
 
 @Controller()
 export class FrancetravailConseillerController {
@@ -26,7 +27,8 @@ export class FrancetravailConseillerController {
     private readonly francetravailConseillerCEJService: FrancetravailConseillerCEJService,
     private readonly francetravailConseillerAIJService: FrancetravailConseillerAIJService,
     private readonly francetravailConseillerBRSAService: FrancetravailConseillerBRSAService,
-    private readonly francetravailConseillerAvenirProService: FrancetravailConseillerAvenirProService
+    private readonly francetravailConseillerAvenirProService: FrancetravailConseillerAvenirProService,
+    private readonly francetravailConseillerService: FrancetravailConseillerService
   ) {
     this.logger = new Logger('FrancetravailConseillerController')
   }
@@ -67,7 +69,6 @@ export class FrancetravailConseillerController {
           )
         break
       case 'cej':
-      default:
         structure = User.Structure.POLE_EMPLOI_CEJ
         authorizationUrlResult =
           this.francetravailConseillerCEJService.getAuthorizationUrl(
@@ -75,6 +76,10 @@ export class FrancetravailConseillerController {
             ftQueryParams.type
           )
         break
+      default:
+        structure = User.Structure.FRANCE_TRAVAIL
+        authorizationUrlResult =
+          this.francetravailConseillerService.getAuthorizationUrl(interactionId)
     }
 
     if (isFailure(authorizationUrlResult))
@@ -122,9 +127,15 @@ export class FrancetravailConseillerController {
         )
         break
       case 'cej':
-      default:
         structure = User.Structure.POLE_EMPLOI_CEJ
         result = await this.francetravailConseillerCEJService.callback(
+          request,
+          response
+        )
+        break
+      default:
+        structure = User.Structure.FRANCE_TRAVAIL
+        result = await this.francetravailConseillerService.callback(
           request,
           response
         )

@@ -27,6 +27,7 @@ import { Configuration } from '../../src/config/configuration'
 import { ConseilDepartementalConseillerService } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
 import { ConseilDepartementalConseillerController } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.controller'
 import { FrancetravailConseillerAvenirProService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-avenirpro.service'
+import { FrancetravailConseillerService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.service'
 dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1170
@@ -223,6 +224,10 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
     {
       provide: PassEmploiAPIClient,
       useValue: stubClassSandbox(PassEmploiAPIClient, sandbox)
+    },
+    {
+      provide: FrancetravailConseillerService,
+      useValue: stubClassSandbox(FrancetravailConseillerService, sandbox)
     },
     {
       provide: FrancetravailConseillerCEJService,
