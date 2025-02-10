@@ -1,4 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
 import * as request from 'supertest'
 import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
@@ -22,6 +23,7 @@ describe('FrancetravailConseillerController', () => {
   let francetravailConseillerAIJService: StubbedClass<FrancetravailConseillerAIJService>
   let francetravailConseillerBRSAService: StubbedClass<FrancetravailConseillerBRSAService>
   let francetravailConseillerAccompagnementIntensifService: StubbedClass<FrancetravailConseillerAccompagnementIntensifService>
+  let francetravailConseillerAccompagnementGlobalService: StubbedClass<FrancetravailConseillerAccompagnementGlobalService>
   let app: INestApplication
   before(async () => {
     app = await getApplicationWithStubbedDependencies()
@@ -37,6 +39,9 @@ describe('FrancetravailConseillerController', () => {
     )
     francetravailConseillerAccompagnementIntensifService = app.get(
       FrancetravailConseillerAccompagnementIntensifService
+    )
+    francetravailConseillerAccompagnementGlobalService = app.get(
+      FrancetravailConseillerAccompagnementGlobalService
     )
   })
 
@@ -203,6 +208,55 @@ describe('FrancetravailConseillerController', () => {
         )
       })
     })
+
+    describe('Accompagnement global', () => {
+      it('renvoie une url quand tout va bien', async () => {
+        // Given
+        francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl.returns(
+          success('une-url')
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get(
+            '/francetravail-conseiller/connect/interactionId?type=accompagnement-global'
+          )
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'une-url')
+
+        expect(
+          francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly(
+          'interactionId',
+          'accompagnement-global'
+        )
+      })
+
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl.returns(
+          failure(new UtilisateurNonTraitable('NO_REASON'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get(
+            '/francetravail-conseiller/connect/interactionId?type=accompagnement-global'
+          )
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_GLOBAL'
+          )
+
+        expect(
+          francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly(
+          'interactionId',
+          'accompagnement-global'
+        )
+      })
+    })
   })
 
   describe('GET /auth/realms/pass-emploi/broker/pe-conseiller/endpoint', () => {
@@ -353,6 +407,46 @@ describe('FrancetravailConseillerController', () => {
 
         expect(
           francetravailConseillerAccompagnementIntensifService.callback
+        ).to.have.been.calledOnce()
+      })
+    })
+
+    describe('Accompagnement global', () => {
+      it('termine sans erreur quand tout va bien', async () => {
+        // Given
+        francetravailConseillerAccompagnementGlobalService.callback.resolves(
+          emptySuccess()
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'accompagnement-global' })
+          .expect(HttpStatus.OK)
+
+        expect(
+          francetravailConseillerAccompagnementGlobalService.callback
+        ).to.have.been.calledOnce()
+      })
+
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerAccompagnementGlobalService.callback.resolves(
+          failure(new UtilisateurNonTraitable('UTILISATEUR_INEXISTANT'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'accompagnement-global' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_ACCOMPAGNEMENT_GLOBAL'
+          )
+
+        expect(
+          francetravailConseillerAccompagnementGlobalService.callback
         ).to.have.been.calledOnce()
       })
     })

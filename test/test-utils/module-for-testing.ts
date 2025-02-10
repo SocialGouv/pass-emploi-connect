@@ -6,6 +6,7 @@ import { TerminusModule } from '@nestjs/terminus'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import * as dotenv from 'dotenv'
 import { createSandbox, SinonSandbox } from 'sinon'
+import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
 import { DeleteAccountUsecase } from '../../src/account/delete-account.usecase'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
@@ -263,6 +264,13 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       provide: FrancetravailConseillerAccompagnementIntensifService,
       useValue: stubClassSandbox(
         FrancetravailConseillerAccompagnementIntensifService,
+        sandbox
+      )
+    },
+    {
+      provide: FrancetravailConseillerAccompagnementGlobalService,
+      useValue: stubClassSandbox(
+        FrancetravailConseillerAccompagnementGlobalService,
         sandbox
       )
     },

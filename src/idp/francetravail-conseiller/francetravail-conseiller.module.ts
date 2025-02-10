@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 
 import { ConfigModule } from '@nestjs/config'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
+import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
 import { APIModule } from '../../api/api.module'
 import { OidcModule } from '../../oidc-provider/oidc.module'
 import { TokenModule } from '../../token/token.module'
@@ -20,7 +21,8 @@ import { FrancetravailConseillerService } from './francetravail-conseiller.servi
     FrancetravailConseillerAIJService,
     FrancetravailConseillerBRSAService,
     FrancetravailConseillerAvenirProService,
-    FrancetravailConseillerAccompagnementIntensifService
+    FrancetravailConseillerAccompagnementIntensifService,
+    FrancetravailConseillerAccompagnementGlobalService
   ],
   exports: [],
   controllers: [FrancetravailConseillerController]
