@@ -5,15 +5,22 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TerminusModule } from '@nestjs/terminus'
 import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import * as dotenv from 'dotenv'
-import { SinonSandbox, createSandbox } from 'sinon'
+import { createSandbox, SinonSandbox } from 'sinon'
+import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
 import { DeleteAccountUsecase } from '../../src/account/delete-account.usecase'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { AppController } from '../../src/app.controller'
+import { Configuration } from '../../src/config/configuration'
+import { ConseilDepartementalConseillerController } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.controller'
+import { ConseilDepartementalConseillerService } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
 import { FrancetravailConseillerAIJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-aij.service'
+import { FrancetravailConseillerAvenirProService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-avenirpro.service'
 import { FrancetravailConseillerBRSAService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-brsa.service'
 import { FrancetravailConseillerCEJService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
 import { FrancetravailConseillerController } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.controller'
+import { FrancetravailConseillerService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.service'
 import { FrancetravailAIJService } from '../../src/idp/francetravail-jeune/francetravail-aij.service'
+import { FrancetravailBeneficiaireService } from '../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
 import { FrancetravailBRSAService } from '../../src/idp/francetravail-jeune/francetravail-brsa.service'
 import { FrancetravailJeuneController } from '../../src/idp/francetravail-jeune/francetravail-jeune.controller'
 import { FrancetravailJeuneCEJService } from '../../src/idp/francetravail-jeune/francetravail-jeune.service'
@@ -22,12 +29,7 @@ import { MiloConseillerService } from '../../src/idp/milo-conseiller/milo-consei
 import { MiloJeuneController } from '../../src/idp/milo-jeune/milo-jeune.controller'
 import { MiloJeuneService } from '../../src/idp/milo-jeune/milo-jeune.service'
 import { stubClassSandbox } from './types'
-import { FrancetravailBeneficiaireService } from '../../src/idp/francetravail-jeune/francetravail-beneficiaire.service'
-import { Configuration } from '../../src/config/configuration'
-import { ConseilDepartementalConseillerService } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.service'
-import { ConseilDepartementalConseillerController } from '../../src/idp/conseildepartemental-conseiller/conseildepartemental-conseiller.controller'
-import { FrancetravailConseillerAvenirProService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller-avenirpro.service'
-import { FrancetravailConseillerService } from '../../src/idp/francetravail-conseiller/francetravail-conseiller.service'
+
 dotenv.config({ path: '.environment' })
 
 const IDP_FT_CONSEILLER_ACCESS_TOKEN_MAX_AGE = 1170
@@ -212,7 +214,7 @@ export const testConfig = (): ConfigService => {
 }
 
 const stubProviders = (sandbox: SinonSandbox): Provider[] => {
-  const providers: Provider[] = [
+  return [
     {
       provide: ConfigService,
       useValue: testConfig()
@@ -258,6 +260,13 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       useValue: stubClassSandbox(FrancetravailBRSAService, sandbox)
     },
     {
+      provide: FrancetravailConseillerAccompagnementIntensifService,
+      useValue: stubClassSandbox(
+        FrancetravailConseillerAccompagnementIntensifService,
+        sandbox
+      )
+    },
+    {
       provide: MiloConseillerService,
       useValue: stubClassSandbox(MiloConseillerService, sandbox)
     },
@@ -281,5 +290,4 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       useValue: stubClassSandbox(DeleteAccountUsecase, sandbox)
     }
   ]
-  return providers
 }

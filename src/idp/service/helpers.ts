@@ -29,9 +29,7 @@ export async function generateNewGrantId(
     configService.get('ressourceServer.scopes')!
   )
 
-  const newGrantId = await grant.save()
-
-  return newGrantId
+  return grant.save()
 }
 
 function getIdpConfigIdentifier(
@@ -41,30 +39,36 @@ function getIdpConfigIdentifier(
   switch (type) {
     case User.Type.JEUNE:
     case User.Type.BENEFICIAIRE:
-      switch (structure) {
-        case User.Structure.MILO:
-          return IdpConfigIdentifier.MILO_JEUNE
-        case User.Structure.FRANCE_TRAVAIL:
-        case User.Structure.POLE_EMPLOI_CEJ:
-        case User.Structure.POLE_EMPLOI_BRSA:
-        case User.Structure.POLE_EMPLOI_AIJ:
-        case User.Structure.CONSEIL_DEPT:
-        case User.Structure.AVENIR_PRO:
-          return IdpConfigIdentifier.FT_BENEFICIAIRE
-      }
+      return ((): IdpConfigIdentifier => {
+        switch (structure) {
+          case User.Structure.MILO:
+            return IdpConfigIdentifier.MILO_JEUNE
+          case User.Structure.FRANCE_TRAVAIL:
+          case User.Structure.POLE_EMPLOI_CEJ:
+          case User.Structure.POLE_EMPLOI_BRSA:
+          case User.Structure.POLE_EMPLOI_AIJ:
+          case User.Structure.CONSEIL_DEPT:
+          case User.Structure.AVENIR_PRO:
+          case User.Structure.FT_ACCOMPAGNEMENT_INTENSIF:
+            return IdpConfigIdentifier.FT_BENEFICIAIRE
+        }
+      })()
     case User.Type.CONSEILLER:
-      switch (structure) {
-        case User.Structure.MILO:
-          return IdpConfigIdentifier.MILO_CONSEILLER
-        case User.Structure.CONSEIL_DEPT:
-          return IdpConfigIdentifier.CONSEILLER_DEPT
-        case User.Structure.FRANCE_TRAVAIL:
-        case User.Structure.POLE_EMPLOI_CEJ:
-        case User.Structure.POLE_EMPLOI_BRSA:
-        case User.Structure.POLE_EMPLOI_AIJ:
-        case User.Structure.AVENIR_PRO:
-          return IdpConfigIdentifier.FT_CONSEILLER
-      }
+      return ((): IdpConfigIdentifier => {
+        switch (structure) {
+          case User.Structure.MILO:
+            return IdpConfigIdentifier.MILO_CONSEILLER
+          case User.Structure.CONSEIL_DEPT:
+            return IdpConfigIdentifier.CONSEILLER_DEPT
+          case User.Structure.FRANCE_TRAVAIL:
+          case User.Structure.POLE_EMPLOI_CEJ:
+          case User.Structure.POLE_EMPLOI_BRSA:
+          case User.Structure.POLE_EMPLOI_AIJ:
+          case User.Structure.AVENIR_PRO:
+          case User.Structure.FT_ACCOMPAGNEMENT_INTENSIF:
+            return IdpConfigIdentifier.FT_CONSEILLER
+        }
+      })()
   }
 }
 

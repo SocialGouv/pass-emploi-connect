@@ -25,7 +25,8 @@ export namespace User {
     POLE_EMPLOI_AIJ = 'POLE_EMPLOI_AIJ',
     FRANCE_TRAVAIL = 'FRANCE_TRAVAIL',
     CONSEIL_DEPT = 'CONSEIL_DEPT',
-    AVENIR_PRO = 'AVENIR_PRO'
+    AVENIR_PRO = 'AVENIR_PRO',
+    FT_ACCOMPAGNEMENT_INTENSIF = 'FT_ACCOMPAGNEMENT_INTENSIF'
   }
 }
 
@@ -34,7 +35,8 @@ function estFT(userStructure: User.Structure): boolean {
     User.Structure.POLE_EMPLOI_CEJ,
     User.Structure.POLE_EMPLOI_AIJ,
     User.Structure.POLE_EMPLOI_BRSA,
-    User.Structure.FRANCE_TRAVAIL
+    User.Structure.FRANCE_TRAVAIL,
+    User.Structure.FT_ACCOMPAGNEMENT_INTENSIF
   ].includes(userStructure)
 }
 function estConseiller(userType: User.Type): boolean {

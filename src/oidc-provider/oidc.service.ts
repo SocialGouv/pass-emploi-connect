@@ -29,7 +29,7 @@ export class OidcService {
   protected apmService: APM.Agent
 
   constructor(
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
     @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
     @Inject(RedisInjectionToken) private readonly redisClient: Redis,
     private readonly tokenExchangeGrant: TokenExchangeGrant,
@@ -373,6 +373,8 @@ export class OidcService {
               return `/francetravail-conseiller/connect/${interaction.uid}?type=avenirpro`
             case 'conseildepartemental-conseiller':
               return `/conseildepartemental-conseiller/connect/${interaction.uid}`
+            case 'ft-accompagnement-intensif-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=accompagnement-intensif`
             default:
               return `/choice/${interaction.uid}`
           }

@@ -10,6 +10,7 @@ import {
   Res
 } from '@nestjs/common'
 import { Request, Response } from 'express'
+import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
@@ -28,7 +29,8 @@ export class FrancetravailConseillerController {
     private readonly francetravailConseillerAIJService: FrancetravailConseillerAIJService,
     private readonly francetravailConseillerBRSAService: FrancetravailConseillerBRSAService,
     private readonly francetravailConseillerAvenirProService: FrancetravailConseillerAvenirProService,
-    private readonly francetravailConseillerService: FrancetravailConseillerService
+    private readonly francetravailConseillerService: FrancetravailConseillerService,
+    private readonly francetravailConseillerAccompagnementIntensifService: FrancetravailConseillerAccompagnementIntensifService
   ) {
     this.logger = new Logger('FrancetravailConseillerController')
   }
@@ -64,6 +66,15 @@ export class FrancetravailConseillerController {
         structure = User.Structure.POLE_EMPLOI_BRSA
         authorizationUrlResult =
           this.francetravailConseillerBRSAService.getAuthorizationUrl(
+            interactionId,
+            ftQueryParams.type
+          )
+        break
+      // TODO variabiliser
+      case 'accompagnement-intensif':
+        structure = User.Structure.FT_ACCOMPAGNEMENT_INTENSIF
+        authorizationUrlResult =
+          this.francetravailConseillerAccompagnementIntensifService.getAuthorizationUrl(
             interactionId,
             ftQueryParams.type
           )
@@ -126,6 +137,15 @@ export class FrancetravailConseillerController {
           response
         )
         break
+      case 'accompagnement-intensif':
+        structure = User.Structure.FT_ACCOMPAGNEMENT_INTENSIF
+        result =
+          await this.francetravailConseillerAccompagnementIntensifService.callback(
+            request,
+            response
+          )
+        break
+
       case 'cej':
         structure = User.Structure.POLE_EMPLOI_CEJ
         result = await this.francetravailConseillerCEJService.callback(
