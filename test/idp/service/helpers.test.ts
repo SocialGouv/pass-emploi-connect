@@ -91,6 +91,16 @@ describe('Helpers', () => {
       ).to.equal('ft-conseiller.com')
     })
 
+    it('renvoie francetravailConseiller pour CONSEILLER EQUIP’EMPLOI EQUIP’RECRUT', () => {
+      expect(
+        getIdpConfig(
+          configService,
+          User.Type.CONSEILLER,
+          User.Structure.FT_EQUIP_EMPLOI_RECRUT
+        ).issuer
+      ).to.equal('ft-conseiller.com')
+    })
+
     it('renvoie francetravailBeneficiaire pour BENEFICIAIRE FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(

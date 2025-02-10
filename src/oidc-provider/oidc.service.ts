@@ -377,6 +377,8 @@ export class OidcService {
               return `/francetravail-conseiller/connect/${interaction.uid}?type=accompagnement-intensif`
             case 'ft-accompagnement-global-conseiller':
               return `/francetravail-conseiller/connect/${interaction.uid}?type=accompagnement-global`
+            case 'ft-equip-emploi-recrut-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=equip-emploi-recrut`
             default:
               return `/choice/${interaction.uid}`
           }

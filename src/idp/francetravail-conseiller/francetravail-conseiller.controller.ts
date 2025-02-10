@@ -12,6 +12,7 @@ import {
 import { Request, Response } from 'express'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
 import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
+import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
 import { isFailure } from '../../utils/result/result'
 import { redirectFailure } from '../../utils/result/result.handler'
 import { FrancetravailConseillerAIJService } from './francetravail-conseiller-aij.service'
@@ -32,7 +33,8 @@ export class FrancetravailConseillerController {
     private readonly francetravailConseillerAvenirProService: FrancetravailConseillerAvenirProService,
     private readonly francetravailConseillerService: FrancetravailConseillerService,
     private readonly francetravailConseillerAccompagnementIntensifService: FrancetravailConseillerAccompagnementIntensifService,
-    private readonly francetravailConseillerAccompagnementGlobalService: FrancetravailConseillerAccompagnementGlobalService
+    private readonly francetravailConseillerAccompagnementGlobalService: FrancetravailConseillerAccompagnementGlobalService,
+    private readonly francetravailConseillerEquipEmploiRecrutService: FrancetravailConseillerEquipEmploiRecrutService
   ) {
     this.logger = new Logger('FrancetravailConseillerController')
   }
@@ -85,6 +87,14 @@ export class FrancetravailConseillerController {
         structure = User.Structure.FT_ACCOMPAGNEMENT_GLOBAL
         authorizationUrlResult =
           this.francetravailConseillerAccompagnementGlobalService.getAuthorizationUrl(
+            interactionId,
+            ftQueryParams.type
+          )
+        break
+      case 'equip-emploi-recrut':
+        structure = User.Structure.FT_EQUIP_EMPLOI_RECRUT
+        authorizationUrlResult =
+          this.francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl(
             interactionId,
             ftQueryParams.type
           )
@@ -159,6 +169,14 @@ export class FrancetravailConseillerController {
         structure = User.Structure.FT_ACCOMPAGNEMENT_GLOBAL
         result =
           await this.francetravailConseillerAccompagnementGlobalService.callback(
+            request,
+            response
+          )
+        break
+      case 'equip-emploi-recrut':
+        structure = User.Structure.FT_EQUIP_EMPLOI_RECRUT
+        result =
+          await this.francetravailConseillerEquipEmploiRecrutService.callback(
             request,
             response
           )

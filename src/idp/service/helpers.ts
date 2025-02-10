@@ -51,6 +51,7 @@ function getIdpConfigIdentifier(
           case User.Structure.AVENIR_PRO:
           case User.Structure.FT_ACCOMPAGNEMENT_INTENSIF:
           case User.Structure.FT_ACCOMPAGNEMENT_GLOBAL:
+          case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
             return IdpConfigIdentifier.FT_BENEFICIAIRE
         }
       })()
@@ -68,6 +69,7 @@ function getIdpConfigIdentifier(
           case User.Structure.AVENIR_PRO:
           case User.Structure.FT_ACCOMPAGNEMENT_INTENSIF:
           case User.Structure.FT_ACCOMPAGNEMENT_GLOBAL:
+          case User.Structure.FT_EQUIP_EMPLOI_RECRUT:
             return IdpConfigIdentifier.FT_CONSEILLER
         }
       })()

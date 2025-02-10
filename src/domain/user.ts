@@ -27,7 +27,8 @@ export namespace User {
     CONSEIL_DEPT = 'CONSEIL_DEPT',
     AVENIR_PRO = 'AVENIR_PRO',
     FT_ACCOMPAGNEMENT_INTENSIF = 'FT_ACCOMPAGNEMENT_INTENSIF',
-    FT_ACCOMPAGNEMENT_GLOBAL = 'FT_ACCOMPAGNEMENT_GLOBAL'
+    FT_ACCOMPAGNEMENT_GLOBAL = 'FT_ACCOMPAGNEMENT_GLOBAL',
+    FT_EQUIP_EMPLOI_RECRUT = 'FT_EQUIP_EMPLOI_RECRUT'
   }
 }
 
@@ -38,7 +39,8 @@ function estFT(userStructure: User.Structure): boolean {
     User.Structure.POLE_EMPLOI_BRSA,
     User.Structure.FRANCE_TRAVAIL,
     User.Structure.FT_ACCOMPAGNEMENT_INTENSIF,
-    User.Structure.FT_ACCOMPAGNEMENT_GLOBAL
+    User.Structure.FT_ACCOMPAGNEMENT_GLOBAL,
+    User.Structure.FT_EQUIP_EMPLOI_RECRUT
   ].includes(userStructure)
 }
 function estConseiller(userType: User.Type): boolean {

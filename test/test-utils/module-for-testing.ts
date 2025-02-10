@@ -8,6 +8,7 @@ import * as dotenv from 'dotenv'
 import { createSandbox, SinonSandbox } from 'sinon'
 import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
+import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
 import { DeleteAccountUsecase } from '../../src/account/delete-account.usecase'
 import { PassEmploiAPIClient } from '../../src/api/pass-emploi-api.client'
 import { AppController } from '../../src/app.controller'
@@ -271,6 +272,13 @@ const stubProviders = (sandbox: SinonSandbox): Provider[] => {
       provide: FrancetravailConseillerAccompagnementGlobalService,
       useValue: stubClassSandbox(
         FrancetravailConseillerAccompagnementGlobalService,
+        sandbox
+      )
+    },
+    {
+      provide: FrancetravailConseillerEquipEmploiRecrutService,
+      useValue: stubClassSandbox(
+        FrancetravailConseillerEquipEmploiRecrutService,
         sandbox
       )
     },

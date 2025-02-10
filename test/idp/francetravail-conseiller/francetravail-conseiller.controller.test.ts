@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { FrancetravailConseillerAccompagnementGlobalService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-global.service'
 import { FrancetravailConseillerAccompagnementIntensifService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-accompagnement-intensif.service'
+import { FrancetravailConseillerEquipEmploiRecrutService } from 'src/idp/francetravail-conseiller/francetravail-conseiller-equip-emploi-recrut.service'
 import * as request from 'supertest'
 import { FrancetravailConseillerCEJService } from '../../../src/idp/francetravail-conseiller/francetravail-conseiller-cej.service'
 import {
@@ -24,6 +25,7 @@ describe('FrancetravailConseillerController', () => {
   let francetravailConseillerBRSAService: StubbedClass<FrancetravailConseillerBRSAService>
   let francetravailConseillerAccompagnementIntensifService: StubbedClass<FrancetravailConseillerAccompagnementIntensifService>
   let francetravailConseillerAccompagnementGlobalService: StubbedClass<FrancetravailConseillerAccompagnementGlobalService>
+  let francetravailConseillerEquipEmploiRecrutService: StubbedClass<FrancetravailConseillerEquipEmploiRecrutService>
   let app: INestApplication
   before(async () => {
     app = await getApplicationWithStubbedDependencies()
@@ -42,6 +44,9 @@ describe('FrancetravailConseillerController', () => {
     )
     francetravailConseillerAccompagnementGlobalService = app.get(
       FrancetravailConseillerAccompagnementGlobalService
+    )
+    francetravailConseillerEquipEmploiRecrutService = app.get(
+      FrancetravailConseillerEquipEmploiRecrutService
     )
   })
 
@@ -257,6 +262,55 @@ describe('FrancetravailConseillerController', () => {
         )
       })
     })
+
+    describe('Equip’emploi / Equip’recrut', () => {
+      it('renvoie une url quand tout va bien', async () => {
+        // Given
+        francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl.returns(
+          success('une-url')
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get(
+            '/francetravail-conseiller/connect/interactionId?type=equip-emploi-recrut'
+          )
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect('Location', 'une-url')
+
+        expect(
+          francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly(
+          'interactionId',
+          'equip-emploi-recrut'
+        )
+      })
+
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl.returns(
+          failure(new UtilisateurNonTraitable('NO_REASON'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get(
+            '/francetravail-conseiller/connect/interactionId?type=equip-emploi-recrut'
+          )
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=NO_REASON&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_EQUIP_EMPLOI_RECRUT'
+          )
+
+        expect(
+          francetravailConseillerEquipEmploiRecrutService.getAuthorizationUrl
+        ).to.have.been.calledOnceWithExactly(
+          'interactionId',
+          'equip-emploi-recrut'
+        )
+      })
+    })
   })
 
   describe('GET /auth/realms/pass-emploi/broker/pe-conseiller/endpoint', () => {
@@ -447,6 +501,46 @@ describe('FrancetravailConseillerController', () => {
 
         expect(
           francetravailConseillerAccompagnementGlobalService.callback
+        ).to.have.been.calledOnce()
+      })
+    })
+
+    describe('Equip’emploi / Equip’recrut', () => {
+      it('termine sans erreur quand tout va bien', async () => {
+        // Given
+        francetravailConseillerEquipEmploiRecrutService.callback.resolves(
+          emptySuccess()
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'equip-emploi-recrut' })
+          .expect(HttpStatus.OK)
+
+        expect(
+          francetravailConseillerEquipEmploiRecrutService.callback
+        ).to.have.been.calledOnce()
+      })
+
+      it('redirige vers le web en cas de failure', async () => {
+        // Given
+        francetravailConseillerEquipEmploiRecrutService.callback.resolves(
+          failure(new UtilisateurNonTraitable('UTILISATEUR_INEXISTANT'))
+        )
+
+        // When - Then
+        await request(app.getHttpServer())
+          .get('/auth/realms/pass-emploi/broker/pe-conseiller/endpoint')
+          .query({ state: 'equip-emploi-recrut' })
+          .expect(HttpStatus.TEMPORARY_REDIRECT)
+          .expect(
+            'Location',
+            'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_EQUIP_EMPLOI_RECRUT'
+          )
+
+        expect(
+          francetravailConseillerEquipEmploiRecrutService.callback
         ).to.have.been.calledOnce()
       })
     })
