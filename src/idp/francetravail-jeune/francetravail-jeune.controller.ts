@@ -42,7 +42,7 @@ export class FrancetravailJeuneController {
     let structure: User.Structure
 
     switch (ftQueryParams.type) {
-      case 'aij':
+      case 'aij': // retrocompat
         structure = User.Structure.POLE_EMPLOI_AIJ
         authorizationUrlResult =
           this.francetravailAIJService.getAuthorizationUrl(
@@ -50,7 +50,7 @@ export class FrancetravailJeuneController {
             ftQueryParams.type
           )
         break
-      case 'brsa':
+      case 'brsa': // retrocompat
         structure = User.Structure.POLE_EMPLOI_BRSA
         authorizationUrlResult =
           this.francetravailBRSAService.getAuthorizationUrl(
@@ -58,7 +58,7 @@ export class FrancetravailJeuneController {
             ftQueryParams.type
           )
         break
-      case 'cej':
+      case 'cej': // retrocompat
         structure = User.Structure.POLE_EMPLOI_CEJ
         authorizationUrlResult =
           this.francetravailJeuneCEJService.getAuthorizationUrl(
@@ -99,15 +99,15 @@ export class FrancetravailJeuneController {
     let structure: User.Structure
 
     switch (ftType) {
-      case 'aij':
+      case 'aij': // retrocompat
         structure = User.Structure.POLE_EMPLOI_AIJ
         result = await this.francetravailAIJService.callback(request, response)
         break
-      case 'brsa':
+      case 'brsa': // retrocompat
         structure = User.Structure.POLE_EMPLOI_BRSA
         result = await this.francetravailBRSAService.callback(request, response)
         break
-      case 'cej':
+      case 'cej': // retrocompat
         structure = User.Structure.POLE_EMPLOI_CEJ
         result = await this.francetravailJeuneCEJService.callback(
           request,

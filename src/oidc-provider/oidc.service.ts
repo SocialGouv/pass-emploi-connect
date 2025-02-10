@@ -353,11 +353,11 @@ export class OidcService {
               return `/milo-jeune/connect/${interaction.uid}`
             case 'similo-conseiller':
               return `/milo-conseiller/connect/${interaction.uid}`
-            case 'pe-jeune':
+            case 'pe-jeune': // retrocompat
               return `/francetravail-jeune/connect/${interaction.uid}?type=cej`
-            case 'pe-brsa-jeune':
+            case 'pe-brsa-jeune': // retrocompat
               return `/francetravail-jeune/connect/${interaction.uid}?type=brsa`
-            case 'pe-aij-jeune':
+            case 'pe-aij-jeune': // retrocompat
               return `/francetravail-jeune/connect/${interaction.uid}?type=aij`
             case 'ft-beneficiaire':
               return `/francetravail-jeune/connect/${interaction.uid}?type=ft-beneficiaire`
