@@ -38,35 +38,38 @@ function estFT(userStructure: User.Structure): boolean {
     User.Structure.POLE_EMPLOI_AIJ,
     User.Structure.POLE_EMPLOI_BRSA,
     User.Structure.FRANCE_TRAVAIL,
+    User.Structure.AVENIR_PRO,
     User.Structure.FT_ACCOMPAGNEMENT_INTENSIF,
     User.Structure.FT_ACCOMPAGNEMENT_GLOBAL,
     User.Structure.FT_EQUIP_EMPLOI_RECRUT
   ].includes(userStructure)
 }
+
+function estConseilDepartemental(userStructure: User.Structure): boolean {
+  return userStructure === User.Structure.CONSEIL_DEPT
+}
+
 function estConseiller(userType: User.Type): boolean {
   return userType === User.Type.CONSEILLER
 }
+
 function estBeneficiaire(userType: User.Type): boolean {
   return [User.Type.JEUNE, User.Type.BENEFICIAIRE].includes(userType)
 }
 
-export function estBeneficiaireFT(
-  userType: User.Type,
-  userStructure: User.Structure
-): boolean {
-  return estBeneficiaire(userType) && estFT(userStructure)
-}
-export function estConseillerFT(
-  userType: User.Type,
-  userStructure: User.Structure
-): boolean {
-  return estConseiller(userType) && estFT(userStructure)
-}
-export function estConseillerDept(
+export function estBeneficiaireFTConnect(
   userType: User.Type,
   userStructure: User.Structure
 ): boolean {
   return (
-    estConseiller(userType) && userStructure === User.Structure.CONSEIL_DEPT
+    estBeneficiaire(userType) &&
+    (estFT(userStructure) || estConseilDepartemental(userStructure))
   )
+}
+
+export function estConseillerDept(
+  userType: User.Type,
+  userStructure: User.Structure
+): boolean {
+  return estConseiller(userType) && estConseilDepartemental(userStructure)
 }
