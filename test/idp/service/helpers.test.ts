@@ -11,24 +11,27 @@ describe('Helpers', () => {
   const configService = testConfig()
 
   describe('getIdpConfigIdentifier', () => {
-    it('renvoie miloJeune', () => {
+    it('renvoie miloJeune pour JEUNE MILO', () => {
       expect(
         getIdpConfig(configService, User.Type.JEUNE, User.Structure.MILO).issuer
       ).to.equal('milo-jeune.com')
     })
-    it('renvoie miloJeune', () => {
+
+    it('renvoie miloJeune pour BENEFICIAIRE MILO', () => {
       expect(
         getIdpConfig(configService, User.Type.BENEFICIAIRE, User.Structure.MILO)
           .issuer
       ).to.equal('milo-jeune.com')
     })
-    it('renvoie miloConseiller', () => {
+
+    it('renvoie miloConseiller pour CONSEILLER MILO', () => {
       expect(
         getIdpConfig(configService, User.Type.CONSEILLER, User.Structure.MILO)
           .issuer
       ).to.equal('https://sso-qlf.i-milo.fr/auth/realms/imilo-qualif')
     })
-    it('renvoie conseillerDept', () => {
+
+    it('renvoie conseillerDept pour CONSEILLER CONSEIL_DEPT', () => {
       expect(
         getIdpConfig(
           configService,
@@ -37,7 +40,8 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('https://keycloak-cej.com')
     })
-    it('renvoie francetravailConseiller', () => {
+
+    it('renvoie francetravailConseiller pour CONSEILLER FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(
           configService,
@@ -46,7 +50,8 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('ft-conseiller.com')
     })
-    it('renvoie francetravailConseiller', () => {
+
+    it('renvoie francetravailConseillerpour CONSEILLER PE CEJ', () => {
       expect(
         getIdpConfig(
           configService,
@@ -55,7 +60,8 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('ft-conseiller.com')
     })
-    it('renvoie francetravailConseiller', () => {
+
+    it('renvoie francetravailConseiller pour CONSEILLER BRSA', () => {
       expect(
         getIdpConfig(
           configService,
@@ -64,7 +70,38 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('ft-conseiller.com')
     })
-    it('renvoie francetravailBeneficiaire', () => {
+
+    it('renvoie francetravailConseiller pour CONSEILLER ACCOMPAGNEMENT INTENSIF', () => {
+      expect(
+        getIdpConfig(
+          configService,
+          User.Type.CONSEILLER,
+          User.Structure.FT_ACCOMPAGNEMENT_INTENSIF
+        ).issuer
+      ).to.equal('ft-conseiller.com')
+    })
+
+    it('renvoie francetravailConseiller pour CONSEILLER ACCOMPAGNEMENT GLOBAL', () => {
+      expect(
+        getIdpConfig(
+          configService,
+          User.Type.CONSEILLER,
+          User.Structure.FT_ACCOMPAGNEMENT_GLOBAL
+        ).issuer
+      ).to.equal('ft-conseiller.com')
+    })
+
+    it('renvoie francetravailConseiller pour CONSEILLER EQUIP’EMPLOI EQUIP’RECRUT', () => {
+      expect(
+        getIdpConfig(
+          configService,
+          User.Type.CONSEILLER,
+          User.Structure.FT_EQUIP_EMPLOI_RECRUT
+        ).issuer
+      ).to.equal('ft-conseiller.com')
+    })
+
+    it('renvoie francetravailBeneficiaire pour BENEFICIAIRE FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(
           configService,
@@ -73,7 +110,8 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('ft-jeune.com')
     })
-    it('renvoie francetravailBeneficiaire', () => {
+
+    it('renvoie francetravailBeneficiaire pour BENEFICIAIRE CONSEIL_DEPT', () => {
       expect(
         getIdpConfig(
           configService,
@@ -82,7 +120,8 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('ft-jeune.com')
     })
-    it('renvoie francetravailBeneficiaire', () => {
+
+    it('renvoie francetravailBeneficiaire pour BENEFICIAIRE PE CEJ', () => {
       expect(
         getIdpConfig(
           configService,
@@ -91,7 +130,8 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('ft-jeune.com')
     })
-    it('renvoie francetravailBeneficiaire', () => {
+
+    it('renvoie francetravailBeneficiaire pour JEUNE PE CEJ ', () => {
       expect(
         getIdpConfig(
           configService,
@@ -100,7 +140,8 @@ describe('Helpers', () => {
         ).issuer
       ).to.equal('ft-jeune.com')
     })
-    it('renvoie francetravailBeneficiaire', () => {
+
+    it('renvoie francetravailBeneficiaire pour JEUNE FRANCE_TRAVAIL', () => {
       expect(
         getIdpConfig(
           configService,
@@ -128,6 +169,7 @@ describe('Helpers', () => {
       expect(createIdpIssuerConfig(idp)).to.deep.equal(issuerConfig)
     })
   })
+
   describe('createIdpClientConfig', () => {
     const idp = getIdpConfig(
       configService,

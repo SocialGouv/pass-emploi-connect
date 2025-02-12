@@ -13,7 +13,11 @@ import { FrancetravailAPIClient } from '../../api/francetravail-api.client'
 import { PassEmploiAPIClient } from '../../api/pass-emploi-api.client'
 import { IdpConfig } from '../../config/configuration'
 import { Account } from '../../domain/account'
-import { User, estBeneficiaireFT, estConseillerDept } from '../../domain/user'
+import {
+  User,
+  estBeneficiaireFTConnect,
+  estConseillerDept
+} from '../../domain/user'
 import { OidcService } from '../../oidc-provider/oidc.service'
 import { TokenService, TokenType } from '../../token/token.service'
 import { getAPMInstance } from '../../utils/monitoring/apm.init'
@@ -245,7 +249,7 @@ export abstract class IdpService {
     email?: string
   }> {
     let coordonnees
-    if (estBeneficiaireFT(this.userType, this.userStructure)) {
+    if (estBeneficiaireFTConnect(this.userType, this.userStructure)) {
       const coordonneesResult = await this.francetravailapi!.getCoordonness(
         accessToken
       )

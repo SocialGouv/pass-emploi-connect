@@ -29,7 +29,7 @@ export class OidcService {
   protected apmService: APM.Agent
 
   constructor(
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
     @Inject(OIDC_PROVIDER_MODULE) private readonly opm: OidcProviderModule,
     @Inject(RedisInjectionToken) private readonly redisClient: Redis,
     private readonly tokenExchangeGrant: TokenExchangeGrant,
@@ -353,11 +353,11 @@ export class OidcService {
               return `/milo-jeune/connect/${interaction.uid}`
             case 'similo-conseiller':
               return `/milo-conseiller/connect/${interaction.uid}`
-            case 'pe-jeune':
+            case 'pe-jeune': // retrocompat
               return `/francetravail-jeune/connect/${interaction.uid}?type=cej`
-            case 'pe-brsa-jeune':
+            case 'pe-brsa-jeune': // retrocompat
               return `/francetravail-jeune/connect/${interaction.uid}?type=brsa`
-            case 'pe-aij-jeune':
+            case 'pe-aij-jeune': // retrocompat
               return `/francetravail-jeune/connect/${interaction.uid}?type=aij`
             case 'ft-beneficiaire':
               return `/francetravail-jeune/connect/${interaction.uid}?type=ft-beneficiaire`
@@ -373,6 +373,12 @@ export class OidcService {
               return `/francetravail-conseiller/connect/${interaction.uid}?type=avenirpro`
             case 'conseildepartemental-conseiller':
               return `/conseildepartemental-conseiller/connect/${interaction.uid}`
+            case 'ft-accompagnement-intensif-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=accompagnement-intensif`
+            case 'ft-accompagnement-global-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=accompagnement-global`
+            case 'ft-equip-emploi-recrut-conseiller':
+              return `/francetravail-conseiller/connect/${interaction.uid}?type=equip-emploi-recrut`
             default:
               return `/choice/${interaction.uid}`
           }
