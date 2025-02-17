@@ -2,7 +2,7 @@ name: PR Continuous Integration - Pass Emploi Connect
 
 on:
   push:
-    branches: [develop, master]
+    branches: [develop, master, main]
   pull_request:
     types:
       - opened
