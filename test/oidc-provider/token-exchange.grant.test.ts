@@ -28,6 +28,7 @@ describe('TokenExchangeGrant', () => {
       getAccessTokenUsecase
     )
   })
+
   describe('handler', () => {
     it('exchange le token quand tout est ok', async () => {
       // Given
@@ -68,7 +69,8 @@ describe('TokenExchangeGrant', () => {
         scope: tokenData.scope
       })
     })
-    it('exchange le token pour un sub different', async () => {
+
+    it('exchange le token pour un sub beneficiaire different', async () => {
       // Given
       const context = {
         oidc: {
@@ -109,6 +111,101 @@ describe('TokenExchangeGrant', () => {
         scope: tokenData.scope
       })
     })
+
+    it('exchange le token pour un sub conseiller different', async () => {
+      // Given
+      const context = {
+        oidc: {
+          params: {
+            subject_token: 'tok',
+            requested_token_sub: 'sub_conseiller'
+          }
+        },
+        body: {}
+      }
+      validateJWTUsecase.execute.resolves(
+        success({
+          sub: 'CONSEILLER|MILO|id-auth',
+          userType: 'BENEFICIAIRE',
+          userStructure: 'MILO'
+        })
+      )
+      const tokenData = unTokenData()
+      getAccessTokenUsecase.execute.resolves(success(tokenData))
+
+      // When
+      await tokenExchangeGrant.handler(
+        context as unknown as KoaContextWithOIDC,
+        () => {
+          return Promise.resolve()
+        }
+      )
+
+      // Then
+      expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+        token: 'tok'
+      })
+      expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
+        account: unAccount({
+          sub: 'sub_conseiller',
+          type: User.Type.CONSEILLER
+        })
+      })
+      expect(context.body).to.deep.equal({
+        issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+        access_token: tokenData.token,
+        token_type: 'bearer',
+        expires_in: tokenData.expiresIn,
+        scope: tokenData.scope
+      })
+    })
+
+    it('exchange le token pour un sub different du type voulu', async () => {
+      // Given
+      const context = {
+        oidc: {
+          params: {
+            subject_token: 'tok',
+            requested_token_sub: 'sub_user',
+            requested_sub_type: 'CONSEILLER'
+          }
+        },
+        body: {}
+      }
+      validateJWTUsecase.execute.resolves(
+        success({
+          sub: 'CONSEILLER|MILO|id-auth',
+          userType: 'CONSEILLER',
+          userStructure: 'MILO'
+        })
+      )
+      const tokenData = unTokenData()
+      getAccessTokenUsecase.execute.resolves(success(tokenData))
+
+      // When
+      await tokenExchangeGrant.handler(
+        context as unknown as KoaContextWithOIDC,
+        () => {
+          return Promise.resolve()
+        }
+      )
+
+      // Then
+      expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
+        token: 'tok'
+      })
+      expect(getAccessTokenUsecase.execute).to.have.been.calledOnceWithExactly({
+        account: unAccount({ sub: 'sub_user', type: User.Type.CONSEILLER })
+      })
+      expect(context.body).to.deep.equal({
+        issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+        access_token: tokenData.token,
+        token_type: 'bearer',
+        expires_in: tokenData.expiresIn,
+        scope: tokenData.scope
+      })
+    })
+
     it('erreur quand le subject token est introuvable', async () => {
       // Given
       const context = {}
@@ -129,6 +226,7 @@ describe('TokenExchangeGrant', () => {
         expect(e).to.be.an.instanceOf(Error)
       }
     })
+
     it('erreur quand le subject token est invalide', async () => {
       // Given
       const context = {
@@ -155,6 +253,7 @@ describe('TokenExchangeGrant', () => {
         expect(e).to.be.an.instanceOf(Error)
       }
     })
+
     it('erreur quand impossible de récupérer un access token', async () => {
       // Given
       const context = {
