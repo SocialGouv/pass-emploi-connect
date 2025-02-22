@@ -5905,10 +5905,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^5.2.4, jose@npm:^5.9.4":
+"jose@npm:^5.9.4":
   version: 5.9.6
   resolution: "jose@npm:5.9.6"
   checksum: 10/3ebbda9f6a96d493944f2720bf4436347884666cd87b7087a61cff12a3b540fe6fd743b5eb8defe7bc2a45aa58992ae6687da78797d91fc4e3e5e8588aa98c7d
+  languageName: node
+  linkType: hard
+
+"jose@npm:^6.0.0":
+  version: 6.0.1
+  resolution: "jose@npm:6.0.1"
+  checksum: 10/eaaeb0671a3526d5de10179b7b2ea32e517b7a8f16d563a1b8ffe745c414c2991b1f58a1bfc447793dcd3a066f427367731316a2025ac6d93d0cf4c27ab9b1a7
   languageName: node
   linkType: hard
 
@@ -7529,7 +7536,7 @@ __metadata:
     husky: "npm:^9.0.11"
     ioredis: "npm:^5.3.2"
     joi: "npm:^17.12.2"
-    jose: "npm:^5.2.4"
+    jose: "npm:^6.0.0"
     lint-staged: "npm:^15.2.2"
     lodash: "npm:^4.17.21"
     lodash.isempty: "npm:^4.4.0"
