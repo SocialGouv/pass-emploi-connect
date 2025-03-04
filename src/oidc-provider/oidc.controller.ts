@@ -18,8 +18,8 @@ export class OidcController {
 
   @All([
     '.well-known/openid-configuration',
-    'protocol/openid-connect/*',
-    'clients-registrations/*'
+    'protocol/openid-connect/*path',
+    'clients-registrations/*path'
   ])
   public mountedOidc(@Req() req: Request, @Res() res: Response): Promise<void> {
     try {
