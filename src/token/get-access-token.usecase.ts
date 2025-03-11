@@ -78,7 +78,14 @@ export class GetAccessTokenUsecase {
       const issuer = new Issuer(issuerConfig)
       const client = new issuer.Client(clientConfig)
 
+      this.logger.debug(
+        `user ${account.type} ${account.structure} ${account.sub}`
+      )
+      this.logger.debug(`Refresh token utilisé ${JSON.stringify(refreshToken)}`)
+
       const tokenSet = await client.refresh(refreshToken.token)
+
+      this.logger.debug(`TokenSet ${JSON.stringify(tokenSet)}`)
 
       const tokenData: TokenData = {
         token: tokenSet.access_token!,
@@ -94,9 +101,14 @@ export class GetAccessTokenUsecase {
           expiresIn: idp.refreshTokenMaxAge,
           scope: tokenSet.scope
         })
+      } else {
+        this.logger.warn('Pas de refresh token dans le tokenSet')
       }
       return success(tokenData)
     } catch (e) {
+      this.logger.debug(`config utilisée ${JSON.stringify(clientConfig)}`)
+      this.logger.debug(`issuer utilisé ${JSON.stringify(issuerConfig)}`)
+
       this.logger.error(
         `Erreur refresh token ${account.type} ${account.structure}`
       )
