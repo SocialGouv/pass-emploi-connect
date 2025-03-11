@@ -78,6 +78,11 @@ export class GetAccessTokenUsecase {
       const issuer = new Issuer(issuerConfig)
       const client = new issuer.Client(clientConfig)
 
+      this.logger.debug(`config utilisée ${JSON.stringify(clientConfig)}`)
+      this.logger.debug(`issuer utilisé ${JSON.stringify(issuerConfig)}`)
+      this.logger.debug(`Refresh token utilisé ${refreshToken.token}`)
+      this.logger.debug(`Refresh token utilisé ${JSON.stringify(refreshToken)}`)
+
       const tokenSet = await client.refresh(refreshToken.token)
 
       const tokenData: TokenData = {
