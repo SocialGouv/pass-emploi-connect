@@ -20,5 +20,8 @@ export function redirectFailure(
   if (structureUtilisateur) {
     url += `&structureUtilisateur=${structureUtilisateur}`
   }
+  if (failure.error.email) {
+    url += `&email=${failure.error.email}`
+  }
   response.redirect(HttpStatus.TEMPORARY_REDIRECT, url)
 }
