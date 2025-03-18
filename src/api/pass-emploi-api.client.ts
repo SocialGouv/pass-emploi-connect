@@ -1,14 +1,14 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { firstValueFrom } from 'rxjs'
-import { User } from '../domain/user'
-import { UtilisateurNonTraitable, NonTrouveError } from '../utils/result/error'
-import { Result, failure, success } from '../utils/result/result'
-import { Account } from '../domain/account'
-import { buildError } from '../utils/monitoring/logger.module'
 import * as APM from 'elastic-apm-node'
+import { firstValueFrom } from 'rxjs'
+import { Account } from '../domain/account'
+import { User } from '../domain/user'
 import { getAPMInstance } from '../utils/monitoring/apm.init'
+import { buildError } from '../utils/monitoring/logger.module'
+import { NonTrouveError, UtilisateurNonTraitable } from '../utils/result/error'
+import { Result, failure, success } from '../utils/result/result'
 
 export interface PassEmploiUser {
   nom?: string
@@ -69,7 +69,8 @@ export class PassEmploiAPIClient {
       this.apmService.captureError(e)
       return failure(
         new UtilisateurNonTraitable(
-          e.response?.data?.reason ?? e.response?.data?.code
+          e.response?.data?.reason ?? e.response?.data?.code,
+          e.response?.data?.email
         )
       )
     }

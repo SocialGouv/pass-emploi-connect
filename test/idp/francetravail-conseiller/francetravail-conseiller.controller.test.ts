@@ -526,7 +526,9 @@ describe('FrancetravailConseillerController', () => {
       it('redirige vers le web en cas de failure', async () => {
         // Given
         francetravailConseillerEquipEmploiRecrutService.callback.resolves(
-          failure(new UtilisateurNonTraitable('UTILISATEUR_INEXISTANT'))
+          failure(
+            new UtilisateurNonTraitable('UTILISATEUR_INEXISTANT', 'test@test')
+          )
         )
 
         // When - Then
@@ -536,7 +538,7 @@ describe('FrancetravailConseillerController', () => {
           .expect(HttpStatus.TEMPORARY_REDIRECT)
           .expect(
             'Location',
-            'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_EQUIP_EMPLOI_RECRUT'
+            'https://web.pass-emploi.incubateur.net/autherror?reason=UTILISATEUR_INEXISTANT&typeUtilisateur=CONSEILLER&structureUtilisateur=FT_EQUIP_EMPLOI_RECRUT&email=test@test'
           )
 
         expect(

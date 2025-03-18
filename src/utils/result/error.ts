@@ -2,6 +2,7 @@ export interface DomainError {
   readonly code: string
   readonly message: string
   readonly reason?: string
+  readonly email?: string
 }
 
 export class AuthError implements DomainError {
@@ -42,9 +43,11 @@ export class UtilisateurNonTraitable implements DomainError {
   readonly code: string = UtilisateurNonTraitable.CODE
   readonly message: string
   readonly reason?: string
+  readonly email?: string
 
-  constructor(reason?: string) {
+  constructor(reason?: string, email?: string) {
     this.message = 'Utilisateur non traitable'
     this.reason = reason
+    this.email = email
   }
 }
