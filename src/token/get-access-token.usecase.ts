@@ -106,7 +106,6 @@ export class GetAccessTokenUsecase {
       }
       return success(tokenData)
     } catch (e) {
-      this.logger.debug(`config utilisée ${JSON.stringify(clientConfig)}`)
       this.logger.debug(`issuer utilisé ${JSON.stringify(issuerConfig)}`)
 
       this.logger.error(
