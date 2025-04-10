@@ -14,6 +14,7 @@ import { buildError } from '../utils/monitoring/logger.module'
 import { AuthError, NonTrouveError } from '../utils/result/error'
 import { failure, Result, success } from '../utils/result/result'
 import { TokenData, TokenService, TokenType } from './token.service'
+import * as uuid from 'uuid'
 
 interface Inputs {
   account: Account
@@ -43,7 +44,19 @@ export class GetAccessTokenUsecase {
         return success(storedAccessTokenData)
       }
 
-      return this.refresh(query.account)
+      const lockId = uuid.v4()
+      const isAccessTokenLocked = await this.tokenService.setAccessTokenLock(
+        query.account,
+        lockId
+      )
+
+      if (isAccessTokenLocked) {
+        const result = await this.refresh(query.account)
+        await this.tokenService.releaseAccessTokenLock(query.account, lockId)
+        return result
+      } else {
+        return this.waitForRefresh(query.account)
+      }
     } catch (e) {
       this.logger.error(buildError('Erreur inconnue GET AccessTokenUsecase', e))
       this.apmService.captureError(e)
@@ -124,5 +137,23 @@ export class GetAccessTokenUsecase {
         )
       )
     }
+  }
+
+  private async waitForRefresh(account: Account): Promise<Result<TokenData>> {
+    let retries = 3
+    let waitInMillis = 200
+    while (retries > 0) {
+      const storedAccessTokenData = await this.tokenService.getToken(
+        account,
+        TokenType.ACCESS
+      )
+      if (storedAccessTokenData) {
+        return success(storedAccessTokenData)
+      }
+      retries--
+      waitInMillis *= retries
+      await new Promise(resolve => setTimeout(resolve, waitInMillis))
+    }
+    return failure(new NonTrouveError('AcessToken'))
   }
 }

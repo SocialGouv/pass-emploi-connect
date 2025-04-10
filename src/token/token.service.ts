@@ -84,6 +84,19 @@ export class TokenService {
     )
   }
 
+  async setAccessTokenLock(account: Account, lockId: string): Promise<boolean> {
+    const lockKey = generateAccessTokenLockKey(account)
+    return this.redisClient.acquireLock(lockKey, lockId)
+  }
+
+  async releaseAccessTokenLock(
+    account: Account,
+    lockId: string
+  ): Promise<void> {
+    const lockKey = generateAccessTokenLockKey(account)
+    await this.redisClient.releaseLock(lockKey, lockId)
+  }
+
   private fromTokenDataToTokenToSave(tokenData: TokenData): SavedTokenData {
     return {
       token: tokenData.token,
@@ -108,4 +121,8 @@ export class TokenService {
       )
     }
   }
+}
+
+function generateAccessTokenLockKey(account: Account): string {
+  return `access_token_lock:${Account.fromAccountToAccountId(account)}`
 }

@@ -83,4 +83,47 @@ describe('RedisClient', () => {
       )
     })
   })
+  describe('acquireLock', () => {
+    it('acquireLock return true when non existant', async () => {
+      // Given
+      redis.set.resolves('OK')
+
+      // When
+      const result = await redisClient.acquireLock('key', 'value')
+
+      // Then
+      expect(redis.set).to.have.been.calledOnceWithExactly(
+        'key',
+        'value',
+        'EX',
+        30,
+        'NX'
+      )
+      expect(result).to.be.true()
+    })
+  })
+  describe('releaseLock', () => {
+    it('releaseLock releases when value is correct', async () => {
+      // Given
+      redis.get.withArgs('key').resolves('value')
+      redis.del.resolves()
+
+      // When
+      await redisClient.releaseLock('key', 'value')
+
+      // Then
+      expect(redis.del).to.have.been.calledOnceWithExactly('key')
+    })
+    it("releaseLock doesn't release when value is incorrect", async () => {
+      // Given
+      redis.get.withArgs('key').resolves('another-value')
+      redis.del.resolves()
+
+      // When
+      await redisClient.releaseLock('key', 'value')
+
+      // Then
+      expect(redis.del).not.to.have.been.called()
+    })
+  })
 })

@@ -95,4 +95,28 @@ describe('TokenService', () => {
       expect(tokenData).to.be.undefined()
     })
   })
+  describe('setAccessTokenLock', () => {
+    it('set AccessTokenLock and return true', async () => {
+      // When
+      await tokenService.setAccessTokenLock(unAccount(), 'unLockId')
+
+      // Then
+      expect(redisClient.acquireLock).to.have.been.calledOnceWithExactly(
+        `access_token_lock:${Account.fromAccountToAccountId(unAccount())}`,
+        'unLockId'
+      )
+    })
+  })
+  describe('releaseAccessTokenLock', () => {
+    it('set AccessTokenLock and return true', async () => {
+      // When
+      await tokenService.releaseAccessTokenLock(unAccount(), 'unLockId')
+
+      // Then
+      expect(redisClient.releaseLock).to.have.been.calledOnceWithExactly(
+        `access_token_lock:${Account.fromAccountToAccountId(unAccount())}`,
+        'unLockId'
+      )
+    })
+  })
 })

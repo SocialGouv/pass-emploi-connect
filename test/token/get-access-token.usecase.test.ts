@@ -75,17 +75,49 @@ describe('GetAccessTokenUsecase', () => {
       }
       expect(tokenService.setToken).to.have.been.calledTwice()
     })
-    it('erreur quand refresh token inexistant', async () => {
+    it('erreur quand refresh token inexistant avec lock', async () => {
       // Given
       const query = {
         account: unAccount()
       }
+      tokenService.setAccessTokenLock.resolves(true)
 
       // When
       const result = await getAccessTokenUsecase.execute(query)
 
       // Then
       expect(result).to.deep.equal(failure(new NonTrouveError('Refresh token')))
+    })
+    it('retourne le token avec un refresh qui se fait par un autre thread', async () => {
+      // Given
+      const query = {
+        account: unAccount()
+      }
+      tokenService.setAccessTokenLock.resolves(false)
+      tokenService.getToken
+        .withArgs(query.account, TokenType.ACCESS)
+        .onFirstCall()
+        .resolves(undefined)
+      tokenService.getToken
+        .withArgs(query.account, TokenType.ACCESS)
+        .onSecondCall()
+        .resolves({
+          token: 'string',
+          expiresIn: 100,
+          scope: ''
+        })
+
+      // When
+      const result = await getAccessTokenUsecase.execute(query)
+
+      // Then
+      expect(result).to.deep.equal(
+        success({
+          token: 'string',
+          expiresIn: 100,
+          scope: ''
+        })
+      )
     })
     it('erreur quand getToken echoue', async () => {
       // Given
@@ -100,11 +132,12 @@ describe('GetAccessTokenUsecase', () => {
       // Then
       expect(result).to.deep.equal(failure(new NonTrouveError('AcessToken')))
     })
-    it('erreur quand mauvais refresh token', async () => {
+    it('erreur quand mauvais refresh token avec lock', async () => {
       // Given
       const query = {
         account: unAccount()
       }
+      tokenService.setAccessTokenLock.resolves(true)
       tokenService.getToken
         .withArgs(query.account, TokenType.REFRESH)
         .resolves({

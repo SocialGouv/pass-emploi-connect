@@ -1,12 +1,16 @@
-import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { Redis } from 'ioredis'
 import { RedisInjectionToken } from './redis.provider'
 
 @Injectable()
 export class RedisClient implements OnModuleDestroy {
+  private readonly logger: Logger
+
   constructor(
     @Inject(RedisInjectionToken) private readonly redisClient: Redis
-  ) {}
+  ) {
+    this.logger = new Logger('RedisClient')
+  }
 
   onModuleDestroy(): void {
     this.redisClient.disconnect()
@@ -38,5 +42,25 @@ export class RedisClient implements OnModuleDestroy {
     expiry: number
   ): Promise<void> {
     await this.redisClient.set(`${prefix}:${key}`, value, 'EX', expiry)
+  }
+
+  async acquireLock(key: string, value: string): Promise<boolean> {
+    const lockExpiryInSeconds = 30
+    // NX option is used to set the key only if it does not already exist else it will return null
+    const result = await this.redisClient.set(
+      key,
+      value,
+      'EX',
+      lockExpiryInSeconds,
+      'NX'
+    )
+    return result === 'OK'
+  }
+
+  async releaseLock(key: string, lockId: string): Promise<void> {
+    const currentValue = await this.redisClient.get(key)
+    if (currentValue === lockId) {
+      await this.redisClient.del(key)
+    }
   }
 }
