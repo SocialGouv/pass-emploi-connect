@@ -44,23 +44,29 @@ export class GetAccessTokenUsecase {
         return success(storedAccessTokenData)
       }
 
-      const lockId = uuid.v4()
-      const isAccessTokenLocked = await this.tokenService.setAccessTokenLock(
-        query.account,
-        lockId
-      )
-
-      if (isAccessTokenLocked) {
-        const result = await this.refresh(query.account)
-        await this.tokenService.releaseAccessTokenLock(query.account, lockId)
-        return result
-      } else {
-        return this.waitForRefresh(query.account)
-      }
+      return this.refreshAccessTokenWithLock(query.account)
     } catch (e) {
       this.logger.error(buildError('Erreur inconnue GET AccessTokenUsecase', e))
       this.apmService.captureError(e)
       return failure(new NonTrouveError('AcessToken'))
+    }
+  }
+
+  private async refreshAccessTokenWithLock(
+    account: Account
+  ): Promise<Result<TokenData>> {
+    const lockId = uuid.v4()
+    const isAccessTokenLocked = await this.tokenService.setAccessTokenLock(
+      account,
+      lockId
+    )
+
+    if (isAccessTokenLocked) {
+      const result = await this.refresh(account)
+      await this.tokenService.releaseAccessTokenLock(account, lockId)
+      return result
+    } else {
+      return this.waitForRefresh(account)
     }
   }
 
@@ -141,7 +147,7 @@ export class GetAccessTokenUsecase {
 
   private async waitForRefresh(account: Account): Promise<Result<TokenData>> {
     let retries = 3
-    let waitInMillis = 200
+    let waitInMillis = 150
     while (retries > 0) {
       const storedAccessTokenData = await this.tokenService.getToken(
         account,
@@ -150,8 +156,8 @@ export class GetAccessTokenUsecase {
       if (storedAccessTokenData) {
         return success(storedAccessTokenData)
       }
-      retries--
       waitInMillis *= retries
+      retries--
       await new Promise(resolve => setTimeout(resolve, waitInMillis))
     }
     return failure(new NonTrouveError('AcessToken'))
