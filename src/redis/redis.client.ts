@@ -1,33 +1,35 @@
-import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common'
 import { Redis } from 'ioredis'
 import { RedisInjectionToken } from './redis.provider'
 
 @Injectable()
 export class RedisClient implements OnModuleDestroy {
-  constructor(
-    @Inject(RedisInjectionToken) private readonly redisClient: Redis
-  ) {}
+  private readonly logger: Logger
+
+  constructor(@Inject(RedisInjectionToken) private readonly redis: Redis) {
+    this.logger = new Logger('RedisClient')
+  }
 
   onModuleDestroy(): void {
-    this.redisClient.disconnect()
+    this.redis.disconnect()
   }
 
   async get(prefix: string, key: string): Promise<string | null> {
-    return this.redisClient.get(`${prefix}:${key}`)
+    return this.redis.get(`${prefix}:${key}`)
   }
 
   async set(prefix: string, key: string, value: string): Promise<void> {
-    await this.redisClient.set(`${prefix}:${key}`, value)
+    await this.redis.set(`${prefix}:${key}`, value)
   }
 
   async delete(prefix: string, key: string): Promise<void> {
-    await this.redisClient.del(`${prefix}:${key}`)
+    await this.redis.del(`${prefix}:${key}`)
   }
 
   async deletePattern(pattern: string): Promise<void> {
-    const keys = await this.redisClient.keys(`*${pattern}*`)
+    const keys = await this.redis.keys(`*${pattern}*`)
     for (const key of keys) {
-      await this.redisClient.del(key.replace('oidc:', ''))
+      await this.redis.del(key.replace('oidc:', ''))
     }
   }
 
@@ -35,8 +37,35 @@ export class RedisClient implements OnModuleDestroy {
     prefix: string,
     key: string,
     value: string,
-    expiry: number
+    expiryInSeconds: number
   ): Promise<void> {
-    await this.redisClient.set(`${prefix}:${key}`, value, 'EX', expiry)
+    const redisExpiryOption = 'EX'
+    await this.redis.set(
+      `${prefix}:${key}`,
+      value,
+      redisExpiryOption,
+      expiryInSeconds
+    )
+  }
+
+  async acquireLock(key: string, value: string): Promise<boolean> {
+    const lockExpiryInSeconds = 30
+    const redisExpiryOption = 'EX'
+    const redisSetOnlyIfNotExistingOption = 'NX'
+    const result = await this.redis.set(
+      key,
+      value,
+      redisExpiryOption,
+      lockExpiryInSeconds,
+      redisSetOnlyIfNotExistingOption
+    )
+    return result === 'OK'
+  }
+
+  async releaseLock(key: string, lockId: string): Promise<void> {
+    const currentValue = await this.redis.get(key)
+    if (currentValue === lockId) {
+      await this.redis.del(key)
+    }
   }
 }
