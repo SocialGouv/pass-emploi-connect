@@ -110,7 +110,7 @@
       "tsconfig-paths/register"
     ]
   },
-  "packageManager": "yarn@4.8.1",
+  "packageManager": "yarn@4.9.0",
   "resolutions": {
     "cross-spawn": "7.0.6"
   }
