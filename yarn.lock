@@ -6306,10 +6306,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^5.2.4, jose@npm:^5.9.6":
+"jose@npm:^5.2.4":
   version: 5.10.0
   resolution: "jose@npm:5.10.0"
   checksum: 10/03881d1dfb390dcf50926402edcfe233bf557b5a77321fcb1bdb53453bc1cdd26d2d0a9ab28c7445cbb826881f84fdf5074179700f10c2711ccb9880f51065d7
+  languageName: node
+  linkType: hard
+
+"jose@npm:^6.0.10":
+  version: 6.0.10
+  resolution: "jose@npm:6.0.10"
+  checksum: 10/8ba0d1aca94bdf780247c737328114fab3e394e1531e881dfe3fdd1d4a293b08cf7c0242769e72c8c8eee15c95761b542cf10730c3dfbb108084762df7d25cec
   languageName: node
   linkType: hard
 
@@ -6513,9 +6520,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"koa@npm:^2.15.4":
-  version: 2.16.0
-  resolution: "koa@npm:2.16.0"
+"koa@npm:^2.16.1":
+  version: 2.16.1
+  resolution: "koa@npm:2.16.1"
   dependencies:
     accepts: "npm:^1.3.5"
     cache-content-type: "npm:^1.0.0"
@@ -6540,7 +6547,7 @@ __metadata:
     statuses: "npm:^1.5.0"
     type-is: "npm:^1.6.16"
     vary: "npm:^1.1.2"
-  checksum: 10/88284e5da49cd54a2db663c818f5370d00f32b6aefbe5ecfc75bdaf7937d3b08cfbb884d07564b8e2b856dfe74d930997a6bdca2e2090dc2bfae0fa8af56a214
+  checksum: 10/f33b95227e48bffd3a682996e6cf72c4ae2992671529c6c914b76d28172219c9cbd8201b16cc028dc25fafc8f1dc9391a6e7e045740a10ee7d89a5631031a974
   languageName: node
   linkType: hard
 
@@ -7283,7 +7290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^5.0.9":
+"nanoid@npm:^5.1.5":
   version: 5.1.5
   resolution: "nanoid@npm:5.1.5"
   bin:
@@ -7530,13 +7537,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "object-hash@npm:3.0.0"
-  checksum: 10/f498d456a20512ba7be500cef4cf7b3c183cc72c65372a549c9a0e6dd78ce26f375e9b1315c07592d3fde8f10d5019986eba35970570d477ed9a2a702514432a
-  languageName: node
-  linkType: hard
-
 "object-identity-map@npm:^1.0.2":
   version: 1.0.2
   resolution: "object-identity-map@npm:1.0.2"
@@ -7572,28 +7572,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oidc-provider@npm:^8.8.0":
-  version: 8.8.1
-  resolution: "oidc-provider@npm:8.8.1"
+"oidc-provider@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "oidc-provider@npm:9.0.0"
   dependencies:
     "@koa/cors": "npm:^5.0.0"
     "@koa/router": "npm:^13.1.0"
     debug: "npm:^4.4.0"
     eta: "npm:^3.5.0"
-    got: "npm:^13.0.0"
-    jose: "npm:^5.9.6"
+    jose: "npm:^6.0.10"
     jsesc: "npm:^3.1.0"
-    koa: "npm:^2.15.4"
-    nanoid: "npm:^5.0.9"
-    object-hash: "npm:^3.0.0"
-    oidc-token-hash: "npm:^5.0.3"
-    quick-lru: "npm:^7.0.0"
+    koa: "npm:^2.16.1"
+    nanoid: "npm:^5.1.5"
+    oidc-token-hash: "npm:^5.1.0"
+    quick-lru: "npm:^7.0.1"
     raw-body: "npm:^3.0.0"
-  checksum: 10/731b89f19d92d2c1714c112873da8399ddfbceabb8e042f2c360755073b15691494984d3d337ef9a26e0184deee038a2120e3709b2f2dffd3a1d42658f29a360
+  checksum: 10/767f3e63c5bccac44bc8302c01db3f7b375caa3af794804eda70e49e49b612041759987982dd2190b41664271232b6b8c0f88adc46b951c6881a001b7c0f48d9
   languageName: node
   linkType: hard
 
-"oidc-token-hash@npm:^5.0.3":
+"oidc-token-hash@npm:^5.0.3, oidc-token-hash@npm:^5.1.0":
   version: 5.1.0
   resolution: "oidc-token-hash@npm:5.1.0"
   checksum: 10/b1ac3bf07315b1e26a8a33da714d1adee58f4aa488a5680cee49adb58e3b7fd7b00be5acca86d93215de1ce1a7d53720cbc7eba8347124f251703ede3abdbcb6
@@ -7917,7 +7915,7 @@ __metadata:
     nestjs-pino: "npm:^4.0.0"
     nock: "npm:^14.0.0"
     nyc: "npm:^17.0.0"
-    oidc-provider: "npm:^8.8.0"
+    oidc-provider: "npm:^9.0.0"
     openid-client: "npm:^5.6.5"
     pino-http: "npm:^9.0.0"
     prettier: "npm:^2.8.0"
@@ -8349,10 +8347,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"quick-lru@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "quick-lru@npm:7.0.0"
-  checksum: 10/4ed222a906f99c7a10bc679cb92bf164eaf1a40cb5203d103af9161f0d67702c74fda0332382b28a02c5b70b556a3aa2f4a8719d855682c742e0e3ac9c5dc6ad
+"quick-lru@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "quick-lru@npm:7.0.1"
+  checksum: 10/00bed5bcc4683221bf3da5c767f9dd8197c18fb6b0b7f9b79ddada62b52ff2a7ce17bb49dd4fce783c89b29974cf47a93422d7094766c8593c127ffe6c70054a
   languageName: node
   linkType: hard
 
