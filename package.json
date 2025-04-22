@@ -54,7 +54,7 @@
     "lodash.isempty": "^4.4.0",
     "luxon": "^3.4.4",
     "nestjs-pino": "^4.0.0",
-    "oidc-provider": "^8.8.0",
+    "oidc-provider": "^9.0.0",
     "openid-client": "^5.6.5",
     "pino-http": "^9.0.0",
     "reflect-metadata": "^0.2.1",
