@@ -19,7 +19,7 @@ jobs:
         node-version: [22.14.0]
     services:
       redis:
-        image: redis:7-alpine
+        image: redis:8-alpine
         ports:
           - 6767:6379
 
