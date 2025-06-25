@@ -113,10 +113,6 @@ export class OidcService {
       //   id_token_signed_response_alg: 'ES384',
       // },
       jwks: this.jwks,
-      pkce: {
-        required: () => false,
-        methods: ['S256', 'plain']
-      },
       renderError: (ctx, out, _error) => {
         ctx.type = 'html'
         ctx.body = `<!DOCTYPE html>

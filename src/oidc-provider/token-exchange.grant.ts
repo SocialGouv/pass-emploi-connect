@@ -41,10 +41,7 @@ export class TokenExchangeGrant {
   }
 
   // This approach has the advantage of not creating a new function instance on each call to TokenExchangeGrant.handler, since this will be called a lot, you might want to go with this version to minimize memory allocations.
-  handler = async (
-    context: KoaContextWithOIDC,
-    next: () => Promise<void>
-  ): Promise<void> => {
+  handler = async (context: KoaContextWithOIDC): Promise<void> => {
     const subjectToken = context.oidc?.params?.subject_token as string
     if (!subjectToken) {
       const message = 'subject token not found'
@@ -103,7 +100,5 @@ export class TokenExchangeGrant {
       expires_in: resultTokenData.data.expiresIn,
       scope: resultTokenData.data.scope
     }
-
-    await next()
   }
 }

@@ -47,12 +47,7 @@ describe('TokenExchangeGrant', () => {
       getAccessTokenUsecase.execute.resolves(success(tokenData))
 
       // When
-      await tokenExchangeGrant.handler(
-        context as unknown as KoaContextWithOIDC,
-        () => {
-          return Promise.resolve()
-        }
-      )
+      await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
       expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
@@ -89,12 +84,7 @@ describe('TokenExchangeGrant', () => {
       getAccessTokenUsecase.execute.resolves(success(tokenData))
 
       // When
-      await tokenExchangeGrant.handler(
-        context as unknown as KoaContextWithOIDC,
-        () => {
-          return Promise.resolve()
-        }
-      )
+      await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
       expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
@@ -134,12 +124,7 @@ describe('TokenExchangeGrant', () => {
       getAccessTokenUsecase.execute.resolves(success(tokenData))
 
       // When
-      await tokenExchangeGrant.handler(
-        context as unknown as KoaContextWithOIDC,
-        () => {
-          return Promise.resolve()
-        }
-      )
+      await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
       expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
@@ -183,12 +168,7 @@ describe('TokenExchangeGrant', () => {
       getAccessTokenUsecase.execute.resolves(success(tokenData))
 
       // When
-      await tokenExchangeGrant.handler(
-        context as unknown as KoaContextWithOIDC,
-        () => {
-          return Promise.resolve()
-        }
-      )
+      await tokenExchangeGrant.handler(context as unknown as KoaContextWithOIDC)
 
       // Then
       expect(validateJWTUsecase.execute).to.have.been.calledOnceWithExactly({
@@ -213,10 +193,7 @@ describe('TokenExchangeGrant', () => {
       try {
         // When
         await tokenExchangeGrant.handler(
-          context as unknown as KoaContextWithOIDC,
-          () => {
-            return Promise.resolve()
-          }
+          context as unknown as KoaContextWithOIDC
         )
         expect.fail(null, null, 'handle test did not reject with an error')
       } catch (e) {
@@ -238,10 +215,7 @@ describe('TokenExchangeGrant', () => {
       try {
         // When
         await tokenExchangeGrant.handler(
-          context as unknown as KoaContextWithOIDC,
-          () => {
-            return Promise.resolve()
-          }
+          context as unknown as KoaContextWithOIDC
         )
         expect.fail(null, null, 'handle test did not reject with an error')
       } catch (e) {
@@ -274,10 +248,7 @@ describe('TokenExchangeGrant', () => {
       try {
         // When
         await tokenExchangeGrant.handler(
-          context as unknown as KoaContextWithOIDC,
-          () => {
-            return Promise.resolve()
-          }
+          context as unknown as KoaContextWithOIDC
         )
         expect.fail(null, null, 'handle test did not reject with an error')
       } catch (e) {

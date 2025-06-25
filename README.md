@@ -17,6 +17,9 @@ Le fichier d'env est chiffré et versionné
 
 ### Lancer l'application en local
 
+- S'assurer que `localhost` pointe sur `id.pass-emploi.incubateur.net` en **https**
+- `sudo nano /etc/hosts` et ajouter la ligne `127.0.0.1 id.pass-emploi.incubateur.net`
+- Générer des certificats pour le **https** : `mkdir -p certs && mkcert -install && mkcert -cert-file certs/id.pass-emploi.incubateur.net.crt -key-file certs/id.pass-emploi.incubateur.net.key id.pass-emploi.incubateur.net`
 - `docker compose up --build --watch`
 
 ### Lancer les tests
